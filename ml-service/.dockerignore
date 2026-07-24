@@ -1,0 +1,46 @@
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info
+dist
+build
+venv
+.venv
+
+# Environment
+.env
+.env.local
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# Testing
+.pytest_cache
+.coverage
+htmlcov
+*.log
+
+# Models (will be volume-mounted or downloaded)
+models/*.pkl
+models/*.h5
+models/*.joblib
+
+# Git
+.git
+.gitignore
+
+# Documentation
+*.md
+docs/
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,41 +1,118 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# Environment variables and sensitive files
+.env
+.env.local
+.env.production
+.env.development
+*.env
+supabase.config.js
 
-# dependencies
-/node_modules
-/.pnp
-.pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/versions
-
-# testing
-/coverage
-
-# next.js
-/.next/
-/out/
-
-# production
-/build
-
-# misc
-.DS_Store
+# Credentials and secrets
+credentials.json
+secrets.json
+*.key
 *.pem
+*.p12
+*.keystore
 
-# debug
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+venv/
+ENV/
+env/
+.venv
+
+# Testing
+coverage/
+*.cover
+.hypothesis/
+.pytest_cache/
+junit.xml
+test-results/
+
+# Build outputs
+/build
+/dist
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-.pnpm-debug.log*
+lerna-debug.log*
 
-# env files (can opt-in for committing if needed)
-.env*
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
 
-# vercel
-.vercel
+# Expo (React Native)
+.expo/
+.expo-shared/
+*.jks
+*.p8
+*.p12
+*.mobileprovision
+*.orig.*
+web-build/
 
-# typescript
-*.tsbuildinfo
-next-env.d.ts
+# Metro bundler (React Native)
+.metro-health-check*
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+.parcel-cache/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+logs/
+*.log
+
+# Database dumps
+*.sql
+*.dump
+*.backup
+
+# Compiled assets
+/public/build
+/public/hot
+/public/storage
+/storage/*.key
+
+# Docker
+docker-compose.override.yml
+
+# Local development
+.local/

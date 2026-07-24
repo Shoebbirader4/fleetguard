@@ -1,0 +1,21 @@
+{
+  "name": "@fleetguard/shared",
+  "version": "1.0.0",
+  "description": "Shared types, utilities, and constants for FleetGuard AI",
+  "main": "types/index.ts",
+  "types": "types/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "type-check": "tsc --noEmit"
+  },
+  "keywords": [
+    "types",
+    "shared",
+    "utilities"
+  ],
+  "author": "FleetGuard AI Team",
+  "license": "PROPRIETARY",
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  }
+}

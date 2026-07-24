@@ -1,0 +1,15 @@
+﻿{
+    "summary":  {
+                    "passed":  5,
+                    "failed":  2,
+                    "total":  7,
+                    "timestamp":  "2026-07-23T04:22:53.2448008+05:30",
+                    "duration":  "506.49s",
+                    "successRate":  "71.4%"
+                },
+    "testData":  {
+                     "tenantId":  "a388aff2-a7bb-430f-a37c-624803454fe5",
+                     "userId":  "e6559008-cc06-4e74-84db-157b23f4c0ed",
+                     "supabaseUrl":  "https://ftywwrzkbtayapfiocck.supabase.co"
+                 }
+}

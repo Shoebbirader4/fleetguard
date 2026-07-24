@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  ml-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fleetguard-ml-service
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    volumes:
+      # Mount models directory for persistence
+      - ./models:/app/models
+      # Mount source code for development (remove in production)
+      - ./main.py:/app/main.py
+      - ./config.py:/app/config.py
+      - ./database.py:/app/database.py
+      - ./models.py:/app/models.py
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    networks:
+      - fleetguard-network
+
+networks:
+  fleetguard-network:
+    driver: bridge

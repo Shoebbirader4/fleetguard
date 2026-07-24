@@ -1,0 +1,17 @@
+{
+  "name": "@fleetguard/edge-functions",
+  "version": "1.0.0",
+  "description": "Supabase Edge Functions for FleetGuard AI",
+  "type": "module",
+  "scripts": {
+    "serve": "supabase functions serve",
+    "deploy": "supabase functions deploy"
+  },
+  "keywords": [
+    "edge-functions",
+    "supabase",
+    "deno"
+  ],
+  "author": "FleetGuard AI Team",
+  "license": "PROPRIETARY"
+}

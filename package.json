@@ -1,26 +1,41 @@
 {
-  "name": "temp-next",
-  "version": "0.1.0",
+  "name": "fleetguard-ai",
+  "version": "1.0.0",
+  "description": "Enterprise-grade, multi-tenant SaaS platform for commercial fleet maintenance with predictive analytics",
   "private": true,
+  "workspaces": [
+    "web",
+    "edge-functions",
+    "shared"
+  ],
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint"
+    "web:dev": "npm run dev --workspace=web",
+    "web:build": "npm run build --workspace=web",
+    "mobile:start": "npm run start --workspace=mobile",
+    "mobile:android": "npm run android --workspace=mobile",
+    "mobile:ios": "npm run ios --workspace=mobile",
+    "shared:build": "npm run build --workspace=shared",
+    "functions:serve": "cd edge-functions && supabase functions serve",
+    "functions:deploy": "cd edge-functions && supabase functions deploy",
+    "ml:dev": "cd ml-service && python -m uvicorn main:app --reload",
+    "install:all": "npm install && cd web && npm install && cd ../mobile && npm install && cd ../ml-service && pip install -r requirements.txt"
+  },
+  "keywords": [
+    "fleet-management",
+    "predictive-maintenance",
+    "saas",
+    "multi-tenant",
+    "machine-learning",
+    "supabase"
+  ],
+  "author": "FleetGuard AI Team",
+  "license": "PROPRIETARY",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
   },
   "dependencies": {
-    "next": "16.2.6",
-    "react": "19.2.4",
-    "react-dom": "19.2.4"
-  },
-  "devDependencies": {
-    "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "eslint": "^9",
-    "eslint-config-next": "16.2.6",
-    "tailwindcss": "^4",
-    "typescript": "^5"
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
   }
 }

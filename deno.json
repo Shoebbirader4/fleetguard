@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "lib": ["deno.window"],
+    "strict": true
+  },
+  "exclude": [
+    "**/node_modules",
+    "web/**",
+    "mobile/**",
+    "ml-service/**"
+  ],
+  "test": {
+    "include": ["shared/**/*.test.ts", "edge-functions/**/*.test.ts"]
+  }
+}
