@@ -69,12 +69,19 @@ const UPGRADE_MESSAGES = {
 
 /**
  * Get tenant subscription details
+ * Uses service role to bypass RLS since this is an internal check
  */
 async function getTenantSubscription(
-  supabase: SupabaseClient,
   tenantId: string
 ): Promise<TenantSubscription> {
-  const { data, error } = await supabase
+  // Create a service role client to bypass RLS
+  const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+  const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+  
+  const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2.39.3');
+  const serviceClient = createClient(supabaseUrl, supabaseServiceKey);
+
+  const { data, error } = await serviceClient
     .from('tenants')
     .select('subscription_plan, vehicle_limit, subscription_status')
     .eq('id', tenantId);
@@ -225,7 +232,7 @@ Deno.serve(async (req) => {
 
     // Step 5: Get tenant subscription details
     console.log('[Subscription Enforcer] Fetching subscription for tenant:', body.tenant_id);
-    const subscription = await getTenantSubscription(supabase, body.tenant_id);
+    const subscription = await getTenantSubscription(body.tenant_id);
 
     console.log('[Subscription Enforcer] Subscription details:', {
       plan: subscription.subscription_plan,
