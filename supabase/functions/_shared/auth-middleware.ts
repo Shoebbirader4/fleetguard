@@ -10,8 +10,8 @@
  */
 
 import { createClient, SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
-import { AuthContext, AuthError, JWTPayload } from '../../shared/types/auth.ts';
-import { createAuthContext, isValidRole } from '../../shared/auth/permissions.ts';
+import { AuthContext, AuthError, JWTPayload } from '../shared/types/auth.ts';
+import { createAuthContext, isValidRole } from '../shared/auth/permissions.ts';
 
 // ============================================================================
 // Types

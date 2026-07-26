@@ -155,7 +155,11 @@ Deno.serve(async (req) => {
       console.error('[Subscription Enforcer] Auth error:', authError);
       return new Response(JSON.stringify(authError), {
         status: authError.code === 'MISSING_TOKEN' ? 401 : 403,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Headers': 'authorization, content-type',
+        },
       });
     }
 
@@ -175,7 +179,14 @@ Deno.serve(async (req) => {
     if (req.method !== 'POST') {
       return new Response(
         JSON.stringify({ error: 'Method not allowed. Use POST.' }),
-        { status: 405, headers: { 'Content-Type': 'application/json' } }
+        { 
+          status: 405, 
+          headers: { 
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Headers': 'authorization, content-type',
+          } 
+        }
       );
     }
 
@@ -188,7 +199,14 @@ Deno.serve(async (req) => {
           error: 'Missing required field',
           details: 'tenant_id is required',
         }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
+        { 
+          status: 400, 
+          headers: { 
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Headers': 'authorization, content-type',
+          } 
+        }
       );
     }
 
@@ -251,7 +269,14 @@ Deno.serve(async (req) => {
         error: 'Internal server error',
         details: err instanceof Error ? err.message : 'Unknown error',
       }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
+      { 
+        status: 500, 
+        headers: { 
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Headers': 'authorization, content-type',
+        } 
+      }
     );
   }
 });
