@@ -264,10 +264,12 @@ Deno.serve(async (req) => {
     return successResponse(response, 200);
   } catch (err) {
     console.error('[Subscription Enforcer] Unhandled error:', err);
+    console.error('[Subscription Enforcer] Error stack:', err instanceof Error ? err.stack : 'No stack trace');
     return new Response(
       JSON.stringify({
         error: 'Internal server error',
         details: err instanceof Error ? err.message : 'Unknown error',
+        stack: err instanceof Error ? err.stack : undefined,
       }),
       { 
         status: 500, 
