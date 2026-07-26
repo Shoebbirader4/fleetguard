@@ -77,18 +77,21 @@ async function getTenantSubscription(
   const { data, error } = await supabase
     .from('tenants')
     .select('subscription_plan, vehicle_limit, subscription_status')
-    .eq('id', tenantId)
-    .single();
+    .eq('id', tenantId);
 
   if (error) {
     throw new Error(`Failed to fetch tenant subscription: ${error.message}`);
   }
 
-  if (!data) {
+  if (!data || data.length === 0) {
     throw new Error(`Tenant not found: ${tenantId}`);
   }
 
-  return data;
+  if (data.length > 1) {
+    console.warn(`[Subscription Enforcer] Multiple tenants found for ${tenantId}, using first one`);
+  }
+
+  return data[0];
 }
 
 /**
@@ -98,13 +101,14 @@ async function countActiveVehicles(
   supabase: SupabaseClient,
   tenantId: string
 ): Promise<number> {
-  const { count, error } = await supabase
+  const { data, error, count } = await supabase
     .from('vehicles')
     .select('*', { count: 'exact', head: true })
     .eq('tenant_id', tenantId)
     .eq('status', 'active');
 
   if (error) {
+    console.error('[Subscription Enforcer] Error counting vehicles:', error);
     throw new Error(`Failed to count vehicles: ${error.message}`);
   }
 
