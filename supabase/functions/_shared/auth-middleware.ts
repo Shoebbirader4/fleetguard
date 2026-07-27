@@ -79,17 +79,21 @@ async function verifyAndExtractAuth(
     }
 
     // Extract custom claims from user metadata
-    // Supabase Auth populates user_metadata with custom claims
-    const tenantId = user.user_metadata?.tenant_id;
-    const role = user.user_metadata?.role;
+    // Check both app_metadata (preferred) and user_metadata (fallback)
+    const tenantId = user.app_metadata?.tenant_id || user.user_metadata?.tenant_id;
+    const role = user.app_metadata?.role || user.user_metadata?.role;
 
     if (!tenantId) {
       console.error('[Auth Middleware] Missing tenant_id in JWT claims');
+      console.error('[Auth Middleware] app_metadata:', user.app_metadata);
+      console.error('[Auth Middleware] user_metadata:', user.user_metadata);
       return null;
     }
 
     if (!role || !isValidRole(role)) {
       console.error('[Auth Middleware] Invalid or missing role in JWT claims:', role);
+      console.error('[Auth Middleware] app_metadata:', user.app_metadata);
+      console.error('[Auth Middleware] user_metadata:', user.user_metadata);
       return null;
     }
 
