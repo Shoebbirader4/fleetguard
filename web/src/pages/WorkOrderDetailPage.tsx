@@ -6,6 +6,7 @@ import { WorkOrderWithDetails, WORK_ORDER_STATUSES, WORK_ORDER_PRIORITIES } from
 import { useAuthStore } from '../stores/authStore';
 import { toast } from '../components/ToastContainer';
 import ConfirmationModal from '../components/ConfirmationModal';
+import WorkOrderAssignmentCard from '../components/WorkOrderAssignmentCard';
 
 export default function WorkOrderDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -469,7 +470,7 @@ export default function WorkOrderDetailPage() {
                   <div>
                     <p className="text-gray-500 dark:text-gray-400">Current Odometer</p>
                     <p className="font-medium text-gray-900 dark:text-gray-100">
-                      {workOrder.vehicle.current_odometer.toLocaleString()} km
+                      {(workOrder.vehicle as any).current_odometer ? (workOrder.vehicle as any).current_odometer.toLocaleString() : 'N/A'} km
                     </p>
                   </div>
                 </div>
@@ -600,6 +601,42 @@ export default function WorkOrderDetailPage() {
 
           {/* Sidebar */}
           <div className="lg:col-span-1 space-y-6">
+            {/* Work Order Assignment Card - Task 20.3 */}
+            <WorkOrderAssignmentCard
+              workOrder={workOrder}
+              onAssignmentChange={() => {
+                queryClient.invalidateQueries({ queryKey: ['work-order', id] });
+                queryClient.invalidateQueries({ queryKey: ['work-orders'] });
+              }}
+            />
+
+            {/* Last Updated Timestamp */}
+            <div className="card bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
+              <div className="flex items-center gap-2">
+                <svg 
+                  className="w-5 h-5 text-blue-600 dark:text-blue-400" 
+                  fill="none" 
+                  viewBox="0 0 24 24" 
+                  stroke="currentColor"
+                >
+                  <path 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    strokeWidth={2} 
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" 
+                  />
+                </svg>
+                <div className="flex-1">
+                  <p className="text-xs text-blue-600 dark:text-blue-400 font-medium">
+                    Last Updated
+                  </p>
+                  <p className="text-sm text-blue-900 dark:text-blue-100 font-semibold">
+                    {formatDate(workOrder.updated_at)}
+                  </p>
+                </div>
+              </div>
+            </div>
+
             {/* Timeline */}
             <div className="card">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">

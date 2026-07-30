@@ -13,7 +13,8 @@ const corsHeaders = {
 interface InviteUserRequest {
   email: string;
   role: string;
-  fullName?: string;
+  full_name: string;
+  phone?: string;
 }
 
 serve(async (req) => {
@@ -95,14 +96,14 @@ serve(async (req) => {
     }
 
     // Parse request body
-    const { email, role, fullName }: InviteUserRequest = await req.json();
+    const { email, role, full_name, phone }: InviteUserRequest = await req.json();
 
     // Validation
-    if (!email || !role) {
+    if (!email || !role || !full_name) {
       return new Response(
         JSON.stringify({
           error: 'Missing required fields',
-          details: 'email and role are required',
+          details: 'email, role, and full_name are required',
         }),
         {
           status: 400,
@@ -199,7 +200,9 @@ serve(async (req) => {
       .insert({
         tenant_id: userProfile.tenant_id,
         email: email,
+        full_name: full_name,
         role: role,
+        phone: phone || null,
         invited_by: user.id,
         invitation_token: token,
         expires_at: expiresAt.toISOString(),

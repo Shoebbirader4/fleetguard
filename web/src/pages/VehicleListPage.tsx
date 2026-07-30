@@ -147,14 +147,24 @@ export default function VehicleListPage() {
             </span>
           </div>
         )}
-        {vehicle.driver && (
-          <div className="col-span-2">
-            <span className="text-gray-600 dark:text-gray-400">Driver:</span>
-            <span className="ml-2 font-medium text-gray-900 dark:text-gray-100">
+        <div className="col-span-2">
+          <span className="text-gray-600 dark:text-gray-400">Driver:</span>
+          {vehicle.driver ? (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/drivers/${vehicle.driver!.id}`);
+              }}
+              className="ml-2 font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
+            >
               {vehicle.driver.full_name}
+            </button>
+          ) : (
+            <span className="ml-2 font-medium text-gray-500 dark:text-gray-400">
+              Unassigned
             </span>
-          </div>
-        )}
+          )}
+        </div>
         {vehicle.gps_device_id && (
           <div className="col-span-2 flex items-center gap-2">
             <svg className="w-4 h-4 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

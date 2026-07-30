@@ -134,7 +134,7 @@ export default function SecurityPage() {
                   </tr>
                 </thead>
                 <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
-                  {lockedAccounts.map((account) => (
+                  {lockedAccounts.map((account: any) => (
                     <tr key={account.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
                       <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100">
                         {account.users?.full_name || 'N/A'}

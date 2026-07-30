@@ -6,12 +6,7 @@ import { VehicleFormData, VEHICLE_TYPES, VEHICLE_STATUSES, ODOMETER_UNITS } from
 import { getVINError, validateVehicleYear, validateOdometer } from '../lib/validations';
 import { checkVehicleCreationAllowed } from '../hooks/useSubscription';
 import { useAuthStore } from '../stores/authStore';
-
-interface User {
-  id: string;
-  full_name: string;
-  role: string;
-}
+import DriverSelector from '../components/DriverSelector';
 
 export default function VehicleFormPage() {
   const { id } = useParams<{ id: string }>();
@@ -57,21 +52,6 @@ export default function VehicleFormPage() {
       return data;
     },
     enabled: isEditMode,
-  });
-
-  // Fetch available drivers
-  const { data: drivers } = useQuery<User[]>({
-    queryKey: ['drivers'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('users')
-        .select('id, full_name, role')
-        .eq('role', 'driver')
-        .order('full_name');
-
-      if (error) throw error;
-      return data;
-    },
   });
 
   // Populate form data in edit mode
@@ -472,18 +452,15 @@ export default function VehicleFormPage() {
               {/* Assigned Driver */}
               <div>
                 <label className="label">Assigned Driver</label>
-                <select
-                  value={formData.assigned_driver_id}
-                  onChange={(e) => handleChange('assigned_driver_id', e.target.value)}
-                  className="input-field"
-                >
-                  <option value="">No driver assigned</option>
-                  {drivers?.map((driver) => (
-                    <option key={driver.id} value={driver.id}>
-                      {driver.full_name}
-                    </option>
-                  ))}
-                </select>
+                <DriverSelector
+                  value={formData.assigned_driver_id || null}
+                  onChange={(driverId) => handleChange('assigned_driver_id', driverId || '')}
+                  placeholder="Select a driver..."
+                  disabled={isSubmitting}
+                />
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  Assign a driver to this vehicle (optional)
+                </p>
               </div>
 
               {/* Assigned Route */}

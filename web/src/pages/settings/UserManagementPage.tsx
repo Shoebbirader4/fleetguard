@@ -260,7 +260,7 @@ export default function UserManagementPage() {
     editRoleMutation.mutate({ userId: editingUser.id, role: newRole });
   };
 
-  const canManageUsers = currentUser?.role === 'company_owner' || currentUser?.role === 'super_admin';
+  const canManageUsers = currentUser?.role === 'company_owner';
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">

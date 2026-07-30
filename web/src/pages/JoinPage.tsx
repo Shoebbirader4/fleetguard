@@ -16,7 +16,12 @@ export default function JoinPage() {
   const [verifying, setVerifying] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
-  const [invitationData, setInvitationData] = useState<any>(null);
+  const [invitationData, setInvitationData] = useState<{
+    email: string;
+    role: string;
+    full_name?: string;
+    expires_at: string;
+  } | null>(null);
 
   useEffect(() => {
     if (!token) {
@@ -30,7 +35,7 @@ export default function JoinPage() {
       try {
         const { data, error } = await supabase
           .from('user_invitations')
-          .select('email, role, expires_at, status')
+          .select('email, role, full_name, expires_at, status')
           .eq('invitation_token', token)
           .eq('status', 'pending')
           .single();
@@ -48,6 +53,14 @@ export default function JoinPage() {
         }
 
         setInvitationData(data);
+        
+        // Pre-fill full name if available
+        if (data.full_name) {
+          setFormData(prev => ({
+            ...prev,
+            fullName: data.full_name,
+          }));
+        }
       } catch (err) {
         setError('Failed to verify invitation');
       } finally {
@@ -141,14 +154,40 @@ export default function JoinPage() {
       // Success!
       setSuccess(true);
       
-      // Redirect to login after 3 seconds
-      setTimeout(() => {
-        navigate('/login', { 
-          state: { 
-            message: 'Account created successfully! Please sign in with your credentials.' 
-          } 
+      // Auto-login the user after successful account creation
+      try {
+        const { error: loginError } = await supabase.auth.signInWithPassword({
+          email: invitationData.email,
+          password: formData.password,
         });
-      }, 3000);
+
+        if (loginError) {
+          console.error('Auto-login error:', loginError);
+          // If auto-login fails, redirect to login page
+          setTimeout(() => {
+            navigate('/login', { 
+              state: { 
+                message: 'Account created successfully! Please sign in with your credentials.' 
+              } 
+            });
+          }, 2000);
+        } else {
+          // Auto-login successful, redirect to welcome page
+          setTimeout(() => {
+            navigate('/welcome');
+          }, 2000);
+        }
+      } catch (loginErr) {
+        console.error('Auto-login exception:', loginErr);
+        // If auto-login fails, redirect to login page
+        setTimeout(() => {
+          navigate('/login', { 
+            state: { 
+              message: 'Account created successfully! Please sign in with your credentials.' 
+            } 
+          });
+        }, 2000);
+      }
 
     } catch (err: any) {
       setError(err.message || 'Failed to create account. Please try again.');
@@ -208,10 +247,10 @@ export default function JoinPage() {
             </p>
           </div>
           <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-            Redirecting you to the login page...
+            Redirecting you to your dashboard...
           </p>
-          <Link to="/login" className="btn-primary">
-            Go to Login
+          <Link to="/welcome" className="btn-primary">
+            Continue to Welcome
           </Link>
         </div>
       </div>
@@ -231,6 +270,11 @@ export default function JoinPage() {
               <p className="text-sm text-gray-700 dark:text-gray-300">
                 <span className="font-medium">Email:</span> {invitationData.email}
               </p>
+              {invitationData.full_name && (
+                <p className="text-sm text-gray-700 dark:text-gray-300">
+                  <span className="font-medium">Name:</span> {invitationData.full_name}
+                </p>
+              )}
               <p className="text-sm text-gray-700 dark:text-gray-300">
                 <span className="font-medium">Role:</span> {invitationData.role.replace(/_/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())}
               </p>
@@ -256,10 +300,15 @@ export default function JoinPage() {
               value={formData.fullName}
               onChange={handleInputChange}
               className="input-field"
-              placeholder="John Doe"
+              placeholder={invitationData?.full_name || "John Doe"}
               required
               disabled={loading}
             />
+            {invitationData?.full_name && (
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                Pre-filled from invitation. You can change this if needed.
+              </p>
+            )}
           </div>
 
           <div>

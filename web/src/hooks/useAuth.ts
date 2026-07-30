@@ -10,6 +10,38 @@ export function useAuth() {
   const { user, isAuthenticated, setAuth, clearAuth, logout, checkSession } = useAuthStore();
   const navigate = useNavigate();
 
+  // Function to refresh user data from the database
+  const refreshUser = async () => {
+    try {
+      const { data: session } = await supabase.auth.getSession();
+      if (!session.session) {
+        throw new Error('No active session');
+      }
+
+      const { data: profile, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', session.session.user.id)
+        .single();
+
+      if (error) throw error;
+
+      setAuth(
+        {
+          id: profile.id,
+          email: profile.email,
+          fullName: profile.full_name,
+          role: profile.role,
+          tenantId: profile.tenant_id,
+        },
+        session.session.access_token
+      );
+    } catch (error) {
+      console.error('Error refreshing user profile:', error);
+      throw error;
+    }
+  };
+
   useEffect(() => {
     // Check initial session
     checkSession();
@@ -73,5 +105,6 @@ export function useAuth() {
     isAuthenticated,
     logout,
     checkSession,
+    refreshUser,
   };
 }

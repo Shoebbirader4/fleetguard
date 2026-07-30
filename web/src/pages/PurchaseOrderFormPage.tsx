@@ -5,11 +5,7 @@ import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../stores/authStore';
 import Layout from '../components/Layout';
 import { toast } from '../components/ToastContainer';
-
-interface Vendor {
-  id: string;
-  vendor_name: string;
-}
+import VendorSelector from '../components/VendorSelector';
 
 interface SparePart {
   id: string;
@@ -54,20 +50,7 @@ export default function PurchaseOrderFormPage() {
   const [selectedPart, setSelectedPart] = useState<string>('');
   const [lineQuantity, setLineQuantity] = useState<string>('');
 
-  // Fetch vendors
-  const { data: vendors } = useQuery<Vendor[]>({
-    queryKey: ['vendors'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('vendors')
-        .select('id, vendor_name')
-        .eq('is_active', true)
-        .order('vendor_name');
-
-      if (error) throw error;
-      return data || [];
-    },
-  });
+  // Note: Vendors are now fetched by VendorSelector component
 
   // Fetch spare parts
   const { data: spareParts } = useQuery<SparePart[]>({
@@ -323,25 +306,15 @@ export default function PurchaseOrderFormPage() {
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Vendor *
                 </label>
-                <select
+                <VendorSelector
                   value={formData.vendor_id}
-                  onChange={(e) => {
-                    setFormData((prev) => ({ ...prev, vendor_id: e.target.value }));
+                  onChange={(vendorId) => {
+                    setFormData((prev) => ({ ...prev, vendor_id: vendorId || '' }));
                     setErrors((prev) => ({ ...prev, vendor_id: '' }));
                   }}
-                  className={`block w-full rounded-md shadow-sm ${
-                    errors.vendor_id
-                      ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
-                      : 'border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500'
-                  } dark:bg-gray-700 dark:text-gray-100`}
-                >
-                  <option value="">Select vendor...</option>
-                  {vendors?.map((vendor) => (
-                    <option key={vendor.id} value={vendor.id}>
-                      {vendor.vendor_name}
-                    </option>
-                  ))}
-                </select>
+                  required={true}
+                  placeholder="Select vendor..."
+                />
                 {errors.vendor_id && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.vendor_id}</p>}
               </div>
 

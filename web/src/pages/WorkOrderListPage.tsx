@@ -1,20 +1,46 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { WorkOrderWithDetails, WORK_ORDER_STATUSES, WORK_ORDER_PRIORITIES } from '../types/workOrder';
 import { useAuthStore } from '../stores/authStore';
+import { useMechanics } from '../hooks/useWorkOrderAssignment';
 
 export default function WorkOrderListPage() {
   const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [priorityFilter, setPriorityFilter] = useState<string>('all');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchParams, setSearchParams] = useSearchParams();
+  
+  // Get filter values from URL query params or use defaults
+  const [statusFilter, setStatusFilter] = useState<string>(searchParams.get('status') || 'all');
+  const [priorityFilter, setPriorityFilter] = useState<string>(searchParams.get('priority') || 'all');
+  const [assignedToFilter, setAssignedToFilter] = useState<string>(searchParams.get('assignedTo') || 'all');
+  const [vehicleFilter, setVehicleFilter] = useState<string>(searchParams.get('vehicle') || 'all');
+  const [startDate, setStartDate] = useState<string>(searchParams.get('startDate') || '');
+  const [endDate, setEndDate] = useState<string>(searchParams.get('endDate') || '');
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
+
+  // Fetch mechanics for "Assigned To" filter - Task 20.4
+  const { data: mechanics } = useMechanics();
+
+  // Fetch vehicles for "Vehicle" filter - Task 20.4
+  const { data: vehicles } = useQuery({
+    queryKey: ['vehicles', 'list'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('vehicles')
+        .select('id, vin, make, model, year')
+        .eq('status', 'active')
+        .order('make')
+        .order('model');
+      if (error) throw error;
+      return data;
+    },
+  });
 
   // Fetch work orders with vehicle and user details
   const { data: workOrders, isLoading } = useQuery({
-    queryKey: ['work-orders', statusFilter, priorityFilter, searchQuery],
+    queryKey: ['work-orders', statusFilter, priorityFilter, assignedToFilter, vehicleFilter, startDate, endDate, searchQuery],
     queryFn: async () => {
       let query = supabase
         .from('work_orders')
@@ -36,6 +62,31 @@ export default function WorkOrderListPage() {
         query = query.eq('priority', priorityFilter);
       }
 
+      // Apply assigned to filter - Task 20.4
+      if (assignedToFilter !== 'all') {
+        if (assignedToFilter === 'unassigned') {
+          query = query.is('assigned_to', null);
+        } else {
+          query = query.eq('assigned_to', assignedToFilter);
+        }
+      }
+
+      // Apply vehicle filter - Task 20.4
+      if (vehicleFilter !== 'all') {
+        query = query.eq('vehicle_id', vehicleFilter);
+      }
+
+      // Apply date range filter - Task 20.4
+      if (startDate) {
+        query = query.gte('created_at', new Date(startDate).toISOString());
+      }
+      if (endDate) {
+        // Add one day to include the entire end date
+        const endDateTime = new Date(endDate);
+        endDateTime.setDate(endDateTime.getDate() + 1);
+        query = query.lt('created_at', endDateTime.toISOString());
+      }
+
       // Apply search filter
       if (searchQuery) {
         query = query.or(
@@ -50,6 +101,52 @@ export default function WorkOrderListPage() {
     },
     enabled: !!user,
   });
+
+  // Update URL query params when filters change - Task 20.4
+  const updateFilters = (key: string, value: string) => {
+    const newParams = new URLSearchParams(searchParams);
+    if (value && value !== 'all' && value !== '') {
+      newParams.set(key, value);
+    } else {
+      newParams.delete(key);
+    }
+    setSearchParams(newParams);
+  };
+
+  const handleStatusFilterChange = (value: string) => {
+    setStatusFilter(value);
+    updateFilters('status', value);
+  };
+
+  const handlePriorityFilterChange = (value: string) => {
+    setPriorityFilter(value);
+    updateFilters('priority', value);
+  };
+
+  const handleAssignedToFilterChange = (value: string) => {
+    setAssignedToFilter(value);
+    updateFilters('assignedTo', value);
+  };
+
+  const handleVehicleFilterChange = (value: string) => {
+    setVehicleFilter(value);
+    updateFilters('vehicle', value);
+  };
+
+  const handleStartDateChange = (value: string) => {
+    setStartDate(value);
+    updateFilters('startDate', value);
+  };
+
+  const handleEndDateChange = (value: string) => {
+    setEndDate(value);
+    updateFilters('endDate', value);
+  };
+
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value);
+    updateFilters('search', value);
+  };
 
   const getStatusBadge = (status: string) => {
     const statusConfig = WORK_ORDER_STATUSES.find((s) => s.value === status);
@@ -84,6 +181,7 @@ export default function WorkOrderListPage() {
   const pendingCount = workOrders?.filter((wo) => wo.status === 'pending').length || 0;
   const inProgressCount = workOrders?.filter((wo) => wo.status === 'in_progress').length || 0;
   const completedCount = workOrders?.filter((wo) => wo.status === 'completed').length || 0;
+  const unassignedCount = workOrders?.filter((wo) => !wo.assigned_to).length || 0; // Task 20.4
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -110,7 +208,7 @@ export default function WorkOrderListPage() {
 
       <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
         {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
           <div className="card">
             <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400">
               Total Work Orders
@@ -146,53 +244,145 @@ export default function WorkOrderListPage() {
               {completedCount}
             </div>
           </div>
+
+          <div className="card">
+            <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400">
+              Unassigned
+            </h3>
+            <div className="mt-2 text-3xl font-bold text-red-600">
+              {unassignedCount}
+            </div>
+          </div>
         </div>
 
-        {/* Filters */}
+        {/* Filters - Task 20.4: Added Assigned To, Vehicle, and Date Range filters with URL persistence */}
         <div className="card mb-6">
-          <div className="flex flex-col md:flex-row gap-4">
-            {/* Search */}
-            <div className="flex-1">
-              <input
-                type="text"
-                placeholder="Search by work order number or description..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-              />
+          <div className="flex flex-col gap-4">
+            {/* First Row: Search and dropdowns */}
+            <div className="flex flex-col md:flex-row gap-4">
+              {/* Search */}
+              <div className="flex-1">
+                <input
+                  type="text"
+                  placeholder="Search by work order number or description..."
+                  value={searchQuery}
+                  onChange={(e) => handleSearchChange(e.target.value)}
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                />
+              </div>
+
+              {/* Status Filter */}
+              <div className="w-full md:w-48">
+                <select
+                  value={statusFilter}
+                  onChange={(e) => handleStatusFilterChange(e.target.value)}
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500"
+                >
+                  <option value="all">All Statuses</option>
+                  {WORK_ORDER_STATUSES.map((status) => (
+                    <option key={status.value} value={status.value}>
+                      {status.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Priority Filter */}
+              <div className="w-full md:w-48">
+                <select
+                  value={priorityFilter}
+                  onChange={(e) => handlePriorityFilterChange(e.target.value)}
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500"
+                >
+                  <option value="all">All Priorities</option>
+                  {WORK_ORDER_PRIORITIES.map((priority) => (
+                    <option key={priority.value} value={priority.value}>
+                      {priority.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Assigned To Filter */}
+              <div className="w-full md:w-52">
+                <select
+                  value={assignedToFilter}
+                  onChange={(e) => handleAssignedToFilterChange(e.target.value)}
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500"
+                >
+                  <option value="all">All Assignees</option>
+                  <option value="unassigned">Unassigned</option>
+                  {mechanics?.map((mechanic) => (
+                    <option key={mechanic.id} value={mechanic.id}>
+                      {mechanic.full_name}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
 
-            {/* Status Filter */}
-            <div className="w-full md:w-48">
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500"
-              >
-                <option value="all">All Statuses</option>
-                {WORK_ORDER_STATUSES.map((status) => (
-                  <option key={status.value} value={status.value}>
-                    {status.label}
-                  </option>
-                ))}
-              </select>
-            </div>
+            {/* Second Row: Vehicle and Date Range filters */}
+            <div className="flex flex-col md:flex-row gap-4">
+              {/* Vehicle Filter */}
+              <div className="flex-1 md:w-64">
+                <select
+                  value={vehicleFilter}
+                  onChange={(e) => handleVehicleFilterChange(e.target.value)}
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500"
+                >
+                  <option value="all">All Vehicles</option>
+                  {vehicles?.map((vehicle) => (
+                    <option key={vehicle.id} value={vehicle.id}>
+                      {vehicle.make} {vehicle.model} {vehicle.year} - {vehicle.vin}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-            {/* Priority Filter */}
-            <div className="w-full md:w-48">
-              <select
-                value={priorityFilter}
-                onChange={(e) => setPriorityFilter(e.target.value)}
-                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500"
-              >
-                <option value="all">All Priorities</option>
-                {WORK_ORDER_PRIORITIES.map((priority) => (
-                  <option key={priority.value} value={priority.value}>
-                    {priority.label}
-                  </option>
-                ))}
-              </select>
+              {/* Start Date Filter */}
+              <div className="w-full md:w-48">
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => handleStartDateChange(e.target.value)}
+                  placeholder="Start Date"
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500"
+                />
+              </div>
+
+              {/* End Date Filter */}
+              <div className="w-full md:w-48">
+                <input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => handleEndDateChange(e.target.value)}
+                  placeholder="End Date"
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500"
+                />
+              </div>
             </div>
+          </div>
+
+          {/* Results count */}
+          <div className="mt-3 text-sm text-gray-600 dark:text-gray-400">
+            Showing {totalWorkOrders} {totalWorkOrders === 1 ? 'result' : 'results'}
+            {(searchQuery || statusFilter !== 'all' || priorityFilter !== 'all' || assignedToFilter !== 'all' || vehicleFilter !== 'all' || startDate || endDate) && (
+              <button
+                onClick={() => {
+                  setSearchQuery('');
+                  setStatusFilter('all');
+                  setPriorityFilter('all');
+                  setAssignedToFilter('all');
+                  setVehicleFilter('all');
+                  setStartDate('');
+                  setEndDate('');
+                  setSearchParams(new URLSearchParams());
+                }}
+                className="ml-2 text-primary-600 hover:text-primary-700 font-medium"
+              >
+                Clear filters
+              </button>
+            )}
           </div>
         </div>
 
@@ -308,17 +498,13 @@ export default function WorkOrderListPage() {
             })
           ) : (
             <div className="card text-center py-12">
-              <p className="text-gray-600 dark:text-gray-400 mb-4">
-                No work orders found. {searchQuery || statusFilter !== 'all' || priorityFilter !== 'all' ? 'Try adjusting your filters.' : 'Create your first work order to get started.'}
-              </p>
-              {!searchQuery && statusFilter === 'all' && priorityFilter === 'all' && (
-                <button
-                  onClick={() => navigate('/work-orders/new')}
-                  className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors text-sm font-medium"
-                >
-                  + Create Work Order
-                </button>
-              )}
+              <p className="text-gray-600 dark:text-gray-400 mb-4">No work orders found</p>
+              <button
+                onClick={() => navigate('/work-orders/new')}
+                className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors text-sm font-medium"
+              >
+                + Create Work Order
+              </button>
             </div>
           )}
         </div>

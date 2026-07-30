@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../stores/authStore';
 
 export default function SignUpPage() {
+  const [searchParams] = useSearchParams();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -23,6 +24,14 @@ export default function SignUpPage() {
       navigate('/dashboard');
     }
   }, [isAuthenticated, navigate]);
+
+  // Check for invitation token and redirect to JoinPage if present
+  useEffect(() => {
+    const invitationToken = searchParams.get('invitation') || searchParams.get('token');
+    if (invitationToken) {
+      navigate(`/join?token=${invitationToken}`, { replace: true });
+    }
+  }, [searchParams, navigate]);
 
   const validateEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -140,14 +149,40 @@ export default function SignUpPage() {
       // Success!
       setSuccess(true);
       
-      // Redirect to login after 3 seconds
-      setTimeout(() => {
-        navigate('/login', { 
-          state: { 
-            message: 'Account created successfully! Please sign in with your credentials.' 
-          } 
+      // Auto-login the user after successful account creation
+      try {
+        const { error: loginError } = await supabase.auth.signInWithPassword({
+          email: formData.email,
+          password: formData.password,
         });
-      }, 3000);
+
+        if (loginError) {
+          console.error('Auto-login error:', loginError);
+          // If auto-login fails, redirect to login page
+          setTimeout(() => {
+            navigate('/login', { 
+              state: { 
+                message: 'Account created successfully! Please sign in with your credentials.' 
+              } 
+            });
+          }, 2000);
+        } else {
+          // Auto-login successful, redirect to onboarding wizard
+          setTimeout(() => {
+            navigate('/onboarding');
+          }, 2000);
+        }
+      } catch (loginErr) {
+        console.error('Auto-login exception:', loginErr);
+        // If auto-login fails, redirect to login page
+        setTimeout(() => {
+          navigate('/login', { 
+            state: { 
+              message: 'Account created successfully! Please sign in with your credentials.' 
+            } 
+          });
+        }, 2000);
+      }
 
     } catch (err: any) {
       setError(err.message || 'Sign up failed. Please try again.');

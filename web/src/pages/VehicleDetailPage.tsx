@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, Link } from 'react-router-dom';
 import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
 import { useState } from 'react';
 import { supabase } from '../lib/supabase';
@@ -7,6 +7,8 @@ import { VehicleWithDriver, VEHICLE_TYPES, VEHICLE_STATUSES } from '../types/veh
 import { formatVIN } from '../lib/validations';
 import { toast } from '../components/ToastContainer';
 import ConfirmationModal from '../components/ConfirmationModal';
+import DriverSelector from '../components/DriverSelector';
+import { useAssignDriverToVehicle } from '../hooks/useDrivers';
 
 interface Component {
   id: string;
@@ -38,10 +40,15 @@ export default function VehicleDetailPage() {
   // Modal states
   const [showOdometerModal, setShowOdometerModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showChangeDriverModal, setShowChangeDriverModal] = useState(false);
   const [newOdometer, setNewOdometer] = useState('');
   const [odometerError, setOdometerError] = useState('');
   const [isUpdatingOdometer, setIsUpdatingOdometer] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [selectedDriverId, setSelectedDriverId] = useState<string | null>(null);
+
+  // Driver assignment mutation
+  const assignDriverMutation = useAssignDriverToVehicle();
 
   // Load Google Maps API
   const { isLoaded: isMapLoaded } = useJsApiLoader({
@@ -209,6 +216,39 @@ export default function VehicleDetailPage() {
 
   const handleViewServiceHistory = () => {
     navigate(`/work-orders?vehicleId=${id}`);
+  };
+
+  const handleChangeDriver = () => {
+    setSelectedDriverId(vehicle?.assigned_driver_id || null);
+    setShowChangeDriverModal(true);
+  };
+
+  const handleViewDriverDetail = (driverId: string) => {
+    navigate(`/drivers/${driverId}`);
+  };
+
+  const submitDriverChange = async () => {
+    if (!id) return;
+
+    try {
+      await assignDriverMutation.mutateAsync({
+        vehicleId: id,
+        driverId: selectedDriverId,
+      });
+
+      toast.success(
+        selectedDriverId 
+          ? 'Driver assigned successfully!' 
+          : 'Driver unassigned successfully!'
+      );
+      setShowChangeDriverModal(false);
+      
+      // Refetch vehicle data
+      window.location.reload();
+    } catch (error) {
+      console.error('Error changing driver:', error);
+      toast.error('Failed to change driver assignment');
+    }
   };
 
   const getStatusColor = (status: string) => {
@@ -515,25 +555,62 @@ export default function VehicleDetailPage() {
           <div className="space-y-6">
             {/* Driver Information Card */}
             <div className="card">
-              <h2 className="text-lg font-bold mb-4 text-gray-900 dark:text-gray-100">
-                Assigned Driver
-              </h2>
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                  Assigned Driver
+                </h2>
+                <button
+                  onClick={handleChangeDriver}
+                  className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors"
+                >
+                  Change Driver
+                </button>
+              </div>
               {vehicle.driver ? (
-                <div className="space-y-2">
-                  <p className="font-medium text-gray-900 dark:text-gray-100">
-                    {vehicle.driver.full_name}
-                  </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    {vehicle.driver.email}
-                  </p>
-                  {vehicle.driver.phone && (
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      {vehicle.driver.phone}
-                    </p>
-                  )}
+                <div className="space-y-3">
+                  <div className="flex items-start gap-3">
+                    <div className="flex-shrink-0 w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
+                      <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                    </div>
+                    <div className="flex-1">
+                      <button
+                        onClick={() => handleViewDriverDetail(vehicle.driver!.id)}
+                        className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors text-left"
+                      >
+                        {vehicle.driver.full_name}
+                      </button>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                        <svg className="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                        {vehicle.driver.email}
+                      </p>
+                      {vehicle.driver.phone && (
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                          <svg className="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                          </svg>
+                          {vehicle.driver.phone}
+                        </p>
+                      )}
+                    </div>
+                  </div>
                 </div>
               ) : (
-                <p className="text-gray-500 dark:text-gray-400">No driver assigned</p>
+                <div className="text-center py-6">
+                  <svg className="mx-auto h-10 w-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                  <p className="mt-2 text-gray-500 dark:text-gray-400">No driver assigned</p>
+                  <button
+                    onClick={handleChangeDriver}
+                    className="mt-3 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium"
+                  >
+                    Assign a driver
+                  </button>
+                </div>
               )}
             </div>
 
@@ -697,9 +774,96 @@ export default function VehicleDetailPage() {
         title="Delete Vehicle"
         message={`Are you sure you want to delete ${vehicle?.make} ${vehicle?.model} (${vehicle?.year})? This action cannot be undone.`}
         confirmText="Delete"
-        confirmButtonClass="bg-red-600 hover:bg-red-700 focus:ring-red-500"
+        type="danger"
         isLoading={isDeleting}
       />
+
+      {/* Change Driver Modal */}
+      {showChangeDriverModal && vehicle && (
+        <div
+          className="fixed inset-0 z-50 overflow-y-auto"
+          aria-labelledby="modal-title"
+          role="dialog"
+          aria-modal="true"
+        >
+          <div className="flex min-h-screen items-end justify-center px-4 pb-20 pt-4 text-center sm:block sm:p-0">
+            <div 
+              className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity dark:bg-gray-900 dark:bg-opacity-75" 
+              aria-hidden="true" 
+              onClick={() => !assignDriverMutation.isPending && setShowChangeDriverModal(false)}
+            ></div>
+
+            <span className="hidden sm:inline-block sm:h-screen sm:align-middle" aria-hidden="true">
+              &#8203;
+            </span>
+
+            <div className="inline-block transform overflow-hidden rounded-lg bg-white dark:bg-gray-800 px-4 pb-4 pt-5 text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6 sm:align-middle">
+              <div>
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/20">
+                  <svg className="h-6 w-6 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                </div>
+                <div className="mt-3 text-center sm:mt-5">
+                  <h3 className="text-lg font-medium leading-6 text-gray-900 dark:text-gray-100" id="modal-title">
+                    Change Driver Assignment
+                  </h3>
+                  <div className="mt-2">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      {vehicle.driver 
+                        ? `Currently assigned to: ${vehicle.driver.full_name}` 
+                        : 'No driver currently assigned'}
+                    </p>
+                  </div>
+                  <div className="mt-4">
+                    <label htmlFor="driver-select" className="block text-sm font-medium text-gray-700 dark:text-gray-300 text-left mb-2">
+                      Select Driver
+                    </label>
+                    <DriverSelector
+                      value={selectedDriverId}
+                      onChange={setSelectedDriverId}
+                      placeholder="Select a driver or choose 'No driver' to unassign"
+                      disabled={assignDriverMutation.isPending}
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="mt-5 sm:mt-6 sm:grid sm:grid-flow-row-dense sm:grid-cols-2 sm:gap-3">
+                <button
+                  type="button"
+                  disabled={assignDriverMutation.isPending}
+                  className="inline-flex w-full justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed sm:col-start-2 sm:text-sm"
+                  onClick={submitDriverChange}
+                >
+                  {assignDriverMutation.isPending ? (
+                    <>
+                      <svg className="mr-2 h-4 w-4 animate-spin" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        />
+                      </svg>
+                      Updating...
+                    </>
+                  ) : (
+                    'Update Assignment'
+                  )}
+                </button>
+                <button
+                  type="button"
+                  disabled={assignDriverMutation.isPending}
+                  className="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2 text-base font-medium text-gray-700 dark:text-gray-200 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed sm:col-start-1 sm:mt-0 sm:text-sm"
+                  onClick={() => setShowChangeDriverModal(false)}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

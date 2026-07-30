@@ -108,7 +108,7 @@ export default function ComponentsPage() {
         }));
 
         // Group components by type
-        const grouped = {};
+        const grouped: Record<string, any[]> = {};
         componentsWithData.forEach((comp) => {
           const type = comp.component_type;
           if (!grouped[type]) {
@@ -270,7 +270,7 @@ export default function ComponentsPage() {
       }));
 
       // Group components by type
-      const grouped = {};
+      const grouped: Record<string, any[]> = {};
       componentsWithData.forEach((comp) => {
         const type = comp.component_type;
         if (!grouped[type]) {

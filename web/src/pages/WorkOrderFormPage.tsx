@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase';
 import { WorkOrderFormData, WORK_ORDER_PRIORITIES } from '../types/workOrder';
 import { useAuthStore } from '../stores/authStore';
 import { toast } from '../components/ToastContainer';
+import MechanicSelector from '../components/MechanicSelector';
 
 export default function WorkOrderFormPage() {
   const navigate = useNavigate();
@@ -65,21 +66,7 @@ export default function WorkOrderFormPage() {
     enabled: !!user,
   });
 
-  // Fetch mechanics (users with mechanic role)
-  const { data: mechanics } = useQuery({
-    queryKey: ['mechanics'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('users')
-        .select('id, full_name, email, role')
-        .in('role', ['mechanic', 'workshop_manager', 'maintenance_engineer'])
-        .order('full_name', { ascending: true });
-
-      if (error) throw error;
-      return data;
-    },
-    enabled: !!user,
-  });
+  // Mechanics are now fetched by MechanicSelector component using useMechanics hook
 
   // Create work order mutation
   const createMutation = useMutation({
@@ -291,26 +278,16 @@ export default function WorkOrderFormPage() {
               )}
             </div>
 
-            {/* Assign To (Optional) */}
+            {/* Assign To (Optional) - Using MechanicSelector component */}
             <div>
-              <label htmlFor="assigned_to" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Assign To (Optional)
-              </label>
-              <select
-                id="assigned_to"
-                value={formData.assigned_to || ''}
-                onChange={(e) => handleChange('assigned_to', e.target.value || undefined)}
-                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500"
-              >
-                <option value="">Unassigned (assign later)</option>
-                {mechanics?.map((mechanic) => (
-                  <option key={mechanic.id} value={mechanic.id}>
-                    {mechanic.full_name} - {mechanic.role.replace('_', ' ')}
-                  </option>
-                ))}
-              </select>
+              <MechanicSelector
+                value={formData.assigned_to || null}
+                onChange={(mechanicId) => handleChange('assigned_to', mechanicId || undefined)}
+                label="Assign To (Optional)"
+                placeholder="Unassigned (assign later)"
+              />
               <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Leave unassigned if you want to assign later
+                Leave unassigned if you want to assign later. Status will be 'pending' if unassigned, 'assigned' if assigned.
               </p>
             </div>
           </div>

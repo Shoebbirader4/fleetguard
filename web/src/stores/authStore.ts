@@ -1,12 +1,13 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { supabase } from '../lib/supabase';
+import type { UserRole } from '../types/user';
 
 interface User {
   id: string;
   email: string;
   fullName: string;
-  role: string;
+  role: UserRole;
   tenantId: string;
   notification_preferences?: Record<string, string[]>;
 }

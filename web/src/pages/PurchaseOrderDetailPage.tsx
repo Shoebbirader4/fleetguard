@@ -464,7 +464,14 @@ export default function PurchaseOrderDetailPage() {
               <div className="space-y-2 text-sm">
                 <div>
                   <span className="text-gray-500 dark:text-gray-400">Name:</span>
-                  <div className="font-medium text-gray-900 dark:text-gray-100">{po.vendor.vendor_name}</div>
+                  <div className="font-medium">
+                    <button
+                      onClick={() => navigate(`/vendors/${po.vendor_id}`)}
+                      className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:underline transition-colors"
+                    >
+                      {po.vendor.vendor_name}
+                    </button>
+                  </div>
                 </div>
                 {po.vendor.contact_person && (
                   <div>

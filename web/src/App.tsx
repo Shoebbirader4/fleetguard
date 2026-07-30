@@ -2,12 +2,15 @@ import { lazy, Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { useThemeStore } from './stores/themeStore';
 import ToastContainer from './components/ToastContainer';
+import ProtectedRoute from './components/ProtectedRoute';
 
 // Immediate loading for critical routes
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUpPage';
 import JoinPage from './pages/JoinPage';
+import WelcomePage from './pages/WelcomePage';
+import OnboardingPage from './pages/OnboardingPage';
 
 // Lazy load all other routes for better initial load performance
 const PasswordResetPage = lazy(() => import('./pages/PasswordResetPage'));
@@ -36,7 +39,17 @@ const AppearancePage = lazy(() => import('./pages/settings/AppearancePage'));
 const DataImportPage = lazy(() => import('./pages/DataImportPage'));
 const AuditLogsPage = lazy(() => import('./pages/AuditLogsPage'));
 const SubscriptionPage = lazy(() => import('./pages/SubscriptionPage'));
+const TeamPage = lazy(() => import('./pages/TeamPage'));
+const DriversPage = lazy(() => import('./pages/DriversPage'));
+const DriverDetailPage = lazy(() => import('./pages/DriverDetailPage'));
+const DriverFormPage = lazy(() => import('./pages/DriverFormPage'));
+const VendorsPage = lazy(() => import('./pages/VendorsPage'));
+const VendorDetailPage = lazy(() => import('./pages/VendorDetailPage'));
+const VendorFormPage = lazy(() => import('./pages/VendorFormPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
+
+// Lazy load ForbiddenPage
+const ForbiddenPage = lazy(() => import('./pages/ForbiddenPage'));
 
 // Loading fallback component
 function LoadingFallback() {
@@ -67,6 +80,8 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/join" element={<JoinPage />} />
+          <Route path="/welcome" element={<WelcomePage />} />
+          <Route path="/onboarding" element={<OnboardingPage />} />
           <Route path="/password-reset" element={<PasswordResetPage />} />
           <Route path="/reset-password" element={<UpdatePasswordPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
@@ -99,6 +114,79 @@ function App() {
           <Route path="/import" element={<DataImportPage />} />
           <Route path="/audit-logs" element={<AuditLogsPage />} />
           <Route path="/subscription" element={<SubscriptionPage />} />
+          <Route 
+            path="/team" 
+            element={
+              <ProtectedRoute requiredRoles={['company_owner', 'fleet_manager']}>
+                <TeamPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/drivers" 
+            element={
+              <ProtectedRoute requiredRoles={['company_owner', 'fleet_manager', 'workshop_manager']}>
+                <DriversPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/drivers/new" 
+            element={
+              <ProtectedRoute requiredRoles={['company_owner', 'fleet_manager', 'workshop_manager']}>
+                <DriverFormPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/drivers/:id" 
+            element={
+              <ProtectedRoute requiredRoles={['company_owner', 'fleet_manager', 'workshop_manager']}>
+                <DriverDetailPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/drivers/:id/edit" 
+            element={
+              <ProtectedRoute requiredRoles={['company_owner', 'fleet_manager', 'workshop_manager']}>
+                <DriverFormPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/vendors" 
+            element={
+              <ProtectedRoute requiredRoles={['company_owner', 'fleet_manager', 'workshop_manager']}>
+                <VendorsPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/vendors/new" 
+            element={
+              <ProtectedRoute requiredRoles={['company_owner', 'fleet_manager', 'workshop_manager']}>
+                <VendorFormPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/vendors/:id" 
+            element={
+              <ProtectedRoute requiredRoles={['company_owner', 'fleet_manager', 'workshop_manager']}>
+                <VendorDetailPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/vendors/:id/edit" 
+            element={
+              <ProtectedRoute requiredRoles={['company_owner', 'fleet_manager', 'workshop_manager']}>
+                <VendorFormPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route path="/forbidden" element={<ForbiddenPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </Suspense>
