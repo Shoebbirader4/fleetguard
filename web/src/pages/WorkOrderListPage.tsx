@@ -5,6 +5,9 @@ import { supabase } from '../lib/supabase';
 import { WorkOrderWithDetails, WORK_ORDER_STATUSES, WORK_ORDER_PRIORITIES } from '../types/workOrder';
 import { useAuthStore } from '../stores/authStore';
 import { useMechanics } from '../hooks/useWorkOrderAssignment';
+import { CardListSkeleton, FilterSkeleton } from '../components/SkeletonScreens';
+import ErrorDisplay from '../components/ErrorDisplay';
+import { getErrorMessage } from '../hooks/useQueryError';
 
 export default function WorkOrderListPage() {
   const navigate = useNavigate();
@@ -39,7 +42,7 @@ export default function WorkOrderListPage() {
   });
 
   // Fetch work orders with vehicle and user details
-  const { data: workOrders, isLoading } = useQuery({
+  const { data: workOrders, isLoading, error, refetch } = useQuery({
     queryKey: ['work-orders', statusFilter, priorityFilter, assignedToFilter, vehicleFilter, startDate, endDate, searchQuery],
     queryFn: async () => {
       let query = supabase
@@ -189,16 +192,16 @@ export default function WorkOrderListPage() {
         <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              <h1 className="text-3xl font-bold leading-tight text-gray-900 dark:text-gray-100">
                 Work Orders
               </h1>
-              <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+              <p className="mt-1 text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                 Manage maintenance and repair requests
               </p>
             </div>
             <button
               onClick={() => navigate('/work-orders/new')}
-              className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors text-sm font-medium"
+              className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors text-sm font-normal leading-normal"
             >
               + Create Work Order
             </button>
@@ -364,7 +367,7 @@ export default function WorkOrderListPage() {
           </div>
 
           {/* Results count */}
-          <div className="mt-3 text-sm text-gray-600 dark:text-gray-400">
+          <div className="mt-3 text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
             Showing {totalWorkOrders} {totalWorkOrders === 1 ? 'result' : 'results'}
             {(searchQuery || statusFilter !== 'all' || priorityFilter !== 'all' || assignedToFilter !== 'all' || vehicleFilter !== 'all' || startDate || endDate) && (
               <button
@@ -389,9 +392,13 @@ export default function WorkOrderListPage() {
         {/* Work Orders List */}
         <div className="space-y-4">
           {isLoading ? (
-            <div className="card text-center py-8 text-gray-600 dark:text-gray-400">
-              Loading work orders...
-            </div>
+            <CardListSkeleton count={5} />
+          ) : error ? (
+            <ErrorDisplay
+              error={error as Error}
+              message={getErrorMessage(error)}
+              onRetry={() => refetch()}
+            />
           ) : workOrders && workOrders.length > 0 ? (
             workOrders.map((workOrder) => {
               const status = getStatusBadge(workOrder.status);
@@ -406,22 +413,22 @@ export default function WorkOrderListPage() {
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                        <h3 className="text-lg font-semibold leading-snug text-gray-900 dark:text-gray-100">
                           {workOrder.work_order_number}
                         </h3>
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${status.color}`}>
+                        <span className={`px-2 py-1 rounded-full text-xs font-normal leading-tight font-medium ${status.color}`}>
                           {status.label}
                         </span>
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${priority.color}`}>
+                        <span className={`px-2 py-1 rounded-full text-xs font-normal leading-tight font-medium ${priority.color}`}>
                           {priority.label}
                         </span>
                       </div>
 
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                      <p className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400 mb-3">
                         {workOrder.description}
                       </p>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm font-normal leading-normal">
                         <div>
                           <p className="text-gray-500 dark:text-gray-400">Vehicle</p>
                           <p className="font-medium text-gray-900 dark:text-gray-100">
@@ -457,7 +464,7 @@ export default function WorkOrderListPage() {
 
                       {workOrder.total_cost > 0 && (
                         <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-                          <div className="flex gap-6 text-sm">
+                          <div className="flex gap-6 text-sm font-normal leading-normal">
                             <div>
                               <span className="text-gray-500 dark:text-gray-400">Labor Hours: </span>
                               <span className="font-medium text-gray-900 dark:text-gray-100">
@@ -487,7 +494,7 @@ export default function WorkOrderListPage() {
                           e.stopPropagation();
                           navigate(`/work-orders/${workOrder.id}`);
                         }}
-                        className="text-primary-600 hover:text-primary-700 font-medium text-sm"
+                        className="text-primary-600 hover:text-primary-700 font-medium text-sm font-normal leading-normal"
                       >
                         View Details →
                       </button>
@@ -501,7 +508,7 @@ export default function WorkOrderListPage() {
               <p className="text-gray-600 dark:text-gray-400 mb-4">No work orders found</p>
               <button
                 onClick={() => navigate('/work-orders/new')}
-                className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors text-sm font-medium"
+                className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors text-sm font-normal leading-normal"
               >
                 + Create Work Order
               </button>

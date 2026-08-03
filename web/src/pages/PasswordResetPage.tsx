@@ -34,7 +34,7 @@ export default function PasswordResetPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
       <div className="card max-w-md w-full">
         <h2 className="text-2xl font-bold text-center mb-2">Reset Password</h2>
-        <p className="text-sm text-gray-600 dark:text-gray-400 text-center mb-6">
+        <p className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400 text-center mb-6">
           Enter your email address and we'll send you a link to reset your password.
         </p>
 
@@ -79,7 +79,7 @@ export default function PasswordResetPage() {
         <div className="mt-4 text-center">
           <Link
             to="/login"
-            className="text-sm text-primary-600 dark:text-primary-400 hover:underline"
+            className="text-sm font-normal leading-normal text-primary-600 dark:text-primary-400 hover:underline"
           >
             Back to Login
           </Link>

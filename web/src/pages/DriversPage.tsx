@@ -16,13 +16,16 @@ import { canManageDrivers } from '../utils/authorization';
 import type { Driver } from '../types/driver';
 import Layout from '../components/Layout';
 import LoadingSpinner from '../components/LoadingSpinner';
+import ErrorDisplay from '../components/ErrorDisplay';
 import InviteUserModal from '../components/InviteUserModal';
 import { toast } from '../components/ToastContainer';
+import { ListPageSkeleton } from '../components/SkeletonScreens';
+import { getErrorMessage } from '../hooks/useQueryError';
 
 export default function DriversPage() {
   const navigate = useNavigate();
   const authUser = useAuthStore((state) => state.user);
-  const { data: drivers, isLoading, error } = useDrivers();
+  const { data: drivers, isLoading, error, refetch } = useDrivers();
   
   // State for search
   const [searchQuery, setSearchQuery] = useState('');
@@ -60,7 +63,7 @@ export default function DriversPage() {
       <div className="bg-white dark:bg-gray-800 shadow-soft border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+            <h1 className="text-3xl font-bold leading-tight text-gray-900 dark:text-gray-100">
               Drivers
             </h1>
             {canManage && (
@@ -105,7 +108,7 @@ export default function DriversPage() {
 
           {/* Results Summary */}
           {drivers && (
-            <div className="mt-4 text-sm text-gray-600 dark:text-gray-400">
+            <div className="mt-4 text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
               Showing {filteredDrivers.length} of {drivers.length} drivers
             </div>
           )}
@@ -113,16 +116,13 @@ export default function DriversPage() {
 
         {/* Driver Table */}
         {isLoading ? (
-          <div className="card text-center py-12">
-            <LoadingSpinner size="lg" className="mx-auto" />
-            <p className="mt-4 text-gray-600 dark:text-gray-400">Loading drivers...</p>
-          </div>
+          <ListPageSkeleton />
         ) : error ? (
-          <div className="card bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
-            <p className="text-red-800 dark:text-red-200">
-              Error loading drivers: {error instanceof Error ? error.message : 'Unknown error'}
-            </p>
-          </div>
+          <ErrorDisplay
+            error={error as Error}
+            message={getErrorMessage(error)}
+            onRetry={() => refetch()}
+          />
         ) : filteredDrivers.length === 0 ? (
           <div className="card text-center py-12">
             <svg
@@ -171,37 +171,37 @@ export default function DriversPage() {
                   <tr>
                     <th
                       scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+                      className="px-6 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                     >
                       Name
                     </th>
                     <th
                       scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+                      className="px-6 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                     >
                       Email
                     </th>
                     <th
                       scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+                      className="px-6 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                     >
                       Phone
                     </th>
                     <th
                       scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+                      className="px-6 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                     >
                       License Number
                     </th>
                     <th
                       scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+                      className="px-6 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                     >
                       Assigned Vehicles
                     </th>
                     <th
                       scope="col"
-                      className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+                      className="px-6 py-3 text-right text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                     >
                       Actions
                     </th>
@@ -216,22 +216,22 @@ export default function DriversPage() {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-600 dark:text-gray-400">
+                        <div className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                           {driver.email}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-600 dark:text-gray-400">
+                        <div className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                           {driver.phone || '-'}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-600 dark:text-gray-400">
+                        <div className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                           {driver.license_number || '-'}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-600 dark:text-gray-400">
+                        <div className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                           {getAssignedVehiclesCount(driver)}
                         </div>
                       </td>

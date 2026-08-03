@@ -329,14 +329,14 @@ export default function PurchaseOrderDetailPage() {
               </button>
               <div>
                 <div className="flex items-center gap-3">
-                  <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                  <h1 className="text-3xl font-bold leading-tight text-gray-900 dark:text-gray-100">
                     {po.po_number}
                   </h1>
-                  <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(po.status)}`}>
+                  <span className={`px-3 py-1 rounded-full text-xs font-normal leading-tight font-medium ${getStatusColor(po.status)}`}>
                     {po.status.toUpperCase()}
                   </span>
                 </div>
-                <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                <p className="mt-1 text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                   Created {formatDate(po.created_at)} by {po.creator.full_name}
                 </p>
               </div>
@@ -347,7 +347,7 @@ export default function PurchaseOrderDetailPage() {
                 <>
                   <button
                     onClick={() => navigate(`/inventory/purchase-orders/${id}/edit`)}
-                    className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm font-medium"
+                    className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm font-normal leading-normal"
                   >
                     Edit
                   </button>
@@ -385,24 +385,24 @@ export default function PurchaseOrderDetailPage() {
           <div className="lg:col-span-2 space-y-6">
             {/* Line Items */}
             <div className="card">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Order Items</h2>
+              <h2 className="text-xl font-semibold leading-snug text-gray-900 dark:text-gray-100 mb-4">Order Items</h2>
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                   <thead className="bg-gray-50 dark:bg-gray-800">
                     <tr>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                      <th className="px-4 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase">
                         Part
                       </th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                      <th className="px-4 py-3 text-right text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase">
                         Ordered
                       </th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                      <th className="px-4 py-3 text-right text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase">
                         Received
                       </th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                      <th className="px-4 py-3 text-right text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase">
                         Unit Cost
                       </th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                      <th className="px-4 py-3 text-right text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase">
                         Line Total
                       </th>
                     </tr>
@@ -410,24 +410,24 @@ export default function PurchaseOrderDetailPage() {
                   <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
                     {po.line_items.map((line) => (
                       <tr key={line.id}>
-                        <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
+                        <td className="px-4 py-3 text-sm font-normal leading-normal text-gray-900 dark:text-gray-100">
                           <div>
                             <div className="font-medium">{line.part.part_number}</div>
                             <div className="text-gray-500 dark:text-gray-400">{line.part.description}</div>
                           </div>
                         </td>
-                        <td className="px-4 py-3 text-sm text-right text-gray-900 dark:text-gray-100">
+                        <td className="px-4 py-3 text-sm font-normal leading-normal text-right text-gray-900 dark:text-gray-100">
                           {line.quantity} {line.part.unit_of_measure}
                         </td>
-                        <td className="px-4 py-3 text-sm text-right">
+                        <td className="px-4 py-3 text-sm font-normal leading-normal text-right">
                           <span className={line.received_quantity >= line.quantity ? 'text-green-600 dark:text-green-400 font-medium' : 'text-gray-600 dark:text-gray-400'}>
                             {line.received_quantity} {line.part.unit_of_measure}
                           </span>
                         </td>
-                        <td className="px-4 py-3 text-sm text-right text-gray-900 dark:text-gray-100">
+                        <td className="px-4 py-3 text-sm font-normal leading-normal text-right text-gray-900 dark:text-gray-100">
                           {formatCurrency(line.unit_cost)}
                         </td>
-                        <td className="px-4 py-3 text-sm text-right font-medium text-gray-900 dark:text-gray-100">
+                        <td className="px-4 py-3 text-sm font-normal leading-normal text-right font-medium text-gray-900 dark:text-gray-100">
                           {formatCurrency(line.line_total)}
                         </td>
                       </tr>
@@ -461,7 +461,7 @@ export default function PurchaseOrderDetailPage() {
             {/* Vendor Info */}
             <div className="card">
               <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Vendor Information</h3>
-              <div className="space-y-2 text-sm">
+              <div className="space-y-2 text-sm font-normal leading-normal">
                 <div>
                   <span className="text-gray-500 dark:text-gray-400">Name:</span>
                   <div className="font-medium">
@@ -497,7 +497,7 @@ export default function PurchaseOrderDetailPage() {
             {/* Order Dates */}
             <div className="card">
               <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Important Dates</h3>
-              <div className="space-y-2 text-sm">
+              <div className="space-y-2 text-sm font-normal leading-normal">
                 <div>
                   <span className="text-gray-500 dark:text-gray-400">Order Date:</span>
                   <div className="text-gray-900 dark:text-gray-100">{formatDate(po.order_date)}</div>
@@ -545,7 +545,7 @@ export default function PurchaseOrderDetailPage() {
             <div className="fixed inset-0 bg-black/50" onClick={() => setShowReceiveModal(false)} />
             <div className="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-3xl w-full p-6">
               <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">Receive Stock</h2>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+              <p className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400 mb-6">
                 Enter the quantities received for each item. Leave as 0 if not received yet.
               </p>
 
@@ -555,9 +555,9 @@ export default function PurchaseOrderDetailPage() {
                     <div className="flex justify-between items-start mb-2">
                       <div>
                         <div className="font-medium text-gray-900 dark:text-gray-100">{line.part.part_number}</div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">{line.part.description}</div>
+                        <div className="text-sm font-normal leading-normal text-gray-500 dark:text-gray-400">{line.part.description}</div>
                       </div>
-                      <div className="text-sm text-right">
+                      <div className="text-sm font-normal leading-normal text-right">
                         <div className="text-gray-600 dark:text-gray-400">
                           Ordered: {line.quantity} {line.part.unit_of_measure}
                         </div>

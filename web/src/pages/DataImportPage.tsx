@@ -232,10 +232,10 @@ export default function DataImportPage() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <header className="bg-white dark:bg-gray-800 shadow-soft">
         <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+          <h1 className="text-3xl font-bold leading-tight text-gray-900 dark:text-gray-100">
             Data Import
           </h1>
-          <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+          <p className="mt-1 text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
             Import bulk data from CSV or Excel files
           </p>
         </div>
@@ -266,7 +266,7 @@ export default function DataImportPage() {
                   <div className="font-semibold text-gray-900 dark:text-gray-100">
                     {type.label}
                   </div>
-                  <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                  <div className="text-xs font-normal leading-tight text-gray-600 dark:text-gray-400 mt-1">
                     {type.description}
                   </div>
                 </button>
@@ -281,13 +281,13 @@ export default function DataImportPage() {
                 <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-200 mb-1">
                   Download Template
                 </h4>
-                <p className="text-xs text-blue-800 dark:text-blue-300">
+                <p className="text-xs font-normal leading-tight text-blue-800 dark:text-blue-300">
                   Download a CSV template with the correct headers for {selectedType.replace('_', ' ')}
                 </p>
               </div>
               <button
                 onClick={handleDownloadTemplate}
-                className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm font-medium"
+                className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm font-normal leading-normal"
               >
                 Download
               </button>
@@ -303,14 +303,14 @@ export default function DataImportPage() {
               type="file"
               accept=".csv,.xlsx,.xls"
               onChange={handleFileChange}
-              className="block w-full text-sm text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer bg-gray-50 dark:bg-gray-700 focus:outline-none"
+              className="block w-full text-sm font-normal leading-normal text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer bg-gray-50 dark:bg-gray-700 focus:outline-none"
             />
             {file && (
-              <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+              <p className="mt-2 text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                 Selected: {file.name}
               </p>
             )}
-            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            <p className="mt-1 text-xs font-normal leading-tight text-gray-500 dark:text-gray-400">
               Supported formats: CSV, XLSX, XLS (Max 10,000 rows)
             </p>
           </div>
@@ -325,7 +325,7 @@ export default function DataImportPage() {
               {importMutation.isPending ? 'Importing...' : `Import ${selectedType.replace('_', ' ')}`}
             </button>
             {validationErrors.length > 0 && (
-              <p className="mt-2 text-sm text-red-600 dark:text-red-400">
+              <p className="mt-2 text-sm font-normal leading-normal text-red-600 dark:text-red-400">
                 Please fix {validationErrors.length} validation error(s) before importing
               </p>
             )}
@@ -345,7 +345,7 @@ export default function DataImportPage() {
                     Validation Errors ({validationErrors.length})
                   </h4>
                   <div className="max-h-40 overflow-y-auto">
-                    <ul className="text-xs text-yellow-800 dark:text-yellow-300 space-y-1">
+                    <ul className="text-xs font-normal leading-tight text-yellow-800 dark:text-yellow-300 space-y-1">
                       {validationErrors.slice(0, 10).map((error, index) => (
                         <li key={index}>
                           Row {error.row}, Field "{error.field}": {error.error}
@@ -361,13 +361,13 @@ export default function DataImportPage() {
 
               {/* Data Preview Table */}
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm">
+                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm font-normal leading-normal">
                   <thead className="bg-gray-50 dark:bg-gray-800">
                     <tr>
                       {Object.keys(preview[0] || {}).map((key) => (
                         <th
                           key={key}
-                          className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase"
+                          className="px-3 py-2 text-left text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase"
                         >
                           {key}
                         </th>
@@ -402,7 +402,7 @@ export default function DataImportPage() {
                   <div className="text-2xl font-bold text-green-600">
                     {importResult.successCount}
                   </div>
-                  <div className="text-sm text-green-800 dark:text-green-300">
+                  <div className="text-sm font-normal leading-normal text-green-800 dark:text-green-300">
                     Successful Imports
                   </div>
                 </div>
@@ -411,7 +411,7 @@ export default function DataImportPage() {
                   <div className="text-2xl font-bold text-red-600">
                     {importResult.failureCount}
                   </div>
-                  <div className="text-sm text-red-800 dark:text-red-300">
+                  <div className="text-sm font-normal leading-normal text-red-800 dark:text-red-300">
                     Failed Imports
                   </div>
                 </div>
@@ -427,10 +427,10 @@ export default function DataImportPage() {
                     <table className="min-w-full divide-y divide-red-200 dark:divide-red-800">
                       <thead className="bg-red-100 dark:bg-red-900/30">
                         <tr>
-                          <th className="px-4 py-2 text-left text-xs font-medium text-red-900 dark:text-red-200">
+                          <th className="px-4 py-2 text-left text-xs font-normal leading-tight font-medium text-red-900 dark:text-red-200">
                             Row
                           </th>
-                          <th className="px-4 py-2 text-left text-xs font-medium text-red-900 dark:text-red-200">
+                          <th className="px-4 py-2 text-left text-xs font-normal leading-tight font-medium text-red-900 dark:text-red-200">
                             Error
                           </th>
                         </tr>
@@ -438,10 +438,10 @@ export default function DataImportPage() {
                       <tbody className="divide-y divide-red-200 dark:divide-red-800">
                         {importResult.errors.map((error, index) => (
                           <tr key={index}>
-                            <td className="px-4 py-2 text-sm text-red-800 dark:text-red-300">
+                            <td className="px-4 py-2 text-sm font-normal leading-normal text-red-800 dark:text-red-300">
                               {error.row}
                             </td>
-                            <td className="px-4 py-2 text-sm text-red-800 dark:text-red-300">
+                            <td className="px-4 py-2 text-sm font-normal leading-normal text-red-800 dark:text-red-300">
                               {error.error}
                             </td>
                           </tr>

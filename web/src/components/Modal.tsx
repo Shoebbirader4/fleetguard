@@ -181,7 +181,7 @@ export default function Modal({
           </div>
 
           {/* Modal Content */}
-          <div className="text-sm text-gray-700 dark:text-gray-300">{children}</div>
+          <div className="text-sm font-normal leading-normal text-gray-700 dark:text-gray-300">{children}</div>
         </div>
       </div>
     </div>

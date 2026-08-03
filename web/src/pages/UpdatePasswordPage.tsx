@@ -85,7 +85,7 @@ export default function UpdatePasswordPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
       <div className="card max-w-md w-full">
         <h2 className="text-2xl font-bold text-center mb-2">Update Password</h2>
-        <p className="text-sm text-gray-600 dark:text-gray-400 text-center mb-6">
+        <p className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400 text-center mb-6">
           Enter your new password below.
         </p>
 
@@ -98,7 +98,7 @@ export default function UpdatePasswordPage() {
         {validationErrors.length > 0 && (
           <div className="bg-warning-50 dark:bg-warning-900/30 text-warning-700 dark:text-warning-300 p-3 rounded-lg mb-4">
             <p className="font-semibold mb-1">Password requirements:</p>
-            <ul className="list-disc list-inside text-sm space-y-1">
+            <ul className="list-disc list-inside text-sm font-normal leading-normal space-y-1">
               {validationErrors.map((err, idx) => (
                 <li key={idx}>{err}</li>
               ))}
@@ -122,7 +122,7 @@ export default function UpdatePasswordPage() {
               disabled={loading}
               minLength={12}
             />
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            <p className="text-xs font-normal leading-tight text-gray-500 dark:text-gray-400 mt-1">
               Must be at least 12 characters with uppercase, lowercase, number, and special character
             </p>
           </div>

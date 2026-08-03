@@ -15,6 +15,7 @@
  */
 
 import { useMechanics } from '../hooks/useMechanics';
+import { selectStyles, labelStyles } from '../utils/stylePatterns';
 
 interface MechanicSelectorProps {
   value: string | null;
@@ -48,11 +49,11 @@ export default function MechanicSelector({
     return (
       <div className="w-full">
         {label && (
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          <label className={labelStyles}>
             {label}
           </label>
         )}
-        <div className="w-full px-4 py-2 rounded-lg border border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 text-sm">
+        <div className="w-full px-4 py-2 rounded-lg border border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 text-sm font-normal leading-normal">
           Error loading mechanics: {error?.message || 'Unknown error'}
         </div>
       </div>
@@ -62,7 +63,7 @@ export default function MechanicSelector({
   return (
     <div className="w-full">
       {label && (
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+        <label className={labelStyles}>
           {label}
         </label>
       )}
@@ -70,7 +71,7 @@ export default function MechanicSelector({
         value={value || ''}
         onChange={handleChange}
         disabled={disabled || isLoading}
-        className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className={selectStyles}
       >
         <option value="">
           {isLoading ? 'Loading mechanics...' : placeholder}

@@ -207,7 +207,7 @@ export default function SignUpPage() {
               Your FleetGuard AI account has been created successfully.
             </p>
           </div>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+          <p className="text-sm font-normal leading-normal text-gray-500 dark:text-gray-400 mb-4">
             Redirecting you to the login page...
           </p>
           <Link to="/login" className="btn-primary">
@@ -223,13 +223,13 @@ export default function SignUpPage() {
       <div className="card max-w-md w-full">
         <div className="text-center mb-6">
           <h2 className="text-2xl font-bold mb-2">Create Your Account</h2>
-          <p className="text-gray-600 dark:text-gray-400 text-sm">
+          <p className="text-gray-600 dark:text-gray-400 text-sm font-normal leading-normal">
             Start managing your fleet with FleetGuard AI
           </p>
         </div>
 
         {error && (
-          <div className="bg-danger-50 dark:bg-danger-900/30 text-danger-700 dark:text-danger-300 p-3 rounded-lg mb-4 text-sm">
+          <div className="bg-danger-50 dark:bg-danger-900/30 text-danger-700 dark:text-danger-300 p-3 rounded-lg mb-4 text-sm font-normal leading-normal">
             {error}
           </div>
         )}
@@ -304,7 +304,7 @@ export default function SignUpPage() {
               disabled={loading}
               minLength={12}
             />
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            <p className="text-xs font-normal leading-tight text-gray-500 dark:text-gray-400 mt-1">
               Min 12 characters with uppercase, lowercase, numbers & special characters
             </p>
           </div>
@@ -340,7 +340,7 @@ export default function SignUpPage() {
         </form>
 
         <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700 text-center">
-          <p className="text-sm text-gray-600 dark:text-gray-400">
+          <p className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
             Already have an account?{' '}
             <Link
               to="/login"
@@ -352,7 +352,7 @@ export default function SignUpPage() {
         </div>
 
         <div className="mt-4">
-          <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
+          <p className="text-xs font-normal leading-tight text-gray-500 dark:text-gray-400 text-center">
             By creating an account, you agree to our{' '}
             <a href="#" className="text-primary-600 dark:text-primary-400 hover:underline">
               Terms of Service

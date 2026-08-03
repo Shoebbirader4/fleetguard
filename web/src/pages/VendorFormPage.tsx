@@ -195,7 +195,7 @@ export default function VendorFormPage() {
       {/* Header */}
       <div className="bg-white dark:bg-gray-800 shadow-soft border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+          <h1 className="text-3xl font-bold leading-tight text-gray-900 dark:text-gray-100">
             {isEditMode ? 'Edit Vendor' : 'Add New Vendor'}
           </h1>
         </div>
@@ -218,7 +218,7 @@ export default function VendorFormPage() {
                 placeholder="ABC Parts Supplier"
               />
               {errors.vendor_name && (
-                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.vendor_name}</p>
+                <p className="mt-1 text-sm font-normal leading-normal text-red-600 dark:text-red-400">{errors.vendor_name}</p>
               )}
             </div>
 
@@ -236,7 +236,7 @@ export default function VendorFormPage() {
                 placeholder="John Smith"
               />
               {errors.contact_person && (
-                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.contact_person}</p>
+                <p className="mt-1 text-sm font-normal leading-normal text-red-600 dark:text-red-400">{errors.contact_person}</p>
               )}
             </div>
 
@@ -254,7 +254,7 @@ export default function VendorFormPage() {
                 placeholder="vendor@example.com"
               />
               {errors.email && (
-                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.email}</p>
+                <p className="mt-1 text-sm font-normal leading-normal text-red-600 dark:text-red-400">{errors.email}</p>
               )}
             </div>
 
@@ -272,9 +272,9 @@ export default function VendorFormPage() {
                 placeholder="+1234567890"
               />
               {errors.phone && (
-                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.phone}</p>
+                <p className="mt-1 text-sm font-normal leading-normal text-red-600 dark:text-red-400">{errors.phone}</p>
               )}
-              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+              <p className="mt-1 text-sm font-normal leading-normal text-gray-500 dark:text-gray-400">
                 Use international format (e.g., +1234567890)
               </p>
             </div>
@@ -293,7 +293,7 @@ export default function VendorFormPage() {
                 placeholder="123 Main St, City, State, ZIP"
               />
               {errors.address && (
-                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.address}</p>
+                <p className="mt-1 text-sm font-normal leading-normal text-red-600 dark:text-red-400">{errors.address}</p>
               )}
             </div>
 
@@ -311,7 +311,7 @@ export default function VendorFormPage() {
                 placeholder="Net 30, Net 60, COD, etc."
               />
               {errors.payment_terms && (
-                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.payment_terms}</p>
+                <p className="mt-1 text-sm font-normal leading-normal text-red-600 dark:text-red-400">{errors.payment_terms}</p>
               )}
             </div>
 
@@ -329,7 +329,7 @@ export default function VendorFormPage() {
                 <option value="active">Active</option>
                 <option value="inactive">Inactive</option>
               </select>
-              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+              <p className="mt-1 text-sm font-normal leading-normal text-gray-500 dark:text-gray-400">
                 Only active vendors will appear in purchase order creation
               </p>
             </div>

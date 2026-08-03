@@ -18,9 +18,8 @@ export default defineConfig({
     dedupe: ['react', 'react-dom', 'react-router-dom'],
   },
   server: {
-    port: 3000,
-    open: true,
-    host: '127.0.0.1',
+    port: 8080,
+    strictPort: false,
   },
   build: {
     outDir: 'dist',

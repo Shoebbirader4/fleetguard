@@ -9,6 +9,8 @@ import { toast } from '../components/ToastContainer';
 import ConfirmationModal from '../components/ConfirmationModal';
 import DriverSelector from '../components/DriverSelector';
 import { useAssignDriverToVehicle } from '../hooks/useDrivers';
+import Button from '../components/Button';
+import Badge from '../components/Badge';
 
 interface Component {
   id: string;
@@ -301,9 +303,9 @@ export default function VehicleDetailPage() {
             <p className="text-red-800 dark:text-red-200">
               Error loading vehicle: {vehicleError instanceof Error ? vehicleError.message : 'Vehicle not found'}
             </p>
-            <button onClick={handleBack} className="mt-4 btn-primary">
+            <Button onClick={handleBack} variant="primary" className="mt-4">
               Back to Vehicles
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -329,21 +331,21 @@ export default function VehicleDetailPage() {
                 </svg>
               </button>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                <h1 className="text-3xl font-bold leading-tight text-gray-900 dark:text-gray-100">
                   {vehicle.make} {vehicle.model} ({vehicle.year})
                 </h1>
-                <p className="text-sm text-gray-600 dark:text-gray-400 font-mono">
+                <p className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400 font-mono">
                   VIN: {formatVIN(vehicle.vin)}
                 </p>
               </div>
             </div>
             <div className="flex gap-3">
-              <button onClick={handleEdit} className="btn-primary flex items-center gap-2">
+              <Button onClick={handleEdit} variant="primary">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                 </svg>
                 Edit Vehicle
-              </button>
+              </Button>
               <button 
                 onClick={handleDelete} 
                 className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2"
@@ -369,57 +371,57 @@ export default function VehicleDetailPage() {
               </h2>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Status</span>
+                  <span className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">Status</span>
                   <p className={`font-medium ${getStatusColor(vehicle.status)}`}>
                     {getStatusBadge(vehicle.status)}
                   </p>
                 </div>
                 <div>
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Type</span>
+                  <span className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">Type</span>
                   <p className="font-medium text-gray-900 dark:text-gray-100">
                     {VEHICLE_TYPES.find(t => t.value === vehicle.vehicle_type)?.label || vehicle.vehicle_type}
                   </p>
                 </div>
                 <div>
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Odometer</span>
+                  <span className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">Odometer</span>
                   <p className="font-medium text-gray-900 dark:text-gray-100">
                     {vehicle.current_odometer.toLocaleString()} {vehicle.unit}
                   </p>
                 </div>
                 <div>
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Year</span>
+                  <span className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">Year</span>
                   <p className="font-medium text-gray-900 dark:text-gray-100">{vehicle.year}</p>
                 </div>
                 {vehicle.chassis_number && (
                   <div>
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Chassis Number</span>
+                    <span className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">Chassis Number</span>
                     <p className="font-medium text-gray-900 dark:text-gray-100">{vehicle.chassis_number}</p>
                   </div>
                 )}
                 {vehicle.engine_number && (
                   <div>
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Engine Number</span>
+                    <span className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">Engine Number</span>
                     <p className="font-medium text-gray-900 dark:text-gray-100">{vehicle.engine_number}</p>
                   </div>
                 )}
                 {vehicle.assigned_route && (
                   <div>
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Assigned Route</span>
+                    <span className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">Assigned Route</span>
                     <p className="font-medium text-gray-900 dark:text-gray-100">{vehicle.assigned_route}</p>
                   </div>
                 )}
                 {vehicle.depot_location && (
                   <div>
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Depot Location</span>
+                    <span className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">Depot Location</span>
                     <p className="font-medium text-gray-900 dark:text-gray-100">{vehicle.depot_location}</p>
                   </div>
                 )}
                 {vehicle.gps_device_id && (
                   <div className="col-span-2">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">GPS Device ID</span>
+                    <span className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">GPS Device ID</span>
                     <p className="font-medium text-gray-900 dark:text-gray-100">{vehicle.gps_device_id}</p>
                     {vehicle.last_gps_update && (
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      <p className="text-xs font-normal leading-tight text-gray-500 dark:text-gray-400 mt-1">
                         Last update: {new Date(vehicle.last_gps_update).toLocaleString()}
                       </p>
                     )}
@@ -447,7 +449,7 @@ export default function VehicleDetailPage() {
                     >
                       <Marker position={mapCenter} />
                     </GoogleMap>
-                    <div className="mt-4 text-sm text-gray-600 dark:text-gray-400">
+                    <div className="mt-4 text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                       <p>Latitude: {vehicle.last_location.latitude.toFixed(6)}</p>
                       <p>Longitude: {vehicle.last_location.longitude.toFixed(6)}</p>
                       {vehicle.last_gps_update && (
@@ -494,7 +496,7 @@ export default function VehicleDetailPage() {
                               {component.component_subtype && ` - ${component.component_subtype}`}
                             </h3>
                             {(component.brand || component.model) && (
-                              <p className="text-sm text-gray-600 dark:text-gray-400">
+                              <p className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                                 {component.brand} {component.model}
                               </p>
                             )}
@@ -502,11 +504,11 @@ export default function VehicleDetailPage() {
                           {remainingLife && (
                             <div className={`text-right ${getRemainingLifeColor(remainingLife.percentage)}`}>
                               <p className="text-lg font-bold">{Math.round(remainingLife.percentage)}%</p>
-                              <p className="text-xs">Remaining</p>
+                              <p className="text-xs font-normal leading-tight">Remaining</p>
                             </div>
                           )}
                         </div>
-                        <div className="grid grid-cols-2 gap-2 text-sm mt-2">
+                        <div className="grid grid-cols-2 gap-2 text-sm font-normal leading-normal mt-2">
                           <div>
                             <span className="text-gray-600 dark:text-gray-400">Installed:</span>
                             <span className="ml-2 text-gray-900 dark:text-gray-100">
@@ -561,7 +563,7 @@ export default function VehicleDetailPage() {
                 </h2>
                 <button
                   onClick={handleChangeDriver}
-                  className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors"
+                  className="text-sm font-normal leading-normal text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors"
                 >
                   Change Driver
                 </button>
@@ -581,14 +583,14 @@ export default function VehicleDetailPage() {
                       >
                         {vehicle.driver.full_name}
                       </button>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                      <p className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400 mt-1">
                         <svg className="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                         </svg>
                         {vehicle.driver.email}
                       </p>
                       {vehicle.driver.phone && (
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                        <p className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400 mt-1">
                           <svg className="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                           </svg>
@@ -606,7 +608,7 @@ export default function VehicleDetailPage() {
                   <p className="mt-2 text-gray-500 dark:text-gray-400">No driver assigned</p>
                   <button
                     onClick={handleChangeDriver}
-                    className="mt-3 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium"
+                    className="mt-3 text-sm font-normal leading-normal text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium"
                   >
                     Assign a driver
                   </button>
@@ -652,7 +654,7 @@ export default function VehicleDetailPage() {
               <h2 className="text-lg font-bold mb-4 text-gray-900 dark:text-gray-100">
                 Metadata
               </h2>
-              <div className="space-y-2 text-sm">
+              <div className="space-y-2 text-sm font-normal leading-normal">
                 <div>
                   <span className="text-gray-600 dark:text-gray-400">Created:</span>
                   <p className="text-gray-900 dark:text-gray-100">
@@ -698,7 +700,7 @@ export default function VehicleDetailPage() {
                     Update Odometer
                   </h3>
                   <div className="mt-2">
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                    <p className="text-sm font-normal leading-normal text-gray-500 dark:text-gray-400">
                       Current reading: <span className="font-semibold">{vehicle.current_odometer.toLocaleString()} {vehicle.unit}</span>
                     </p>
                   </div>
@@ -724,7 +726,7 @@ export default function VehicleDetailPage() {
                       } dark:bg-gray-700 dark:text-gray-100 disabled:bg-gray-100 dark:disabled:bg-gray-900 disabled:cursor-not-allowed`}
                     />
                     {odometerError && (
-                      <p className="mt-2 text-sm text-red-600 dark:text-red-400 text-left">{odometerError}</p>
+                      <p className="mt-2 text-sm font-normal leading-normal text-red-600 dark:text-red-400 text-left">{odometerError}</p>
                     )}
                   </div>
                 </div>
@@ -733,7 +735,7 @@ export default function VehicleDetailPage() {
                 <button
                   type="button"
                   disabled={isUpdatingOdometer}
-                  className="inline-flex w-full justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed sm:col-start-2 sm:text-sm"
+                  className="inline-flex w-full justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-base font-normal leading-normal font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed sm:col-start-2 sm:text-sm font-normal leading-normal"
                   onClick={submitOdometerUpdate}
                 >
                   {isUpdatingOdometer ? (
@@ -755,7 +757,7 @@ export default function VehicleDetailPage() {
                 <button
                   type="button"
                   disabled={isUpdatingOdometer}
-                  className="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2 text-base font-medium text-gray-700 dark:text-gray-200 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed sm:col-start-1 sm:mt-0 sm:text-sm"
+                  className="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2 text-base font-normal leading-normal font-medium text-gray-700 dark:text-gray-200 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed sm:col-start-1 sm:mt-0 sm:text-sm font-normal leading-normal"
                   onClick={() => setShowOdometerModal(false)}
                 >
                   Cancel
@@ -809,7 +811,7 @@ export default function VehicleDetailPage() {
                     Change Driver Assignment
                   </h3>
                   <div className="mt-2">
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                    <p className="text-sm font-normal leading-normal text-gray-500 dark:text-gray-400">
                       {vehicle.driver 
                         ? `Currently assigned to: ${vehicle.driver.full_name}` 
                         : 'No driver currently assigned'}
@@ -832,7 +834,7 @@ export default function VehicleDetailPage() {
                 <button
                   type="button"
                   disabled={assignDriverMutation.isPending}
-                  className="inline-flex w-full justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed sm:col-start-2 sm:text-sm"
+                  className="inline-flex w-full justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-base font-normal leading-normal font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed sm:col-start-2 sm:text-sm font-normal leading-normal"
                   onClick={submitDriverChange}
                 >
                   {assignDriverMutation.isPending ? (
@@ -854,7 +856,7 @@ export default function VehicleDetailPage() {
                 <button
                   type="button"
                   disabled={assignDriverMutation.isPending}
-                  className="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2 text-base font-medium text-gray-700 dark:text-gray-200 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed sm:col-start-1 sm:mt-0 sm:text-sm"
+                  className="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2 text-base font-normal leading-normal font-medium text-gray-700 dark:text-gray-200 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed sm:col-start-1 sm:mt-0 sm:text-sm font-normal leading-normal"
                   onClick={() => setShowChangeDriverModal(false)}
                 >
                   Cancel

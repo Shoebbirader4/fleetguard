@@ -46,11 +46,11 @@ export default function ForbiddenPage() {
         {/* Additional Context */}
         {user && (
           <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
-            <p className="text-sm text-blue-800 dark:text-blue-300">
+            <p className="text-sm font-normal leading-normal text-blue-800 dark:text-blue-300">
               <span className="font-medium">Current Role:</span> {' '}
               <span className="capitalize">{user.role.replace(/_/g, ' ')}</span>
             </p>
-            <p className="text-xs text-blue-600 dark:text-blue-400 mt-2">
+            <p className="text-xs font-normal leading-tight text-blue-600 dark:text-blue-400 mt-2">
               This page requires different permissions. Contact your administrator if you believe you should have access.
             </p>
           </div>
@@ -80,7 +80,7 @@ export default function ForbiddenPage() {
         </div>
 
         {/* Help Text */}
-        <p className="text-xs text-gray-500 dark:text-gray-400 mt-8">
+        <p className="text-xs font-normal leading-tight text-gray-500 dark:text-gray-400 mt-8">
           Need help? Contact your system administrator or fleet manager.
         </p>
       </div>

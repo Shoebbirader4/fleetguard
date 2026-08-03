@@ -93,7 +93,7 @@ export default function AuditLogsPage() {
 
         {/* Filters */}
         <div className="bg-white rounded-lg shadow p-6 mb-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Filters</h2>
+          <h2 className="text-xl font-semibold leading-snug text-gray-900 mb-4">Filters</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {/* Date Range */}
             <div>
@@ -204,22 +204,22 @@ export default function AuditLogsPage() {
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 uppercase tracking-wider">
                       Timestamp
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 uppercase tracking-wider">
                       User
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 uppercase tracking-wider">
                       Operation
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 uppercase tracking-wider">
                       Entity Type
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 uppercase tracking-wider">
                       Entity ID
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 uppercase tracking-wider">
                       Actions
                     </th>
                   </tr>
@@ -235,12 +235,12 @@ export default function AuditLogsPage() {
                     data.logs.map((log) => (
                       <>
                         <tr key={log.id} className="hover:bg-gray-50">
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-normal leading-normal text-gray-900">
                             {formatTimestamp(log.timestamp)}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-900">{log.user_name}</div>
-                            <div className="text-sm text-gray-500">{log.user_email}</div>
+                            <div className="text-sm font-normal leading-normal text-gray-900">{log.user_name}</div>
+                            <div className="text-sm font-normal leading-normal text-gray-500">{log.user_email}</div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <span
@@ -251,13 +251,13 @@ export default function AuditLogsPage() {
                               {log.operation.toUpperCase()}
                             </span>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-normal leading-normal text-gray-900">
                             {formatEntityType(log.entity_type)}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-normal leading-normal text-gray-500 font-mono">
                             {log.entity_id.substring(0, 8)}...
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-normal leading-normal">
                             {log.changed_fields && (
                               <button
                                 onClick={() =>
@@ -274,7 +274,7 @@ export default function AuditLogsPage() {
                         {showDetails === log.id && log.changed_fields && (
                           <tr key={`${log.id}-details`}>
                             <td colSpan={6} className="px-6 py-4 bg-gray-50">
-                              <div className="text-sm">
+                              <div className="text-sm font-normal leading-normal">
                                 <h4 className="font-semibold text-gray-900 mb-2">
                                   Changed Fields:
                                 </h4>
@@ -313,7 +313,7 @@ export default function AuditLogsPage() {
             {/* Pagination */}
             {data.pagination.totalPages > 1 && (
               <div className="bg-white rounded-lg shadow px-6 py-4 mt-4 flex items-center justify-between">
-                <div className="text-sm text-gray-700">
+                <div className="text-sm font-normal leading-normal text-gray-700">
                   Showing page {data.pagination.page} of {data.pagination.totalPages} (
                   {data.pagination.total} total logs)
                 </div>

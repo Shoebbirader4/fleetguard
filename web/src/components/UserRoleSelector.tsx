@@ -80,7 +80,7 @@ export default function UserRoleSelector({
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
           {label}
           {isEditingSelf && (
-            <span className="ml-2 text-xs text-amber-600 dark:text-amber-400">
+            <span className="ml-2 text-xs font-normal leading-tight text-amber-600 dark:text-amber-400">
               (Cannot change your own role)
             </span>
           )}
@@ -115,21 +115,21 @@ export default function UserRoleSelector({
 
       {/* Display role description as helper text when a role is selected */}
       {value && !showDescriptions && (
-        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+        <p className="mt-1 text-sm font-normal leading-normal text-gray-500 dark:text-gray-400">
           {USER_ROLES.find(r => r.value === value)?.description}
         </p>
       )}
 
       {/* Error message */}
       {error && (
-        <p id="role-error" className="mt-1 text-sm text-red-600 dark:text-red-400">
+        <p id="role-error" className="mt-1 text-sm font-normal leading-normal text-red-600 dark:text-red-400">
           {error}
         </p>
       )}
 
       {/* Helper text when editing own role */}
       {isEditingSelf && !error && (
-        <p className="mt-1 text-sm text-amber-600 dark:text-amber-400">
+        <p className="mt-1 text-sm font-normal leading-normal text-amber-600 dark:text-amber-400">
           You cannot change your own role. Contact another administrator to change your role.
         </p>
       )}

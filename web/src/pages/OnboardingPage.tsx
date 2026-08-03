@@ -99,7 +99,7 @@ export default function OnboardingPage() {
         .update({
           updated_at: new Date().toISOString(),
         })
-        .eq('id', user.tenant_id);
+        .eq('id', user.tenantId);
 
       if (updateError) {
         console.error('Failed to update tenant:', updateError);
@@ -170,7 +170,7 @@ export default function OnboardingPage() {
             </span>
             <button
               onClick={handleSkipToDashboard}
-              className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
+              className="text-sm font-normal leading-normal text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
             >
               Skip to Dashboard →
             </button>
@@ -186,7 +186,7 @@ export default function OnboardingPage() {
         {/* Main Card */}
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 mb-6">
           {error && (
-            <div className="bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 p-4 rounded-lg mb-6 text-sm">
+            <div className="bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 p-4 rounded-lg mb-6 text-sm font-normal leading-normal">
               {error}
             </div>
           )}
@@ -313,7 +313,7 @@ export default function OnboardingPage() {
                         <div className="font-semibold text-gray-900 dark:text-white mb-1">
                           {option.label}
                         </div>
-                        <div className="text-sm text-gray-600 dark:text-gray-400">
+                        <div className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                           {option.description}
                         </div>
                       </div>
@@ -353,7 +353,7 @@ export default function OnboardingPage() {
                     <div className="font-semibold text-gray-900 dark:text-white mb-1">
                       Add your vehicles
                     </div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">
+                    <div className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                       Start by adding vehicles to your fleet
                     </div>
                   </div>
@@ -377,7 +377,7 @@ export default function OnboardingPage() {
                     <div className="font-semibold text-gray-900 dark:text-white mb-1">
                       Invite your team
                     </div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">
+                    <div className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                       Add team members and assign roles
                     </div>
                   </div>
@@ -401,7 +401,7 @@ export default function OnboardingPage() {
                     <div className="font-semibold text-gray-900 dark:text-white mb-1">
                       Set up maintenance schedules
                     </div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">
+                    <div className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                       Create work orders and schedule maintenance
                     </div>
                   </div>
@@ -423,7 +423,7 @@ export default function OnboardingPage() {
                       d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                     />
                   </svg>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                  <p className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                     You can always access settings and customize your preferences from the dashboard.
                   </p>
                 </div>
@@ -464,7 +464,7 @@ export default function OnboardingPage() {
 
         {/* Help Text */}
         <div className="text-center">
-          <p className="text-sm text-gray-600 dark:text-gray-400">
+          <p className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
             Need help?{' '}
             <a
               href="mailto:support@fleetguard.ai"

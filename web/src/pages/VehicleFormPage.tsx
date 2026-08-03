@@ -6,6 +6,7 @@ import { VehicleFormData, VEHICLE_TYPES, VEHICLE_STATUSES, ODOMETER_UNITS } from
 import { getVINError, validateVehicleYear, validateOdometer } from '../lib/validations';
 import { checkVehicleCreationAllowed } from '../hooks/useSubscription';
 import { useAuthStore } from '../stores/authStore';
+import { toast } from '../components/ToastContainer';
 import DriverSelector from '../components/DriverSelector';
 
 export default function VehicleFormPage() {
@@ -90,7 +91,11 @@ export default function VehicleFormPage() {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['vehicles'] });
+      toast.success('Vehicle created successfully');
       navigate(`/vehicles/${data.id}`);
+    },
+    onError: (error: Error) => {
+      toast.error(`Failed to create vehicle: ${error.message}`);
     },
   });
 
@@ -112,7 +117,11 @@ export default function VehicleFormPage() {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['vehicles'] });
       queryClient.invalidateQueries({ queryKey: ['vehicle', id] });
+      toast.success('Vehicle updated successfully');
       navigate(`/vehicles/${data.id}`);
+    },
+    onError: (error: Error) => {
+      toast.error(`Failed to update vehicle: ${error.message}`);
     },
   });
 
@@ -233,7 +242,7 @@ export default function VehicleFormPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
             </button>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+            <h1 className="text-3xl font-bold leading-tight text-gray-900 dark:text-gray-100">
               {isEditMode ? 'Edit Vehicle' : 'Add New Vehicle'}
             </h1>
           </div>
@@ -252,7 +261,7 @@ export default function VehicleFormPage() {
                 {submitError.toLowerCase().includes('limit') && (
                   <Link
                     to="/subscription"
-                    className="inline-flex items-center gap-1 text-sm text-red-700 dark:text-red-300 hover:text-red-900 dark:hover:text-red-100 font-semibold"
+                    className="inline-flex items-center gap-1 text-sm font-normal leading-normal text-red-700 dark:text-red-300 hover:text-red-900 dark:hover:text-red-100 font-semibold"
                   >
                     View Subscription Plans →
                   </Link>
@@ -284,10 +293,10 @@ export default function VehicleFormPage() {
                   disabled={isEditMode} // VIN cannot be changed after creation
                 />
                 {errors.vin && (
-                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.vin}</p>
+                  <p className="mt-1 text-sm font-normal leading-normal text-red-600 dark:text-red-400">{errors.vin}</p>
                 )}
                 {!errors.vin && formData.vin && (
-                  <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  <p className="mt-1 text-xs font-normal leading-tight text-gray-500 dark:text-gray-400">
                     {formData.vin.length}/17 characters
                   </p>
                 )}
@@ -306,7 +315,7 @@ export default function VehicleFormPage() {
                   placeholder="e.g., Ford, Toyota, Volvo"
                 />
                 {errors.make && (
-                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.make}</p>
+                  <p className="mt-1 text-sm font-normal leading-normal text-red-600 dark:text-red-400">{errors.make}</p>
                 )}
               </div>
 
@@ -323,7 +332,7 @@ export default function VehicleFormPage() {
                   placeholder="e.g., Transit, Camry, FH16"
                 />
                 {errors.model && (
-                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.model}</p>
+                  <p className="mt-1 text-sm font-normal leading-normal text-red-600 dark:text-red-400">{errors.model}</p>
                 )}
               </div>
 
@@ -341,7 +350,7 @@ export default function VehicleFormPage() {
                   className={`input-field ${errors.year ? 'border-red-500' : ''}`}
                 />
                 {errors.year && (
-                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.year}</p>
+                  <p className="mt-1 text-sm font-normal leading-normal text-red-600 dark:text-red-400">{errors.year}</p>
                 )}
               </div>
 
@@ -445,7 +454,7 @@ export default function VehicleFormPage() {
                   placeholder="0"
                 />
                 {errors.current_odometer && (
-                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.current_odometer}</p>
+                  <p className="mt-1 text-sm font-normal leading-normal text-red-600 dark:text-red-400">{errors.current_odometer}</p>
                 )}
               </div>
 
@@ -458,7 +467,7 @@ export default function VehicleFormPage() {
                   placeholder="Select a driver..."
                   disabled={isSubmitting}
                 />
-                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                <p className="mt-1 text-xs font-normal leading-tight text-gray-500 dark:text-gray-400">
                   Assign a driver to this vehicle (optional)
                 </p>
               </div>
@@ -505,7 +514,7 @@ export default function VehicleFormPage() {
                   className="input-field"
                   placeholder="e.g., GPS-12345"
                 />
-                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                <p className="mt-1 text-xs font-normal leading-tight text-gray-500 dark:text-gray-400">
                   Enter the GPS device identifier for real-time tracking
                 </p>
               </div>

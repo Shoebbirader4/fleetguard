@@ -85,10 +85,10 @@ export default function SecurityPage() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <header className="bg-white dark:bg-gray-800 shadow-soft">
         <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+          <h1 className="text-3xl font-bold leading-tight text-gray-900 dark:text-gray-100">
             Security Management
           </h1>
-          <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+          <p className="mt-1 text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
             Monitor authentication security and manage account lockouts
           </p>
         </div>
@@ -98,7 +98,7 @@ export default function SecurityPage() {
         {/* Locked Accounts Section */}
         <div className="card">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold">Locked Accounts</h2>
+            <h2 className="text-xl font-semibold leading-snug">Locked Accounts</h2>
             <span className="px-3 py-1 bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300 rounded-full text-sm font-medium">
               {lockedAccounts?.length || 0} Locked
             </span>
@@ -113,22 +113,22 @@ export default function SecurityPage() {
               <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                 <thead className="bg-gray-50 dark:bg-gray-800">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    <th className="px-4 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase">
                       User
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    <th className="px-4 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase">
                       Email
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    <th className="px-4 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase">
                       Locked At
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    <th className="px-4 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase">
                       Locked Until
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    <th className="px-4 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase">
                       Failed Attempts
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    <th className="px-4 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase">
                       Actions
                     </th>
                   </tr>
@@ -139,21 +139,21 @@ export default function SecurityPage() {
                       <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100">
                         {account.users?.full_name || 'N/A'}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                      <td className="px-4 py-3 text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                         {account.users?.email}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                      <td className="px-4 py-3 text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                         {formatDate(account.locked_at)}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                      <td className="px-4 py-3 text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                         {account.locked_until ? formatDate(account.locked_until) : 'Manual unlock required'}
                       </td>
-                      <td className="px-4 py-3 text-sm">
-                        <span className="px-2 py-1 bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300 rounded-full text-xs font-medium">
+                      <td className="px-4 py-3 text-sm font-normal leading-normal">
+                        <span className="px-2 py-1 bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300 rounded-full text-xs font-normal leading-tight font-medium">
                           {account.failed_attempts}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-sm">
+                      <td className="px-4 py-3 text-sm font-normal leading-normal">
                         <button
                           onClick={() => handleUnlock(account)}
                           className="text-primary-600 hover:text-primary-700 font-medium"
@@ -180,7 +180,7 @@ export default function SecurityPage() {
 
         {/* Recent Authentication Attempts */}
         <div className="card">
-          <h2 className="text-lg font-semibold mb-4">Recent Authentication Attempts</h2>
+          <h2 className="text-xl font-semibold leading-snug mb-4">Recent Authentication Attempts</h2>
 
           {attemptsLoading ? (
             <div className="text-center py-8 text-gray-600 dark:text-gray-400">
@@ -191,22 +191,22 @@ export default function SecurityPage() {
               <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                 <thead className="bg-gray-50 dark:bg-gray-800">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    <th className="px-4 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase">
                       Time
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    <th className="px-4 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase">
                       Email
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    <th className="px-4 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase">
                       Type
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    <th className="px-4 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase">
                       Status
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    <th className="px-4 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase">
                       IP Address
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    <th className="px-4 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase">
                       Failure Reason
                     </th>
                   </tr>
@@ -214,30 +214,30 @@ export default function SecurityPage() {
                 <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
                   {authAttempts.slice(0, 50).map((attempt: any) => (
                     <tr key={attempt.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
-                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                      <td className="px-4 py-3 text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                         {formatDate(attempt.created_at)}
                       </td>
                       <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100">
                         {attempt.email}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                      <td className="px-4 py-3 text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                         {attempt.attempt_type}
                       </td>
-                      <td className="px-4 py-3 text-sm">
+                      <td className="px-4 py-3 text-sm font-normal leading-normal">
                         {attempt.success ? (
-                          <span className="px-2 py-1 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300 rounded-full text-xs font-medium">
+                          <span className="px-2 py-1 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300 rounded-full text-xs font-normal leading-tight font-medium">
                             Success
                           </span>
                         ) : (
-                          <span className="px-2 py-1 bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300 rounded-full text-xs font-medium">
+                          <span className="px-2 py-1 bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300 rounded-full text-xs font-normal leading-tight font-medium">
                             Failed
                           </span>
                         )}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                      <td className="px-4 py-3 text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                         {attempt.ip_address || 'N/A'}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                      <td className="px-4 py-3 text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                         {attempt.failure_reason || '-'}
                       </td>
                     </tr>
@@ -264,16 +264,16 @@ export default function SecurityPage() {
             </h3>
 
             <div className="mb-4">
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+              <p className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400 mb-2">
                 You are about to unlock the account for:
               </p>
-              <p className="text-base font-medium text-gray-900 dark:text-gray-100">
+              <p className="text-base font-normal leading-normal font-medium text-gray-900 dark:text-gray-100">
                 {selectedAccount.users?.full_name} ({selectedAccount.users?.email})
               </p>
             </div>
 
             {unlockError && (
-              <div className="mb-4 bg-danger-50 dark:bg-danger-900/30 text-danger-700 dark:text-danger-300 p-3 rounded-lg text-sm">
+              <div className="mb-4 bg-danger-50 dark:bg-danger-900/30 text-danger-700 dark:text-danger-300 p-3 rounded-lg text-sm font-normal leading-normal">
                 {unlockError}
               </div>
             )}

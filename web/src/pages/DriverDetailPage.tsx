@@ -13,6 +13,7 @@ import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useDriverWithVehicles } from '../hooks/useDrivers';
 import { useAuthStore } from '../stores/authStore';
 import { canManageDrivers } from '../utils/authorization';
+import Button from '../components/Button';
 
 export default function DriverDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -52,9 +53,9 @@ export default function DriverDetailPage() {
             <p className="text-red-800 dark:text-red-200">
               Error loading driver: {error instanceof Error ? error.message : 'Driver not found'}
             </p>
-            <button onClick={handleBack} className="mt-4 btn-primary">
+            <Button onClick={handleBack} variant="primary" className="mt-4">
               Back to Drivers
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -78,21 +79,21 @@ export default function DriverDetailPage() {
                 </svg>
               </button>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                <h1 className="text-3xl font-bold leading-tight text-gray-900 dark:text-gray-100">
                   {driver.full_name}
                 </h1>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+                <p className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                   Driver Details
                 </p>
               </div>
             </div>
             {canManage && (
-              <button onClick={handleEdit} className="btn-primary flex items-center gap-2">
+              <Button onClick={handleEdit} variant="primary">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                 </svg>
                 Edit Driver
-              </button>
+              </Button>
             )}
           </div>
         </div>
@@ -109,20 +110,20 @@ export default function DriverDetailPage() {
               </h2>
               <div className="space-y-4">
                 <div>
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Name</span>
+                  <span className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">Name</span>
                   <p className="font-medium text-gray-900 dark:text-gray-100">
                     {driver.full_name}
                   </p>
                 </div>
                 <div>
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Email</span>
+                  <span className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">Email</span>
                   <p className="font-medium text-gray-900 dark:text-gray-100">
                     {driver.email}
                   </p>
                 </div>
                 {driver.phone && (
                   <div>
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Phone</span>
+                    <span className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">Phone</span>
                     <p className="font-medium text-gray-900 dark:text-gray-100">
                       {driver.phone}
                     </p>
@@ -130,7 +131,7 @@ export default function DriverDetailPage() {
                 )}
                 {driver.license_number && (
                   <div>
-                    <span className="text-sm text-gray-600 dark:text-gray-400">License Number</span>
+                    <span className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">License Number</span>
                     <p className="font-medium text-gray-900 dark:text-gray-100">
                       {driver.license_number}
                     </p>
@@ -138,26 +139,26 @@ export default function DriverDetailPage() {
                 )}
                 {driver.license_expiry && (
                   <div>
-                    <span className="text-sm text-gray-600 dark:text-gray-400">License Expiry</span>
+                    <span className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">License Expiry</span>
                     <p className="font-medium text-gray-900 dark:text-gray-100">
                       {new Date(driver.license_expiry).toLocaleDateString()}
                     </p>
                     {new Date(driver.license_expiry) < new Date() && (
-                      <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                      <p className="mt-1 text-sm font-normal leading-normal text-red-600 dark:text-red-400">
                         ⚠️ License expired
                       </p>
                     )}
                   </div>
                 )}
                 <div>
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Status</span>
+                  <span className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">Status</span>
                   <p className="font-medium">
                     {driver.is_active ? (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-normal leading-tight font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
                         Active
                       </span>
                     ) : (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-normal leading-tight font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
                         Inactive
                       </span>
                     )}
@@ -170,7 +171,7 @@ export default function DriverDetailPage() {
                 <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">
                   Metadata
                 </h3>
-                <div className="space-y-2 text-sm">
+                <div className="space-y-2 text-sm font-normal leading-normal">
                   <div>
                     <span className="text-gray-600 dark:text-gray-400">Created:</span>
                     <p className="text-gray-900 dark:text-gray-100">
@@ -233,7 +234,7 @@ export default function DriverDetailPage() {
                           <h3 className="font-semibold text-gray-900 dark:text-gray-100">
                             {assignment.vehicle.make} {assignment.vehicle.model} ({assignment.vehicle.year})
                           </h3>
-                          <div className="mt-2 grid grid-cols-2 gap-4 text-sm">
+                          <div className="mt-2 grid grid-cols-2 gap-4 text-sm font-normal leading-normal">
                             <div>
                               <span className="text-gray-600 dark:text-gray-400">VIN:</span>
                               <span className="ml-2 text-gray-900 dark:text-gray-100 font-mono">

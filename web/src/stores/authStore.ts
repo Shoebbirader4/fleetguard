@@ -53,9 +53,16 @@ export const useAuthStore = create<AuthState>()(
         try {
           const {
             data: { session },
+            error: sessionError,
           } = await supabase.auth.getSession();
 
-          if (!session) {
+          // Handle invalid refresh token or no session
+          if (sessionError || !session) {
+            // Clear invalid session data from storage
+            if (sessionError?.message?.includes('refresh') || sessionError?.message?.includes('token')) {
+              console.warn('Invalid or expired refresh token, clearing auth state');
+              await supabase.auth.signOut({ scope: 'local' }); // Clear local storage only
+            }
             get().clearAuth();
             return false;
           }
@@ -66,27 +73,42 @@ export const useAuthStore = create<AuthState>()(
 
           if (expiresAt && expiresAt < now) {
             // Token expired, try to refresh
-            const {
-              data: { session: newSession },
-              error,
-            } = await supabase.auth.refreshSession();
+            try {
+              const {
+                data: { session: newSession },
+                error: refreshError,
+              } = await supabase.auth.refreshSession();
 
-            if (error || !newSession) {
+              if (refreshError || !newSession) {
+                console.warn('Failed to refresh session, clearing auth state');
+                await supabase.auth.signOut({ scope: 'local' });
+                get().clearAuth();
+                return false;
+              }
+
+              // Update with new session data
+              if (newSession.user && get().user) {
+                set({
+                  accessToken: newSession.access_token,
+                });
+              }
+            } catch (refreshError) {
+              console.error('Token refresh error:', refreshError);
+              await supabase.auth.signOut({ scope: 'local' });
               get().clearAuth();
               return false;
-            }
-
-            // Update with new session data
-            if (newSession.user && get().user) {
-              set({
-                accessToken: newSession.access_token,
-              });
             }
           }
 
           return true;
         } catch (error) {
           console.error('Session check error:', error);
+          // Clear auth on any error
+          try {
+            await supabase.auth.signOut({ scope: 'local' });
+          } catch (signOutError) {
+            console.error('Error during cleanup sign out:', signOutError);
+          }
           get().clearAuth();
           return false;
         }

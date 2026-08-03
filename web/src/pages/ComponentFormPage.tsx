@@ -235,10 +235,10 @@ export default function ComponentFormPage() {
     <Layout>
       <div className="bg-white dark:bg-gray-800 shadow-soft border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-4xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+          <h1 className="text-3xl font-bold leading-tight text-gray-900 dark:text-gray-100">
             {isEditMode ? 'Edit Component' : 'Add New Component'}
           </h1>
-          <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+          <p className="mt-1 text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
             {isEditMode ? 'Update component information' : 'Add a new component to a vehicle'}
           </p>
         </div>
@@ -248,7 +248,7 @@ export default function ComponentFormPage() {
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Vehicle Selection */}
           <div className="card">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Vehicle Information</h2>
+            <h2 className="text-xl font-semibold leading-snug text-gray-900 dark:text-gray-100 mb-4">Vehicle Information</h2>
             <div>
               <label htmlFor="vehicle_id" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Vehicle *
@@ -272,11 +272,11 @@ export default function ComponentFormPage() {
                   </option>
                 ))}
               </select>
-              {errors.vehicle_id && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.vehicle_id}</p>}
+              {errors.vehicle_id && <p className="mt-1 text-sm font-normal leading-normal text-red-600 dark:text-red-400">{errors.vehicle_id}</p>}
               
               {selectedVehicle && (
                 <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-md">
-                  <p className="text-sm text-blue-800 dark:text-blue-200">
+                  <p className="text-sm font-normal leading-normal text-blue-800 dark:text-blue-200">
                     Current Odometer: <span className="font-semibold">{selectedVehicle.current_odometer.toLocaleString()} {selectedVehicle.unit}</span>
                   </p>
                 </div>
@@ -286,7 +286,7 @@ export default function ComponentFormPage() {
 
           {/* Component Details */}
           <div className="card">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Component Details</h2>
+            <h2 className="text-xl font-semibold leading-snug text-gray-900 dark:text-gray-100 mb-4">Component Details</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label htmlFor="component_type" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -311,7 +311,7 @@ export default function ComponentFormPage() {
                   ))}
                 </select>
                 {errors.component_type && (
-                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.component_type}</p>
+                  <p className="mt-1 text-sm font-normal leading-normal text-red-600 dark:text-red-400">{errors.component_type}</p>
                 )}
               </div>
 
@@ -379,7 +379,7 @@ export default function ComponentFormPage() {
 
           {/* Installation Information */}
           <div className="card">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Installation Information</h2>
+            <h2 className="text-xl font-semibold leading-snug text-gray-900 dark:text-gray-100 mb-4">Installation Information</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label htmlFor="installation_date" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -399,7 +399,7 @@ export default function ComponentFormPage() {
                   } dark:bg-gray-700 dark:text-gray-100`}
                 />
                 {errors.installation_date && (
-                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.installation_date}</p>
+                  <p className="mt-1 text-sm font-normal leading-normal text-red-600 dark:text-red-400">{errors.installation_date}</p>
                 )}
               </div>
 
@@ -421,7 +421,7 @@ export default function ComponentFormPage() {
                   } dark:bg-gray-700 dark:text-gray-100`}
                 />
                 {errors.installation_odometer && (
-                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.installation_odometer}</p>
+                  <p className="mt-1 text-sm font-normal leading-normal text-red-600 dark:text-red-400">{errors.installation_odometer}</p>
                 )}
               </div>
 
@@ -444,9 +444,9 @@ export default function ComponentFormPage() {
                   } dark:bg-gray-700 dark:text-gray-100`}
                 />
                 {errors.expected_life_km && (
-                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.expected_life_km}</p>
+                  <p className="mt-1 text-sm font-normal leading-normal text-red-600 dark:text-red-400">{errors.expected_life_km}</p>
                 )}
-                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                <p className="mt-1 text-xs font-normal leading-tight text-gray-500 dark:text-gray-400">
                   How many {selectedVehicle?.unit || 'km/miles'} is this component expected to last?
                 </p>
               </div>
@@ -470,9 +470,9 @@ export default function ComponentFormPage() {
                   } dark:bg-gray-700 dark:text-gray-100`}
                 />
                 {errors.expected_life_days && (
-                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.expected_life_days}</p>
+                  <p className="mt-1 text-sm font-normal leading-normal text-red-600 dark:text-red-400">{errors.expected_life_days}</p>
                 )}
-                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                <p className="mt-1 text-xs font-normal leading-tight text-gray-500 dark:text-gray-400">
                   For time-based components (e.g., batteries, fluids)
                 </p>
               </div>
@@ -493,7 +493,7 @@ export default function ComponentFormPage() {
                     <option value="replaced">Replaced</option>
                     <option value="removed">Removed</option>
                   </select>
-                  <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  <p className="mt-1 text-xs font-normal leading-tight text-gray-500 dark:text-gray-400">
                     Mark as "Replaced" or "Removed" when component is no longer in use
                   </p>
                 </div>
@@ -503,7 +503,7 @@ export default function ComponentFormPage() {
 
           {/* Notes */}
           <div className="card">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Additional Notes</h2>
+            <h2 className="text-xl font-semibold leading-snug text-gray-900 dark:text-gray-100 mb-4">Additional Notes</h2>
             <div>
               <label htmlFor="notes" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Notes

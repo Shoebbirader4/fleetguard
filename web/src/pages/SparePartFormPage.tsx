@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../stores/authStore';
+import { toast } from '../components/ToastContainer';
 
 export default function SparePartFormPage() {
   const { id } = useParams();
@@ -104,13 +105,18 @@ export default function SparePartFormPage() {
       }
     },
     onSuccess: () => {
+      toast.success(isEditMode ? 'Part updated successfully' : 'Part created successfully');
       navigate('/inventory');
     },
     onError: (error: any) => {
       if (error.message?.includes('duplicate key') || error.code === '23505') {
-        setSubmitError('A part with this part number already exists');
+        const errorMsg = 'A part with this part number already exists';
+        setSubmitError(errorMsg);
+        toast.error(errorMsg);
       } else {
-        setSubmitError(error.message || 'Failed to save part');
+        const errorMsg = error.message || 'Failed to save part';
+        setSubmitError(errorMsg);
+        toast.error(errorMsg);
       }
     },
   });
@@ -188,7 +194,7 @@ export default function SparePartFormPage() {
             >
               ← Back
             </button>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+            <h1 className="text-3xl font-bold leading-tight text-gray-900 dark:text-gray-100">
               {isEditMode ? 'Edit Spare Part' : 'Add New Spare Part'}
             </h1>
           </div>
@@ -214,7 +220,7 @@ export default function SparePartFormPage() {
                 placeholder="e.g., BRK-001"
               />
               {errors.part_number && (
-                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.part_number}</p>
+                <p className="mt-1 text-sm font-normal leading-normal text-red-600 dark:text-red-400">{errors.part_number}</p>
               )}
             </div>
 
@@ -234,7 +240,7 @@ export default function SparePartFormPage() {
                 placeholder="Detailed description of the part"
               />
               {errors.description && (
-                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.description}</p>
+                <p className="mt-1 text-sm font-normal leading-normal text-red-600 dark:text-red-400">{errors.description}</p>
               )}
             </div>
 
@@ -255,7 +261,7 @@ export default function SparePartFormPage() {
                   placeholder="e.g., Brakes, Filters, Tires"
                 />
                 {errors.category && (
-                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.category}</p>
+                  <p className="mt-1 text-sm font-normal leading-normal text-red-600 dark:text-red-400">{errors.category}</p>
                 )}
               </div>
 
@@ -274,7 +280,7 @@ export default function SparePartFormPage() {
                   placeholder="e.g., pcs, liters, kg"
                 />
                 {errors.unit_of_measure && (
-                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.unit_of_measure}</p>
+                  <p className="mt-1 text-sm font-normal leading-normal text-red-600 dark:text-red-400">{errors.unit_of_measure}</p>
                 )}
               </div>
             </div>
@@ -297,7 +303,7 @@ export default function SparePartFormPage() {
                 placeholder="0.00"
               />
               {errors.unit_cost && (
-                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.unit_cost}</p>
+                <p className="mt-1 text-sm font-normal leading-normal text-red-600 dark:text-red-400">{errors.unit_cost}</p>
               )}
             </div>
 
@@ -319,7 +325,7 @@ export default function SparePartFormPage() {
                   placeholder="0"
                 />
                 {errors.current_quantity && (
-                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.current_quantity}</p>
+                  <p className="mt-1 text-sm font-normal leading-normal text-red-600 dark:text-red-400">{errors.current_quantity}</p>
                 )}
               </div>
 
@@ -339,7 +345,7 @@ export default function SparePartFormPage() {
                   placeholder="0"
                 />
                 {errors.reorder_level && (
-                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.reorder_level}</p>
+                  <p className="mt-1 text-sm font-normal leading-normal text-red-600 dark:text-red-400">{errors.reorder_level}</p>
                 )}
               </div>
 
@@ -382,7 +388,7 @@ export default function SparePartFormPage() {
             {/* Submit Error */}
             {submitError && (
               <div className="p-3 bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg">
-                <p className="text-sm text-red-800 dark:text-red-300">{submitError}</p>
+                <p className="text-sm font-normal leading-normal text-red-800 dark:text-red-300">{submitError}</p>
               </div>
             )}
 
@@ -398,7 +404,7 @@ export default function SparePartFormPage() {
               </button>
               <button
                 type="submit"
-                className="px-6 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors text-sm font-medium disabled:opacity-50"
+                className="px-6 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors text-sm font-normal leading-normal disabled:opacity-50"
                 disabled={saveMutation.isPending}
               >
                 {saveMutation.isPending ? 'Saving...' : isEditMode ? 'Update Part' : 'Create Part'}

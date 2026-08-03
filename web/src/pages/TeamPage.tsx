@@ -21,6 +21,7 @@ import ConfirmationModal from '../components/ConfirmationModal';
 import InviteUserModal from '../components/InviteUserModal';
 import UserDetailModal from '../components/UserDetailModal';
 import { toast } from '../components/ToastContainer';
+import { ListPageSkeleton, ButtonLoadingSpinner } from '../components/SkeletonScreens';
 
 export default function TeamPage() {
   const navigate = useNavigate();
@@ -179,7 +180,7 @@ export default function TeamPage() {
       <div className="bg-white dark:bg-gray-800 shadow-soft border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+            <h1 className="text-3xl font-bold leading-tight text-gray-900 dark:text-gray-100">
               Team
             </h1>
             {canInvite && (
@@ -247,7 +248,7 @@ export default function TeamPage() {
 
           {/* Results Summary */}
           {users && (
-            <div className="mt-4 text-sm text-gray-600 dark:text-gray-400">
+            <div className="mt-4 text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
               Showing {sortedUsers.length} of {users.length} users
             </div>
           )}
@@ -255,10 +256,7 @@ export default function TeamPage() {
 
         {/* User Table */}
         {isLoading ? (
-          <div className="card text-center py-12">
-            <LoadingSpinner size="lg" className="mx-auto" />
-            <p className="mt-4 text-gray-600 dark:text-gray-400">Loading team members...</p>
-          </div>
+          <ListPageSkeleton />
         ) : error ? (
           <div className="card bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
             <p className="text-red-800 dark:text-red-200">
@@ -305,46 +303,46 @@ export default function TeamPage() {
                   <tr>
                     <th
                       scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
+                      className="px-6 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
                       onClick={() => toggleSort('name')}
                     >
                       Name {getSortIcon('name')}
                     </th>
                     <th
                       scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+                      className="px-6 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                     >
                       Email
                     </th>
                     <th
                       scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
+                      className="px-6 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
                       onClick={() => toggleSort('role')}
                     >
                       Role {getSortIcon('role')}
                     </th>
                     <th
                       scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+                      className="px-6 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                     >
                       Phone
                     </th>
                     <th
                       scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+                      className="px-6 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                     >
                       Status
                     </th>
                     <th
                       scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
+                      className="px-6 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
                       onClick={() => toggleSort('created')}
                     >
                       Joined {getSortIcon('created')}
                     </th>
                     <th
                       scope="col"
-                      className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+                      className="px-6 py-3 text-right text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                     >
                       Actions
                     </th>
@@ -359,27 +357,27 @@ export default function TeamPage() {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-600 dark:text-gray-400">
+                        <div className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                           {user.email}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-normal leading-tight font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
                           {getRoleLabel(user.role)}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-600 dark:text-gray-400">
+                        <div className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                           {user.phone || '-'}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(user.is_active)}`}>
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-normal leading-tight font-medium ${getStatusColor(user.is_active)}`}>
                           {user.is_active ? 'Active' : 'Inactive'}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-600 dark:text-gray-400">
+                        <div className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                           {new Date(user.created_at).toLocaleDateString()}
                         </div>
                       </td>
@@ -457,7 +455,7 @@ export default function TeamPage() {
         size="md"
       >
         <div className="space-y-4">
-          <p className="text-sm text-gray-600 dark:text-gray-400">
+          <p className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
             Change the role for <strong>{selectedUser?.full_name}</strong>
           </p>
 
@@ -477,7 +475,7 @@ export default function TeamPage() {
                 </option>
               ))}
             </select>
-            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            <p className="mt-1 text-xs font-normal leading-tight text-gray-500 dark:text-gray-400">
               {USER_ROLES.find(r => r.value === newRole)?.description}
             </p>
           </div>
@@ -497,7 +495,7 @@ export default function TeamPage() {
               className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               disabled={updateRoleMutation.isPending}
             >
-              {updateRoleMutation.isPending && <LoadingSpinner size="sm" />}
+              {updateRoleMutation.isPending && <ButtonLoadingSpinner />}
               Update Role
             </button>
           </div>

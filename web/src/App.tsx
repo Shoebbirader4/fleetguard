@@ -2,7 +2,9 @@ import { lazy, Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { useThemeStore } from './stores/themeStore';
 import ToastContainer from './components/ToastContainer';
+import OfflineIndicator from './components/OfflineIndicator';
 import ProtectedRoute from './components/ProtectedRoute';
+import ErrorBoundary from './components/ErrorBoundary';
 
 // Immediate loading for critical routes
 import HomePage from './pages/HomePage';
@@ -46,6 +48,9 @@ const DriverFormPage = lazy(() => import('./pages/DriverFormPage'));
 const VendorsPage = lazy(() => import('./pages/VendorsPage'));
 const VendorDetailPage = lazy(() => import('./pages/VendorDetailPage'));
 const VendorFormPage = lazy(() => import('./pages/VendorFormPage'));
+const MaintenanceCalendarPage = lazy(() => import('./pages/MaintenanceCalendarPage'));
+const GPSTrackingPage = lazy(() => import('./pages/GPSTrackingPage'));
+const RecurringMaintenancePage = lazy(() => import('./pages/RecurringMaintenancePage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
 // Lazy load ForbiddenPage
@@ -72,10 +77,12 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen">
-      <ToastContainer />
-      <Suspense fallback={<LoadingFallback />}>
-        <Routes>
+    <ErrorBoundary>
+      <div className="min-h-screen">
+        <OfflineIndicator />
+        <ToastContainer />
+        <Suspense fallback={<LoadingFallback />}>
+          <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignUpPage />} />
@@ -105,6 +112,9 @@ function App() {
           <Route path="/inventory/purchase-orders/:id" element={<PurchaseOrderDetailPage />} />
           <Route path="/inventory/purchase-orders/:id/edit" element={<PurchaseOrderFormPage />} />
           <Route path="/analytics" element={<AnalyticsPage />} />
+          <Route path="/calendar" element={<MaintenanceCalendarPage />} />
+          <Route path="/gps-tracking" element={<GPSTrackingPage />} />
+          <Route path="/recurring-maintenance" element={<RecurringMaintenancePage />} />
           <Route path="/documents" element={<DocumentsPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/settings/users" element={<UserManagementPage />} />
@@ -191,6 +201,7 @@ function App() {
         </Routes>
       </Suspense>
     </div>
+    </ErrorBoundary>
   );
 }
 

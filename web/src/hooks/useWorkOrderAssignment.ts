@@ -4,12 +4,20 @@
  * React Query hooks for work order assignment, reassignment, and mechanic workload management.
  * 
  * Task 19.1 - Create work order assignment hooks
- * Requirements: 4.1, 4.2, 4.4
+ * Task 21.2 - Integrate notifications with assignment actions
+ * Requirements: 4.1, 4.2, 4.3, 4.4, 4.5
  */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
+import { toast } from '../components/ToastContainer';
+import { useAuthStore } from '../stores/authStore';
 import type { WorkOrderWithDetails } from '../types/workOrder';
+import {
+  sendWorkOrderAssignmentNotification,
+  sendWorkOrderReassignmentNotifications,
+  type WorkOrderNotificationData,
+} from '../utils/notifications';
 
 interface MechanicUser {
   id: string;
@@ -47,16 +55,19 @@ export function useMechanics() {
  * Hook to assign a work order to a mechanic
  * Updates assigned_to field and changes status from 'pending' to 'assigned'
  * Implements optimistic updates for immediate UI feedback
+ * Sends notification to assigned mechanic after successful assignment
  * 
- * **Validates: Requirements 4.1, 4.2**
+ * **Validates: Requirements 4.1, 4.2, 4.3**
  * - Only assigns to mechanic-related roles
  * - Work order status must change from pending to assigned when assignment occurs
+ * - Assigned users receive notifications (if enabled)
  * 
  * @param workOrderId - ID of the work order to assign
  * @param assignedTo - ID of the mechanic/user to assign to
  */
 export function useAssignWorkOrder() {
   const queryClient = useQueryClient();
+  const currentUser = useAuthStore((state) => state.user);
   
   return useMutation({
     mutationFn: async ({ 
@@ -66,6 +77,7 @@ export function useAssignWorkOrder() {
       workOrderId: string; 
       assignedTo: string;
     }) => {
+      // Update work order assignment
       const { data, error } = await supabase
         .from('work_orders')
         .update({
@@ -78,6 +90,62 @@ export function useAssignWorkOrder() {
         .single();
       
       if (error) throw error;
+      
+      // Fetch work order with vehicle details for notification
+      const { data: workOrderWithDetails, error: detailsError } = await supabase
+        .from('work_orders')
+        .select(`
+          *,
+          vehicle:vehicles(
+            id,
+            vin,
+            make,
+            model,
+            year
+          )
+        `)
+        .eq('id', workOrderId)
+        .single();
+      
+      if (detailsError) {
+        console.error('[Assignment] Failed to fetch work order details for notification:', detailsError);
+      } else {
+        // Send notification to assigned mechanic (don't fail assignment if notification fails)
+        try {
+          const notificationData: WorkOrderNotificationData = {
+            workOrderId: workOrderWithDetails.id,
+            workOrderTitle: workOrderWithDetails.description || 'Work Order',
+            workOrderDescription: workOrderWithDetails.description || '',
+            priority: workOrderWithDetails.priority,
+            vehicleInfo: {
+              id: workOrderWithDetails.vehicle.id,
+              vin: workOrderWithDetails.vehicle.vin,
+              make: workOrderWithDetails.vehicle.make,
+              model: workOrderWithDetails.vehicle.model,
+              year: workOrderWithDetails.vehicle.year,
+            },
+            assignedBy: {
+              id: currentUser?.id || '',
+              name: currentUser?.fullName || 'System',
+            },
+          };
+          
+          const result = await sendWorkOrderAssignmentNotification(
+            assignedTo,
+            notificationData,
+            false // not a reassignment
+          );
+          
+          if (!result.success) {
+            console.error('[Assignment] Notification failed:', result.errors);
+          } else {
+            console.log(`[Assignment] Notification sent successfully (${result.jobsCreated} jobs created)`);
+          }
+        } catch (notificationError) {
+          console.error('[Assignment] Error sending notification:', notificationError);
+        }
+      }
+      
       return data;
     },
     // Optimistic update: Update UI immediately before server responds
@@ -116,6 +184,9 @@ export function useAssignWorkOrder() {
       if (context?.previousWorkOrder) {
         queryClient.setQueryData(['work-orders', variables.workOrderId], context.previousWorkOrder);
       }
+      
+      // Show error toast
+      toast.error(`Failed to assign work order: ${err.message}`);
     },
     // Always refetch after error or success to ensure consistency
     onSettled: (data, error, variables) => {
@@ -129,6 +200,11 @@ export function useAssignWorkOrder() {
           queryKey: ['work-orders', 'my', variables.assignedTo] 
         });
       }
+      
+      // Show success toast only if no error occurred
+      if (!error) {
+        toast.success('Work order assigned successfully');
+      }
     },
   });
 }
@@ -138,16 +214,18 @@ export function useAssignWorkOrder() {
  * Updates assigned_to field and creates an audit log entry
  * Sends notifications to both old and new mechanics (if notifications enabled)
  * 
- * **Validates: Requirements 4.2, 4.4**
+ * **Validates: Requirements 4.2, 4.4, 4.5**
  * - Updates work order assignment
  * - Reassignment creates an audit log entry (handled by database trigger)
+ * - Both old and new mechanics receive notifications
  * 
  * @param workOrderId - ID of the work order to reassign
- * @param oldAssignedTo - ID of the current assigned mechanic (for cache invalidation)
+ * @param oldAssignedTo - ID of the current assigned mechanic (for cache invalidation and notifications)
  * @param newAssignedTo - ID of the new mechanic to assign to
  */
 export function useReassignWorkOrder() {
   const queryClient = useQueryClient();
+  const currentUser = useAuthStore((state) => state.user);
   
   return useMutation({
     mutationFn: async ({ 
@@ -159,6 +237,7 @@ export function useReassignWorkOrder() {
       oldAssignedTo: string | null;
       newAssignedTo: string;
     }) => {
+      // Update work order assignment
       const { data, error } = await supabase
         .from('work_orders')
         .update({
@@ -171,8 +250,65 @@ export function useReassignWorkOrder() {
       
       if (error) throw error;
       
-      // TODO: Implement notification sending in Task 21
-      // This will notify both old and new mechanics about the reassignment
+      // Fetch work order with vehicle details for notification
+      const { data: workOrderWithDetails, error: detailsError } = await supabase
+        .from('work_orders')
+        .select(`
+          *,
+          vehicle:vehicles(
+            id,
+            vin,
+            make,
+            model,
+            year
+          )
+        `)
+        .eq('id', workOrderId)
+        .single();
+      
+      if (detailsError) {
+        console.error('[Reassignment] Failed to fetch work order details for notification:', detailsError);
+      } else {
+        // Send notifications to both old and new mechanics (don't fail reassignment if notification fails)
+        try {
+          const notificationData: WorkOrderNotificationData = {
+            workOrderId: workOrderWithDetails.id,
+            workOrderTitle: workOrderWithDetails.description || 'Work Order',
+            workOrderDescription: workOrderWithDetails.description || '',
+            priority: workOrderWithDetails.priority,
+            vehicleInfo: {
+              id: workOrderWithDetails.vehicle.id,
+              vin: workOrderWithDetails.vehicle.vin,
+              make: workOrderWithDetails.vehicle.make,
+              model: workOrderWithDetails.vehicle.model,
+              year: workOrderWithDetails.vehicle.year,
+            },
+            assignedBy: {
+              id: currentUser?.id || '',
+              name: currentUser?.fullName || 'System',
+            },
+          };
+          
+          const results = await sendWorkOrderReassignmentNotifications(
+            oldAssignedTo,
+            newAssignedTo,
+            notificationData
+          );
+          
+          if (results.oldMechanicResult && !results.oldMechanicResult.success) {
+            console.error('[Reassignment] Old mechanic notification failed:', results.oldMechanicResult.errors);
+          }
+          
+          if (!results.newMechanicResult.success) {
+            console.error('[Reassignment] New mechanic notification failed:', results.newMechanicResult.errors);
+          }
+          
+          const totalJobs = (results.oldMechanicResult?.jobsCreated || 0) + results.newMechanicResult.jobsCreated;
+          console.log(`[Reassignment] Notifications sent successfully (${totalJobs} jobs created)`);
+        } catch (notificationError) {
+          console.error('[Reassignment] Error sending notifications:', notificationError);
+        }
+      }
       
       return data;
     },
@@ -212,6 +348,9 @@ export function useReassignWorkOrder() {
       if (context?.previousWorkOrder) {
         queryClient.setQueryData(['work-orders', variables.workOrderId], context.previousWorkOrder);
       }
+      
+      // Show error toast
+      toast.error(`Failed to reassign work order: ${err.message}`);
     },
     // Always refetch after error or success to ensure consistency
     onSettled: (data, error, variables) => {
@@ -229,6 +368,11 @@ export function useReassignWorkOrder() {
         queryClient.invalidateQueries({ 
           queryKey: ['work-orders', 'my', variables.newAssignedTo] 
         });
+      }
+      
+      // Show success toast only if no error occurred
+      if (!error) {
+        toast.success('Work order reassigned successfully');
       }
     },
   });
@@ -271,5 +415,8 @@ export function useMyWorkOrders(userId: string) {
       return data as WorkOrderWithDetails[];
     },
     enabled: !!userId,
+    // Auto-refresh every 5 minutes (Requirement 8.4)
+    refetchInterval: 5 * 60 * 1000,
+    staleTime: 5 * 60 * 1000,
   });
 }

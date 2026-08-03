@@ -24,7 +24,7 @@ export default function UserRoleSelectorExamples() {
         <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">
           1. Basic Usage
         </h2>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+        <p className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400 mb-4">
           Simple role selector with descriptions
         </p>
         <UserRoleSelector
@@ -33,7 +33,7 @@ export default function UserRoleSelectorExamples() {
           label="Select User Role"
           placeholder="Choose a role..."
         />
-        <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+        <p className="mt-2 text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
           Selected: <strong>{selectedRole || 'None'}</strong>
         </p>
       </section>
@@ -43,7 +43,7 @@ export default function UserRoleSelectorExamples() {
         <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">
           2. Without Descriptions in Dropdown
         </h2>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+        <p className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400 mb-4">
           Shows role names only in dropdown, description as helper text
         </p>
         <UserRoleSelector
@@ -59,7 +59,7 @@ export default function UserRoleSelectorExamples() {
         <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">
           3. Disabled State
         </h2>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+        <p className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400 mb-4">
           Selector is disabled (e.g., insufficient permissions)
         </p>
         <UserRoleSelector
@@ -75,7 +75,7 @@ export default function UserRoleSelectorExamples() {
         <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">
           4. Self-Role Editing Prevention (Requirement 1.3)
         </h2>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+        <p className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400 mb-4">
           User cannot change their own role - selector automatically disables
         </p>
         <UserRoleSelector
@@ -92,7 +92,7 @@ export default function UserRoleSelectorExamples() {
         <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">
           5. Editing Another User's Role
         </h2>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+        <p className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400 mb-4">
           Company owner can change other users' roles
         </p>
         <UserRoleSelector
@@ -109,7 +109,7 @@ export default function UserRoleSelectorExamples() {
         <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">
           6. Error State
         </h2>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+        <p className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400 mb-4">
           Showing validation error
         </p>
         <UserRoleSelector
@@ -125,7 +125,7 @@ export default function UserRoleSelectorExamples() {
         <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">
           7. In Invitation Form Context
         </h2>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+        <p className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400 mb-4">
           Complete form example for inviting a user
         </p>
         <InviteUserForm />
@@ -174,7 +174,7 @@ function InviteUserForm() {
           placeholder="user@example.com"
         />
         {errors.email && (
-          <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.email}</p>
+          <p className="mt-1 text-sm font-normal leading-normal text-red-600 dark:text-red-400">{errors.email}</p>
         )}
       </div>
 
@@ -190,7 +190,7 @@ function InviteUserForm() {
           placeholder="John Doe"
         />
         {errors.fullName && (
-          <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.fullName}</p>
+          <p className="mt-1 text-sm font-normal leading-normal text-red-600 dark:text-red-400">{errors.fullName}</p>
         )}
       </div>
 

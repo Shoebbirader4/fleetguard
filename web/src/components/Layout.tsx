@@ -1,5 +1,6 @@
 import { ReactNode } from 'react';
 import Navigation from './Navigation';
+import ErrorBoundary from './ErrorBoundary';
 
 interface LayoutProps {
   children: ReactNode;
@@ -11,7 +12,9 @@ export default function Layout({ children }: LayoutProps) {
       <Navigation />
       {/* Main content with left margin on desktop to account for sidebar */}
       <div className="lg:pl-64">
-        {children}
+        <ErrorBoundary>
+          {children}
+        </ErrorBoundary>
       </div>
     </div>
   );

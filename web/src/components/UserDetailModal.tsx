@@ -167,7 +167,7 @@ export default function UserDetailModal({
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Name
               </label>
-              <p className="text-base text-gray-900 dark:text-gray-100">{user.full_name}</p>
+              <p className="text-base font-normal leading-normal text-gray-900 dark:text-gray-100">{user.full_name}</p>
             </div>
 
             {/* Email */}
@@ -175,7 +175,7 @@ export default function UserDetailModal({
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Email
               </label>
-              <p className="text-base text-gray-900 dark:text-gray-100">{user.email}</p>
+              <p className="text-base font-normal leading-normal text-gray-900 dark:text-gray-100">{user.email}</p>
             </div>
 
             {/* Role */}
@@ -205,7 +205,7 @@ export default function UserDetailModal({
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Phone
               </label>
-              <p className="text-base text-gray-900 dark:text-gray-100">
+              <p className="text-base font-normal leading-normal text-gray-900 dark:text-gray-100">
                 {user.phone || <span className="text-gray-400">Not provided</span>}
               </p>
             </div>
@@ -227,7 +227,7 @@ export default function UserDetailModal({
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Joined
               </label>
-              <p className="text-base text-gray-900 dark:text-gray-100">
+              <p className="text-base font-normal leading-normal text-gray-900 dark:text-gray-100">
                 {new Date(user.created_at).toLocaleDateString('en-US', {
                   year: 'numeric',
                   month: 'long',

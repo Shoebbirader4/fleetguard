@@ -18,6 +18,7 @@ import { useState } from 'react';
 import { useInviteUser } from '../hooks/useUsers';
 import { InviteUserFormData, UserRole, USER_ROLES } from '../types/user';
 import { validateEmail, validateFullName, validatePhone, validateRole } from '../utils/validation';
+import { buttonStyles, inputStyles, labelStyles, errorMessageStyles } from '../utils/stylePatterns';
 import Modal from './Modal';
 import LoadingSpinner from './LoadingSpinner';
 import { toast } from './ToastContainer';
@@ -189,7 +190,7 @@ export default function InviteUserModal({ isOpen, onClose, onSuccess, defaultRol
         <div className="space-y-4">
           {/* Full Name */}
           <div>
-            <label htmlFor="full_name" className="label">
+            <label htmlFor="full_name" className={labelStyles}>
               Full Name *
             </label>
             <input
@@ -199,7 +200,7 @@ export default function InviteUserModal({ isOpen, onClose, onSuccess, defaultRol
               value={formData.full_name}
               onChange={(e) => handleChange('full_name', e.target.value)}
               onBlur={() => handleBlur('full_name')}
-              className={`input-field ${
+              className={`${inputStyles} ${
                 touched.full_name && errors.full_name
                   ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
                   : ''
@@ -208,7 +209,7 @@ export default function InviteUserModal({ isOpen, onClose, onSuccess, defaultRol
               disabled={inviteUserMutation.isPending}
             />
             {touched.full_name && errors.full_name && (
-              <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+              <p className={errorMessageStyles}>
                 {errors.full_name}
               </p>
             )}
@@ -216,7 +217,7 @@ export default function InviteUserModal({ isOpen, onClose, onSuccess, defaultRol
 
           {/* Email */}
           <div>
-            <label htmlFor="email" className="label">
+            <label htmlFor="email" className={labelStyles}>
               Email *
             </label>
             <input
@@ -226,7 +227,7 @@ export default function InviteUserModal({ isOpen, onClose, onSuccess, defaultRol
               value={formData.email}
               onChange={(e) => handleChange('email', e.target.value)}
               onBlur={() => handleBlur('email')}
-              className={`input-field ${
+              className={`${inputStyles} ${
                 touched.email && errors.email
                   ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
                   : ''
@@ -235,7 +236,7 @@ export default function InviteUserModal({ isOpen, onClose, onSuccess, defaultRol
               disabled={inviteUserMutation.isPending}
             />
             {touched.email && errors.email && (
-              <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+              <p className={errorMessageStyles}>
                 {errors.email}
               </p>
             )}
@@ -243,7 +244,7 @@ export default function InviteUserModal({ isOpen, onClose, onSuccess, defaultRol
 
           {/* Role */}
           <div>
-            <label htmlFor="role" className="label">
+            <label htmlFor="role" className={labelStyles}>
               Role *
             </label>
             <select
@@ -252,7 +253,7 @@ export default function InviteUserModal({ isOpen, onClose, onSuccess, defaultRol
               value={formData.role}
               onChange={(e) => handleChange('role', e.target.value as UserRole)}
               onBlur={() => handleBlur('role')}
-              className={`input-field ${
+              className={`${inputStyles} ${
                 touched.role && errors.role
                   ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
                   : ''
@@ -266,11 +267,11 @@ export default function InviteUserModal({ isOpen, onClose, onSuccess, defaultRol
               ))}
             </select>
             {/* Show role description */}
-            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            <p className="mt-1 text-xs font-normal leading-tight text-gray-500 dark:text-gray-400">
               {selectedRoleDescription}
             </p>
             {touched.role && errors.role && (
-              <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+              <p className={errorMessageStyles}>
                 {errors.role}
               </p>
             )}
@@ -278,7 +279,7 @@ export default function InviteUserModal({ isOpen, onClose, onSuccess, defaultRol
 
           {/* Phone */}
           <div>
-            <label htmlFor="phone" className="label">
+            <label htmlFor="phone" className={labelStyles}>
               Phone (Optional)
             </label>
             <input
@@ -287,7 +288,7 @@ export default function InviteUserModal({ isOpen, onClose, onSuccess, defaultRol
               value={formData.phone || ''}
               onChange={(e) => handleChange('phone', e.target.value)}
               onBlur={() => handleBlur('phone')}
-              className={`input-field ${
+              className={`${inputStyles} ${
                 touched.phone && errors.phone
                   ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
                   : ''
@@ -296,7 +297,7 @@ export default function InviteUserModal({ isOpen, onClose, onSuccess, defaultRol
               disabled={inviteUserMutation.isPending}
             />
             {touched.phone && errors.phone && (
-              <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+              <p className={errorMessageStyles}>
                 {errors.phone}
               </p>
             )}
@@ -308,14 +309,14 @@ export default function InviteUserModal({ isOpen, onClose, onSuccess, defaultRol
           <button
             type="button"
             onClick={handleClose}
-            className="px-4 py-2 bg-white hover:bg-gray-50 text-gray-700 font-medium rounded-lg border border-gray-300 transition-colors dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-600"
+            className={buttonStyles.secondary}
             disabled={inviteUserMutation.isPending}
           >
             Cancel
           </button>
           <button
             type="submit"
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            className={`${buttonStyles.primary} flex items-center gap-2`}
             disabled={inviteUserMutation.isPending}
           >
             {inviteUserMutation.isPending && <LoadingSpinner size="sm" />}

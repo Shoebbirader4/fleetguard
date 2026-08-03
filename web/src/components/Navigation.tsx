@@ -2,17 +2,20 @@
  * Navigation Component
  * 
  * Sidebar and mobile navigation with role-based menu filtering.
+ * Enhanced with mobile responsiveness (Task 29.1)
  * 
  * Requirements:
  * - 6.1: Filter menu by role using getVisibleNavItems
  * - 6.4: Highlight active menu item based on current route
  * - 5.1: Apply FleetGuard AI branding colors (#2563EB primary, #1E40AF secondary)
+ * - 5.3: Mobile responsiveness on screens as small as 320px (Task 29.1)
+ * - 5.5: Accessible navigation with touch-friendly targets (Task 29.1)
  */
 
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
 import { useThemeStore } from '../stores/themeStore';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { getVisibleNavItems, isPathActive } from '../config/navigation';
 
 export default function Navigation() {
@@ -23,6 +26,7 @@ export default function Navigation() {
   const theme = useThemeStore((state) => state.theme);
   const toggleTheme = useThemeStore((state) => state.toggleTheme);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
 
   const handleLogout = async () => {
     await logout();
@@ -32,25 +36,65 @@ export default function Navigation() {
   // Get visible navigation items based on user role (Requirement 6.1)
   const visibleNavItems = user ? getVisibleNavItems(user.role) : [];
 
+  // Close mobile menu when route changes
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [location.pathname]);
+
+  // Close mobile menu when clicking outside (Task 29.1)
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (mobileMenuOpen && mobileMenuRef.current && !mobileMenuRef.current.contains(event.target as Node)) {
+        setMobileMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [mobileMenuOpen]);
+
+  // Prevent body scroll when mobile menu is open (Task 29.1)
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [mobileMenuOpen]);
+
   return (
     <>
-      {/* Mobile Header */}
+      {/* Mobile Header - Enhanced for Task 29.1 */}
       <header className="lg:hidden bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50">
-        <div className="flex items-center justify-between px-4 py-3">
-          <div className="flex items-center gap-3">
+        <div className="flex items-center justify-between px-3 sm:px-4 py-3 min-h-[56px]">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+            {/* Hamburger Menu Button - Task 29.1: 44x44px touch target */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+              className="flex-shrink-0 p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 active:bg-gray-200 dark:active:bg-gray-600 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+              aria-label="Toggle navigation menu"
+              aria-expanded={mobileMenuOpen}
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
+              {mobileMenuOpen ? (
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              ) : (
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              )}
             </button>
-            <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">FleetGuard AI</h1>
+            <h1 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100 truncate">FleetGuard AI</h1>
           </div>
+          {/* Theme Toggle - Task 29.1: 44x44px touch target */}
           <button
             onClick={toggleTheme}
-            className="p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+            className="flex-shrink-0 p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 active:bg-gray-200 dark:active:bg-gray-600 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+            aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
           >
             {theme === 'dark' ? (
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -63,10 +107,53 @@ export default function Navigation() {
             )}
           </button>
         </div>
+      </header>
 
-        {/* Mobile Menu */}
-        {mobileMenuOpen && (
-          <div className="border-t border-gray-200 dark:border-gray-700 py-2">
+      {/* Mobile Menu Overlay - Task 29.1 */}
+      {mobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          onClick={() => setMobileMenuOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Mobile Menu Drawer - Task 29.1: Slide-in drawer with improved UX */}
+      <div
+        ref={mobileMenuRef}
+        className={`fixed top-0 left-0 h-full w-[280px] max-w-[85vw] bg-white dark:bg-gray-800 z-50 transform transition-transform duration-300 ease-in-out lg:hidden ${
+          mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+        aria-label="Mobile navigation menu"
+      >
+        {/* Mobile Menu Header */}
+        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
+              <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
+                <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7a1 1 0 00-1 1v6.05A2.5 2.5 0 0115.95 16H17a1 1 0 001-1v-5a1 1 0 00-.293-.707l-2-2A1 1 0 0015 7h-1z" />
+              </svg>
+            </div>
+            <div>
+              <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100">FleetGuard AI</h2>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Fleet Management</p>
+            </div>
+          </div>
+          <button
+            onClick={() => setMobileMenuOpen(false)}
+            className="p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 min-w-[44px] min-h-[44px] flex items-center justify-center"
+            aria-label="Close navigation menu"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Mobile Menu Items - Task 29.1: Scrollable with 44x44px touch targets */}
+        <nav className="flex-1 overflow-y-auto py-2" style={{ maxHeight: 'calc(100vh - 180px)' }}>
+          <div className="space-y-1 px-2">
             {visibleNavItems.map((item) => {
               const Icon = item.icon;
               const active = isPathActive(location.pathname, item.path);
@@ -76,34 +163,41 @@ export default function Navigation() {
                   key={item.path}
                   to={item.path}
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors ${
+                  className={`flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-medium transition-colors min-h-[44px] ${
                     active
-                      ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border-l-4 border-blue-600'
-                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                      ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
+                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 active:bg-gray-200 dark:active:bg-gray-600'
                   }`}
                 >
-                  <Icon className="w-5 h-5" />
-                  {item.label}
+                  <Icon className="w-5 h-5 flex-shrink-0" />
+                  <span className="truncate">{item.label}</span>
                 </Link>
               );
             })}
-            <div className="border-t border-gray-200 dark:border-gray-700 mt-2 pt-2">
-              <div className="px-4 py-2 text-xs text-gray-500 dark:text-gray-400">
-                {user?.fullName} ({user?.role})
-              </div>
-              <button
-                onClick={handleLogout}
-                className="flex items-center gap-3 w-full px-4 py-3 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                </svg>
-                Logout
-              </button>
-            </div>
           </div>
-        )}
-      </header>
+        </nav>
+
+        {/* Mobile Menu Footer - Task 29.1 */}
+        <div className="border-t border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-900">
+          <div className="mb-3 px-1">
+            <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+              {user?.fullName}
+            </p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 capitalize truncate">
+              {user?.role?.replace(/_/g, ' ')}
+            </p>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 active:bg-red-100 dark:active:bg-red-900/30 rounded-lg transition-colors min-h-[44px]"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+            Logout
+          </button>
+        </div>
+      </div>
 
       {/* Desktop Sidebar */}
       <aside className="hidden lg:flex lg:flex-col lg:fixed lg:inset-y-0 lg:w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700">
@@ -117,7 +211,7 @@ export default function Navigation() {
           </div>
           <div>
             <h1 className="text-lg font-bold text-gray-900 dark:text-gray-100">FleetGuard AI</h1>
-            <p className="text-xs text-gray-500 dark:text-gray-400">Fleet Management</p>
+            <p className="text-xs font-normal leading-tight text-gray-500 dark:text-gray-400">Fleet Management</p>
           </div>
         </div>
 
@@ -153,7 +247,7 @@ export default function Navigation() {
               <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
                 {user?.fullName}
               </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">
+              <p className="text-xs font-normal leading-tight text-gray-500 dark:text-gray-400 capitalize">
                 {user?.role?.replace(/_/g, ' ')}
               </p>
             </div>

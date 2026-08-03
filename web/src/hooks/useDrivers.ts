@@ -9,6 +9,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
+import { toast } from '../components/ToastContainer';
 import type { Driver } from '../types/driver';
 import type { VehicleWithDriver } from '../types/vehicle';
 
@@ -194,6 +195,9 @@ export function useAssignDriverToVehicle() {
           context.previousDriverVehicles
         );
       }
+      
+      // Show error toast
+      toast.error(`Failed to assign driver: ${err.message}`);
     },
     // Always refetch after error or success to ensure consistency
     onSettled: (data, error, variables) => {
@@ -206,6 +210,15 @@ export function useAssignDriverToVehicle() {
         queryClient.invalidateQueries({ 
           queryKey: ['drivers', variables.driverId, 'vehicles'] 
         });
+      }
+      
+      // Show success toast only if no error occurred
+      if (!error) {
+        toast.success(
+          variables.driverId 
+            ? 'Driver assigned successfully' 
+            : 'Driver unassigned successfully'
+        );
       }
     },
   });

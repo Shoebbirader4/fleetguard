@@ -317,10 +317,10 @@ export default function ComponentsPage() {
     <Layout>
       <div className="bg-white dark:bg-gray-800 shadow-soft border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+          <h1 className="text-3xl font-bold leading-tight text-gray-900 dark:text-gray-100">
             Components Tracking
           </h1>
-          <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+          <p className="mt-1 text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
             Monitor component lifecycle, health, and predictive maintenance insights
           </p>
         </div>
@@ -352,10 +352,10 @@ export default function ComponentsPage() {
           <div className="card mb-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                <h3 className="text-lg font-semibold leading-snug text-gray-900 dark:text-gray-100">
                   {selectedVehicle.make} {selectedVehicle.model} {selectedVehicle.year}
                 </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+                <p className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                   VIN: {selectedVehicle.vin}
                 </p>
               </div>
@@ -364,7 +364,7 @@ export default function ComponentsPage() {
                   <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
                     {selectedVehicle.current_odometer.toLocaleString()} {selectedVehicle.unit}
                   </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Current Odometer</p>
+                  <p className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">Current Odometer</p>
                 </div>
                 <button
                   onClick={handleAddComponent}
@@ -431,19 +431,19 @@ export default function ComponentsPage() {
                                     : formatComponentType(component.component_type)}
                                 </h3>
                                 {component.brand && (
-                                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                                  <p className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                                     {component.brand} {component.model && `- ${component.model}`}
                                   </p>
                                 )}
                                 {component.serial_number && (
-                                  <p className="text-xs text-gray-500 dark:text-gray-500">
+                                  <p className="text-xs font-normal leading-tight text-gray-500 dark:text-gray-500">
                                     S/N: {component.serial_number}
                                   </p>
                                 )}
                               </div>
                               <div className="flex items-center gap-2">
                                 <span
-                                  className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                                  className={`px-2 py-1 text-xs font-normal leading-tight font-semibold rounded-full ${
                                     component.status === 'active'
                                       ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
                                       : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
@@ -475,19 +475,19 @@ export default function ComponentsPage() {
                             {/* Component Lifecycle Info */}
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                               <div>
-                                <p className="text-xs text-gray-500 dark:text-gray-400">Installation Date</p>
+                                <p className="text-xs font-normal leading-tight text-gray-500 dark:text-gray-400">Installation Date</p>
                                 <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                                   {formatDate(component.installation_date)}
                                 </p>
                               </div>
                               <div>
-                                <p className="text-xs text-gray-500 dark:text-gray-400">Installation Odometer</p>
+                                <p className="text-xs font-normal leading-tight text-gray-500 dark:text-gray-400">Installation Odometer</p>
                                 <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                                   {component.installation_odometer.toLocaleString()} {component.vehicle?.unit}
                                 </p>
                               </div>
                               <div>
-                                <p className="text-xs text-gray-500 dark:text-gray-400">Expected Life</p>
+                                <p className="text-xs font-normal leading-tight text-gray-500 dark:text-gray-400">Expected Life</p>
                                 <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                                   {component.expected_life_km
                                     ? `${component.expected_life_km.toLocaleString()} ${component.vehicle?.unit}`
@@ -517,7 +517,7 @@ export default function ComponentsPage() {
                                     style={{ width: `${remainingLifePercentage}%` }}
                                   ></div>
                                 </div>
-                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                <p className="text-xs font-normal leading-tight text-gray-500 dark:text-gray-400 mt-1">
                                   {Math.max(
                                     0,
                                     component.expected_life_km -
@@ -536,15 +536,15 @@ export default function ComponentsPage() {
                                 </h4>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                   <div>
-                                    <p className="text-xs text-gray-500 dark:text-gray-400">Failure Probability</p>
+                                    <p className="text-xs font-normal leading-tight text-gray-500 dark:text-gray-400">Failure Probability</p>
                                     <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
                                       {(prediction.failure_probability * 100).toFixed(1)}%
                                     </p>
                                   </div>
                                   <div>
-                                    <p className="text-xs text-gray-500 dark:text-gray-400">Risk Score</p>
+                                    <p className="text-xs font-normal leading-tight text-gray-500 dark:text-gray-400">Risk Score</p>
                                     <span
-                                      className={`inline-block px-2 py-1 text-xs font-semibold rounded-full ${getRiskBadgeColor(
+                                      className={`inline-block px-2 py-1 text-xs font-normal leading-tight font-semibold rounded-full ${getRiskBadgeColor(
                                         prediction.risk_score
                                       )}`}
                                     >
@@ -552,7 +552,7 @@ export default function ComponentsPage() {
                                     </span>
                                   </div>
                                   <div>
-                                    <p className="text-xs text-gray-500 dark:text-gray-400">Predicted RUL</p>
+                                    <p className="text-xs font-normal leading-tight text-gray-500 dark:text-gray-400">Predicted RUL</p>
                                     <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                                       {prediction.remaining_useful_life_km
                                         ? `${prediction.remaining_useful_life_km.toLocaleString()} ${
@@ -566,10 +566,10 @@ export default function ComponentsPage() {
                                 </div>
                                 {prediction.recommended_action && (
                                   <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-md">
-                                    <p className="text-xs font-semibold text-blue-900 dark:text-blue-200 mb-1">
+                                    <p className="text-xs font-normal leading-tight font-semibold text-blue-900 dark:text-blue-200 mb-1">
                                       Recommended Action
                                     </p>
-                                    <p className="text-sm text-blue-800 dark:text-blue-300">
+                                    <p className="text-sm font-normal leading-normal text-blue-800 dark:text-blue-300">
                                       {prediction.recommended_action}
                                     </p>
                                   </div>
@@ -605,7 +605,7 @@ export default function ComponentsPage() {
               />
             </svg>
             <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-gray-100">No Vehicle Selected</h3>
-            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            <p className="mt-1 text-sm font-normal leading-normal text-gray-500 dark:text-gray-400">
               Select a vehicle from the dropdown above to view its components
             </p>
           </div>

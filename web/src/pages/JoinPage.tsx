@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import { useAuthStore } from '../stores/authStore';
 
 export default function JoinPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const token = searchParams.get('token');
+  const { setAuth, clearAuth } = useAuthStore();
 
   const [formData, setFormData] = useState({
     password: '',
@@ -130,64 +132,138 @@ export default function JoinPage() {
     }
 
     try {
-      // Call the accept-invitation edge function
-      const response = await supabase.functions.invoke('accept-invitation', {
-        body: {
-          token: token,
-          password: formData.password,
-          fullName: formData.fullName,
+      if (!invitationData) {
+        throw new Error('Invitation data not available');
+      }
+
+      // Step 1: Check if user already exists
+      const { data: existingUsers } = await supabase
+        .from('users')
+        .select('id')
+        .eq('email', invitationData.email)
+        .limit(1);
+
+      if (existingUsers && existingUsers.length > 0) {
+        throw new Error('An account with this email already exists. Please sign in instead.');
+      }
+
+      // Step 2: Get invitation details including tenant_id
+      const { data: invitation } = await supabase
+        .from('user_invitations')
+        .select('id, tenant_id, role')
+        .eq('invitation_token', token)
+        .eq('status', 'pending')
+        .single();
+
+      if (!invitation) {
+        throw new Error('Invalid invitation');
+      }
+
+      // Step 3: Create auth user with Supabase signup
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+        email: invitationData.email,
+        password: formData.password,
+        options: {
+          data: {
+            full_name: formData.fullName,
+            tenant_id: invitation.tenant_id,
+            role: invitation.role,
+          },
+          emailRedirectTo: `${window.location.origin}/welcome`,
         },
       });
 
-      if (response.error) {
-        throw new Error(response.error.message || 'Failed to create account');
+      if (signUpError) {
+        console.error('Signup error:', signUpError);
+        throw new Error(signUpError.message || 'Failed to create account');
       }
 
-      if (response.data && response.data.error) {
-        throw new Error(response.data.error);
+      if (!signUpData.user) {
+        throw new Error('Failed to create user account');
       }
 
-      if (!response.data || !response.data.success) {
-        throw new Error('Unexpected response from server');
+      // Step 4: Create user profile (trigger might create it, but we'll try directly too)
+      const { error: profileError } = await supabase.from('users').upsert({
+        id: signUpData.user.id,
+        tenant_id: invitation.tenant_id,
+        email: invitationData.email,
+        full_name: formData.fullName,
+        role: invitation.role,
+        notification_preferences: {
+          due_soon: ['email'],
+          overdue: ['email', 'push'],
+          critical_failure_risk: ['email', 'push'],
+          safety_risk: ['email', 'push'],
+          low_stock: ['email'],
+          document_expiry: ['email'],
+          document_expired: ['email', 'push'],
+          tire_replacement_forecast: ['email'],
+        },
+        theme: 'light',
+        locale: 'en',
+        is_active: true,
+      }, {
+        onConflict: 'id',
+      });
+
+      if (profileError) {
+        console.warn('Profile creation warning:', profileError);
+        // Don't fail - trigger might have created it
+      }
+
+      // Step 5: Mark invitation as accepted
+      const { error: updateError } = await supabase
+        .from('user_invitations')
+        .update({
+          status: 'accepted',
+          accepted_at: new Date().toISOString(),
+        })
+        .eq('id', invitation.id);
+
+      if (updateError) {
+        console.warn('Invitation update warning:', updateError);
+        // Don't fail - account is created
+      }
+
+      // Step 6: Fetch the complete user profile from database
+      const { data: userProfile, error: fetchError } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', signUpData.user.id)
+        .single();
+
+      if (fetchError || !userProfile) {
+        console.error('Failed to fetch user profile:', fetchError);
+        throw new Error('Account created but failed to load profile. Please try logging in.');
+      }
+
+      // Step 7: CRITICAL - Clear any cached auth state and set new user's auth
+      clearAuth(); // Clear old cached data first
+      
+      // Get the session to get access token
+      const { data: sessionData } = await supabase.auth.getSession();
+      
+      if (sessionData.session) {
+        // Set auth state with the NEW user's data
+        setAuth(
+          {
+            id: userProfile.id,
+            email: userProfile.email,
+            fullName: userProfile.full_name,
+            role: userProfile.role,
+            tenantId: userProfile.tenant_id,
+          },
+          sessionData.session.access_token
+        );
       }
 
       // Success!
       setSuccess(true);
       
-      // Auto-login the user after successful account creation
-      try {
-        const { error: loginError } = await supabase.auth.signInWithPassword({
-          email: invitationData.email,
-          password: formData.password,
-        });
-
-        if (loginError) {
-          console.error('Auto-login error:', loginError);
-          // If auto-login fails, redirect to login page
-          setTimeout(() => {
-            navigate('/login', { 
-              state: { 
-                message: 'Account created successfully! Please sign in with your credentials.' 
-              } 
-            });
-          }, 2000);
-        } else {
-          // Auto-login successful, redirect to welcome page
-          setTimeout(() => {
-            navigate('/welcome');
-          }, 2000);
-        }
-      } catch (loginErr) {
-        console.error('Auto-login exception:', loginErr);
-        // If auto-login fails, redirect to login page
-        setTimeout(() => {
-          navigate('/login', { 
-            state: { 
-              message: 'Account created successfully! Please sign in with your credentials.' 
-            } 
-          });
-        }, 2000);
-      }
+      // User is already logged in from signUp, redirect to welcome page
+      setTimeout(() => {
+        navigate('/welcome');
+      }, 2000);
 
     } catch (err: any) {
       setError(err.message || 'Failed to create account. Please try again.');
@@ -246,7 +322,7 @@ export default function JoinPage() {
               Your account has been created successfully.
             </p>
           </div>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+          <p className="text-sm font-normal leading-normal text-gray-500 dark:text-gray-400 mb-4">
             Redirecting you to your dashboard...
           </p>
           <Link to="/welcome" className="btn-primary">
@@ -262,20 +338,20 @@ export default function JoinPage() {
       <div className="card max-w-md w-full">
         <div className="text-center mb-6">
           <h2 className="text-2xl font-bold mb-2">Join Your Team</h2>
-          <p className="text-gray-600 dark:text-gray-400 text-sm">
+          <p className="text-gray-600 dark:text-gray-400 text-sm font-normal leading-normal">
             You've been invited to join FleetGuard AI
           </p>
           {invitationData && (
             <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
-              <p className="text-sm text-gray-700 dark:text-gray-300">
+              <p className="text-sm font-normal leading-normal text-gray-700 dark:text-gray-300">
                 <span className="font-medium">Email:</span> {invitationData.email}
               </p>
               {invitationData.full_name && (
-                <p className="text-sm text-gray-700 dark:text-gray-300">
+                <p className="text-sm font-normal leading-normal text-gray-700 dark:text-gray-300">
                   <span className="font-medium">Name:</span> {invitationData.full_name}
                 </p>
               )}
-              <p className="text-sm text-gray-700 dark:text-gray-300">
+              <p className="text-sm font-normal leading-normal text-gray-700 dark:text-gray-300">
                 <span className="font-medium">Role:</span> {invitationData.role.replace(/_/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())}
               </p>
             </div>
@@ -283,7 +359,7 @@ export default function JoinPage() {
         </div>
 
         {error && (
-          <div className="bg-danger-50 dark:bg-danger-900/30 text-danger-700 dark:text-danger-300 p-3 rounded-lg mb-4 text-sm">
+          <div className="bg-danger-50 dark:bg-danger-900/30 text-danger-700 dark:text-danger-300 p-3 rounded-lg mb-4 text-sm font-normal leading-normal">
             {error}
           </div>
         )}
@@ -305,7 +381,7 @@ export default function JoinPage() {
               disabled={loading}
             />
             {invitationData?.full_name && (
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              <p className="text-xs font-normal leading-tight text-gray-500 dark:text-gray-400 mt-1">
                 Pre-filled from invitation. You can change this if needed.
               </p>
             )}
@@ -328,7 +404,7 @@ export default function JoinPage() {
               disabled={loading}
               minLength={12}
             />
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            <p className="text-xs font-normal leading-tight text-gray-500 dark:text-gray-400 mt-1">
               Min 12 characters with uppercase, lowercase, numbers & special characters
             </p>
           </div>
@@ -364,7 +440,7 @@ export default function JoinPage() {
         </form>
 
         <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700 text-center">
-          <p className="text-sm text-gray-600 dark:text-gray-400">
+          <p className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
             Already have an account?{' '}
             <Link
               to="/login"

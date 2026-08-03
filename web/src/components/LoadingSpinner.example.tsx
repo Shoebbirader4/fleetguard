@@ -15,15 +15,15 @@ export default function LoadingSpinnerExamples() {
         <div className="flex items-center gap-8">
           <div className="text-center">
             <LoadingSpinner size="sm" />
-            <p className="text-sm text-gray-600 mt-2">Small</p>
+            <p className="text-sm font-normal leading-normal text-gray-600 mt-2">Small</p>
           </div>
           <div className="text-center">
             <LoadingSpinner size="md" />
-            <p className="text-sm text-gray-600 mt-2">Medium (default)</p>
+            <p className="text-sm font-normal leading-normal text-gray-600 mt-2">Medium (default)</p>
           </div>
           <div className="text-center">
             <LoadingSpinner size="lg" />
-            <p className="text-sm text-gray-600 mt-2">Large</p>
+            <p className="text-sm font-normal leading-normal text-gray-600 mt-2">Large</p>
           </div>
         </div>
       </section>
@@ -62,7 +62,7 @@ export default function LoadingSpinnerExamples() {
             <h3 className="font-medium mb-2">Card Loading State</h3>
             <div className="flex flex-col items-center justify-center py-8">
               <LoadingSpinner size="md" />
-              <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">Loading vehicles...</p>
+              <p className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400 mt-2">Loading vehicles...</p>
             </div>
           </div>
         </div>
@@ -74,15 +74,15 @@ export default function LoadingSpinnerExamples() {
           <div className="flex items-center gap-8">
             <div className="text-center">
               <LoadingSpinner size="sm" />
-              <p className="text-sm text-gray-300 mt-2">Small</p>
+              <p className="text-sm font-normal leading-normal text-gray-300 mt-2">Small</p>
             </div>
             <div className="text-center">
               <LoadingSpinner size="md" />
-              <p className="text-sm text-gray-300 mt-2">Medium</p>
+              <p className="text-sm font-normal leading-normal text-gray-300 mt-2">Medium</p>
             </div>
             <div className="text-center">
               <LoadingSpinner size="lg" />
-              <p className="text-sm text-gray-300 mt-2">Large</p>
+              <p className="text-sm font-normal leading-normal text-gray-300 mt-2">Large</p>
             </div>
           </div>
         </div>

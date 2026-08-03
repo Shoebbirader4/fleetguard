@@ -13,7 +13,7 @@ function DefaultLoadingFallback() {
     <div className="flex items-center justify-center py-8">
       <div className="text-center">
         <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">Loading...</p>
+        <p className="mt-2 text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">Loading...</p>
       </div>
     </div>
   );
@@ -115,7 +115,7 @@ export function MapSkeleton() {
               d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"
             />
           </svg>
-          <p className="text-sm">Loading map...</p>
+          <p className="text-sm font-normal leading-normal">Loading map...</p>
         </div>
       </div>
     </div>

@@ -61,16 +61,16 @@ export default function InspectionChecklistPage() {
         <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              <h1 className="text-3xl font-bold leading-tight text-gray-900 dark:text-gray-100">
                 Inspection Checklists
               </h1>
-              <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+              <p className="mt-1 text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                 Configure inspection checklists for different vehicle types
               </p>
             </div>
             <button
               onClick={() => setCreateModalOpen(true)}
-              className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors text-sm font-medium"
+              className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors text-sm font-normal leading-normal"
             >
               + Create Checklist
             </button>
@@ -93,10 +93,10 @@ export default function InspectionChecklistPage() {
                     <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">
                       {checklist.checklist_name}
                     </h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                    <p className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400 mt-1">
                       {checklist.description || 'No description'}
                     </p>
-                    <div className="mt-2 flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
+                    <div className="mt-2 flex items-center gap-4 text-xs font-normal leading-tight text-gray-500 dark:text-gray-400">
                       <span>Vehicle Types: {checklist.vehicle_types?.join(', ') || 'All'}</span>
                       <span>•</span>
                       <span>Items: {checklist.checklist_items?.length || 0}</span>
@@ -107,13 +107,13 @@ export default function InspectionChecklistPage() {
                   <div className="flex gap-2">
                     <button
                       onClick={() => setEditingChecklist(checklist)}
-                      className="px-3 py-1 text-sm text-primary-600 hover:text-primary-700 font-medium"
+                      className="px-3 py-1 text-sm font-normal leading-normal text-primary-600 hover:text-primary-700 font-medium"
                     >
                       Edit
                     </button>
                     <button
                       onClick={() => setDeleteChecklistId(checklist.id)}
-                      className="px-3 py-1 text-sm text-red-600 hover:text-red-700 font-medium"
+                      className="px-3 py-1 text-sm font-normal leading-normal text-red-600 hover:text-red-700 font-medium"
                     >
                       Delete
                     </button>
@@ -128,12 +128,12 @@ export default function InspectionChecklistPage() {
                     </h4>
                     <ul className="space-y-1">
                       {checklist.checklist_items.slice(0, 5).map((item: any, index: number) => (
-                        <li key={index} className="text-sm text-gray-600 dark:text-gray-400">
+                        <li key={index} className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                           {index + 1}. {item.item_name} ({item.item_type})
                         </li>
                       ))}
                       {checklist.checklist_items.length > 5 && (
-                        <li className="text-sm text-gray-500 dark:text-gray-500 italic">
+                        <li className="text-sm font-normal leading-normal text-gray-500 dark:text-gray-500 italic">
                           ... and {checklist.checklist_items.length - 5} more items
                         </li>
                       )}
@@ -149,7 +149,7 @@ export default function InspectionChecklistPage() {
               </p>
               <button
                 onClick={() => setCreateModalOpen(true)}
-                className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors text-sm font-medium"
+                className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors text-sm font-normal leading-normal"
               >
                 + Create Checklist
               </button>

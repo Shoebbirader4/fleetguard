@@ -31,12 +31,18 @@ interface FleetHealthDashboard {
   refreshed_at: string;
 }
 
-interface AlertsSummary {
-  severity: 'low' | 'medium' | 'high' | 'critical';
-  alert_type: string;
-  alert_count: number;
-  affected_vehicles: number;
-  latest_alert_time: string;
+interface AlertsSummaryData {
+  by_type: { [key: string]: number };
+  by_severity: { [key: string]: number };
+  total_active: number;
+  recent_alerts: Array<{
+    id: string;
+    alert_type: string;
+    severity: 'low' | 'medium' | 'high' | 'critical';
+    message: string;
+    vehicle_id: string;
+    created_at: string;
+  }>;
 }
 
 // ============================================================================
@@ -76,32 +82,47 @@ export function useFleetHealthDashboard(tenantId: string) {
     gcTime: 10 * 60 * 1000,
     // Enabled only when tenantId is available
     enabled: !!tenantId,
+    // Auto-refresh every 5 minutes (Requirement 8.4)
+    refetchInterval: 5 * 60 * 1000,
   });
 }
 
 /**
  * Fetch and cache active alerts summary
  * 
+ * Returns the full JSON structure from get_active_alerts_summary RPC:
+ * {
+ *   by_type: { [type: string]: number },
+ *   by_severity: { [severity: string]: number },
+ *   total_active: number,
+ *   recent_alerts: Array<{id, alert_type, severity, message, vehicle_id, created_at}>
+ * }
+ * 
  * @param tenantId - The tenant ID to fetch data for
- * @returns Active alerts summary with loading and error states
+ * @returns Active alerts summary JSON object with loading and error states
  * 
  * @example
  * const { data, isLoading, error } = useAlertsSummary(tenantId);
+ * const recentAlerts = data?.recent_alerts || [];
+ * const totalActive = data?.total_active || 0;
  */
 export function useAlertsSummary(tenantId: string) {
   // Real-time updates handled by useDashboardRealtimeUpdates in parent component
 
-  return useQuery<AlertsSummary[]>({
+  return useQuery<AlertsSummaryData>({
     queryKey: cacheKeys.alertsSummary(tenantId),
     queryFn: async () => {
       const { data, error } = await supabase.rpc('get_active_alerts_summary');
 
       if (error) throw error;
-      return data || [];
+      // Return the full JSON object structure from the RPC function
+      return data || { by_type: {}, by_severity: {}, total_active: 0, recent_alerts: [] };
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000,
     enabled: !!tenantId,
+    // Auto-refresh every 5 minutes (Requirement 8.4)
+    refetchInterval: 5 * 60 * 1000,
   });
 }
 
@@ -184,30 +205,23 @@ export function DashboardExample({ tenantId }: { tenantId: string }) {
       {/* Active Alerts Card */}
       <div className="card">
         <h2>Active Alerts</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Severity</th>
-              <th>Type</th>
-              <th>Count</th>
-              <th>Affected Vehicles</th>
-            </tr>
-          </thead>
-          <tbody>
-            {alertsSummary?.map((alert) => (
-              <tr key={`${alert.severity}-${alert.alert_type}`}>
-                <td>
-                  <span className={`badge badge-${alert.severity}`}>
-                    {alert.severity}
-                  </span>
-                </td>
-                <td>{alert.alert_type}</td>
-                <td>{alert.alert_count}</td>
-                <td>{alert.affected_vehicles}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="stats">
+          <div>Total Active: {alertsSummary?.total_active || 0}</div>
+          <div>Critical: {alertsSummary?.by_severity?.critical || 0}</div>
+          <div>High: {alertsSummary?.by_severity?.high || 0}</div>
+        </div>
+        <div className="recent-alerts">
+          <h3>Recent Alerts</h3>
+          {alertsSummary?.recent_alerts?.map((alert: any) => (
+            <div key={alert.id} className={`alert alert-${alert.severity}`}>
+              <div className="alert-type">{alert.alert_type}</div>
+              <div className="alert-message">{alert.message}</div>
+              <div className="alert-time">
+                {new Date(alert.created_at).toLocaleString()}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Manual Refresh Button */}

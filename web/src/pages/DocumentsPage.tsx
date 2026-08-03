@@ -150,16 +150,16 @@ export default function DocumentsPage() {
         <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              <h1 className="text-3xl font-bold leading-tight text-gray-900 dark:text-gray-100">
                 Documents
               </h1>
-              <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+              <p className="mt-1 text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                 Manage vehicle documents, certificates, and compliance records
               </p>
             </div>
             <button
               onClick={() => setUploadModalOpen(true)}
-              className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors text-sm font-medium"
+              className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors text-sm font-normal leading-normal"
             >
               + Upload Document
             </button>
@@ -227,28 +227,28 @@ export default function DocumentsPage() {
               <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                 <thead className="bg-gray-50 dark:bg-gray-800">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    <th className="px-4 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase">
                       File Name
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    <th className="px-4 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase">
                       Type
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    <th className="px-4 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase">
                       Vehicle
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    <th className="px-4 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase">
                       Expiry Date
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    <th className="px-4 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase">
                       Status
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    <th className="px-4 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase">
                       Size
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    <th className="px-4 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase">
                       Uploaded
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    <th className="px-4 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase">
                       Actions
                     </th>
                   </tr>
@@ -268,10 +268,10 @@ export default function DocumentsPage() {
                         <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100">
                           {doc.file_name}
                         </td>
-                        <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                        <td className="px-4 py-3 text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                           {getDocumentTypeLabel(doc.document_type)}
                         </td>
-                        <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                        <td className="px-4 py-3 text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                           {doc.vehicle ? (
                             <span>
                               {doc.vehicle.make} {doc.vehicle.model} ({doc.vehicle.year})
@@ -280,25 +280,25 @@ export default function DocumentsPage() {
                             <span className="text-gray-400">-</span>
                           )}
                         </td>
-                        <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                        <td className="px-4 py-3 text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                           {doc.expiry_date ? formatDate(doc.expiry_date) : '-'}
                         </td>
-                        <td className="px-4 py-3 text-sm">
+                        <td className="px-4 py-3 text-sm font-normal leading-normal">
                           {expiryStatus ? (
-                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${expiryStatus.color}`}>
+                            <span className={`px-2 py-1 rounded-full text-xs font-normal leading-tight font-medium ${expiryStatus.color}`}>
                               {expiryStatus.label}
                             </span>
                           ) : (
                             <span className="text-gray-400">-</span>
                           )}
                         </td>
-                        <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                        <td className="px-4 py-3 text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                           {formatFileSize(doc.file_size)}
                         </td>
-                        <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                        <td className="px-4 py-3 text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                           {formatDate(doc.created_at)}
                         </td>
-                        <td className="px-4 py-3 text-sm space-x-3">
+                        <td className="px-4 py-3 text-sm font-normal leading-normal space-x-3">
                           <button
                             onClick={() => handleDownload(doc)}
                             className="text-primary-600 hover:text-primary-700 font-medium"
@@ -326,7 +326,7 @@ export default function DocumentsPage() {
               {!searchQuery && selectedDocumentType === 'all' && selectedVehicle === 'all' && (
                 <button
                   onClick={() => setUploadModalOpen(true)}
-                  className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors text-sm font-medium"
+                  className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors text-sm font-normal leading-normal"
                 >
                   + Upload Document
                 </button>
@@ -359,7 +359,7 @@ export default function DocumentsPage() {
               </button>
               <button
                 onClick={confirmDelete}
-                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors text-sm font-medium disabled:opacity-50"
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors text-sm font-normal leading-normal disabled:opacity-50"
                 disabled={deleteMutation.isPending}
               >
                 {deleteMutation.isPending ? 'Deleting...' : 'Delete'}

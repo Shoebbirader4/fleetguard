@@ -6,6 +6,7 @@ import { WorkOrderFormData, WORK_ORDER_PRIORITIES } from '../types/workOrder';
 import { useAuthStore } from '../stores/authStore';
 import { toast } from '../components/ToastContainer';
 import MechanicSelector from '../components/MechanicSelector';
+import { ButtonLoadingSpinner } from '../components/SkeletonScreens';
 
 export default function WorkOrderFormPage() {
   const navigate = useNavigate();
@@ -195,10 +196,10 @@ export default function WorkOrderFormPage() {
               ← Back
             </button>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              <h1 className="text-3xl font-bold leading-tight text-gray-900 dark:text-gray-100">
                 {isEditing ? 'Edit Work Order' : 'Create Work Order'}
               </h1>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                 {isEditing ? 'Update work order details' : 'Create a new maintenance or repair request'}
               </p>
             </div>
@@ -230,7 +231,7 @@ export default function WorkOrderFormPage() {
                 ))}
               </select>
               {errors.vehicle_id && (
-                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.vehicle_id}</p>
+                <p className="mt-1 text-sm font-normal leading-normal text-red-600 dark:text-red-400">{errors.vehicle_id}</p>
               )}
             </div>
 
@@ -250,7 +251,7 @@ export default function WorkOrderFormPage() {
                 } bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500`}
               />
               {errors.description && (
-                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.description}</p>
+                <p className="mt-1 text-sm font-normal leading-normal text-red-600 dark:text-red-400">{errors.description}</p>
               )}
             </div>
 
@@ -274,7 +275,7 @@ export default function WorkOrderFormPage() {
                 ))}
               </select>
               {errors.priority && (
-                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.priority}</p>
+                <p className="mt-1 text-sm font-normal leading-normal text-red-600 dark:text-red-400">{errors.priority}</p>
               )}
             </div>
 
@@ -286,7 +287,7 @@ export default function WorkOrderFormPage() {
                 label="Assign To (Optional)"
                 placeholder="Unassigned (assign later)"
               />
-              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+              <p className="mt-1 text-sm font-normal leading-normal text-gray-500 dark:text-gray-400">
                 Leave unassigned if you want to assign later. Status will be 'pending' if unassigned, 'assigned' if assigned.
               </p>
             </div>

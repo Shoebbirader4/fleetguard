@@ -8,10 +8,10 @@ export default function AppearancePage() {
       <header className="bg-white dark:bg-gray-800 shadow-soft">
         <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+            <h1 className="text-3xl font-bold leading-tight text-gray-900 dark:text-gray-100">
               Appearance
             </h1>
-            <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+            <p className="mt-1 text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
               Customize the visual appearance of your application
             </p>
           </div>
@@ -20,10 +20,10 @@ export default function AppearancePage() {
 
       <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
         <div className="card">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+          <h2 className="text-xl font-semibold leading-snug text-gray-900 dark:text-gray-100 mb-4">
             Theme Mode
           </h2>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+          <p className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400 mb-6">
             Select your preferred color theme for the interface
           </p>
 
@@ -56,16 +56,16 @@ export default function AppearancePage() {
                     </svg>
                   </div>
                   <div>
-                    <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">
+                    <h3 className="text-base font-normal leading-normal font-semibold text-gray-900 dark:text-gray-100">
                       Light Mode
                     </h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                    <p className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                       Clean and bright interface optimized for daytime use
                     </p>
                   </div>
                 </div>
                 {theme === 'light' && (
-                  <div className="ml-[52px] mt-2 flex items-center gap-2 text-sm text-primary-600 dark:text-primary-400">
+                  <div className="ml-[52px] mt-2 flex items-center gap-2 text-sm font-normal leading-normal text-primary-600 dark:text-primary-400">
                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                       <path
                         fillRule="evenodd"
@@ -107,16 +107,16 @@ export default function AppearancePage() {
                     </svg>
                   </div>
                   <div>
-                    <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">
+                    <h3 className="text-base font-normal leading-normal font-semibold text-gray-900 dark:text-gray-100">
                       Dark Mode
                     </h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                    <p className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                       Reduced eye strain for low-light environments and nighttime use
                     </p>
                   </div>
                 </div>
                 {theme === 'dark' && (
-                  <div className="ml-[52px] mt-2 flex items-center gap-2 text-sm text-primary-600 dark:text-primary-400">
+                  <div className="ml-[52px] mt-2 flex items-center gap-2 text-sm font-normal leading-normal text-primary-600 dark:text-primary-400">
                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                       <path
                         fillRule="evenodd"
@@ -136,7 +136,7 @@ export default function AppearancePage() {
             <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-200 mb-2">
               About Theme Settings
             </h4>
-            <ul className="text-xs text-blue-800 dark:text-blue-300 space-y-1">
+            <ul className="text-xs font-normal leading-tight text-blue-800 dark:text-blue-300 space-y-1">
               <li>• Your theme preference is saved automatically and persists across sessions</li>
               <li>• Dark mode can help reduce eye strain during extended use</li>
               <li>• Theme changes apply instantly without requiring a page reload</li>
@@ -146,7 +146,7 @@ export default function AppearancePage() {
 
         {/* Preview Section */}
         <div className="card mt-6">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+          <h2 className="text-xl font-semibold leading-snug text-gray-900 dark:text-gray-100 mb-4">
             Theme Preview
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -155,10 +155,10 @@ export default function AppearancePage() {
               <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">
                 Sample Card
               </h3>
-              <p className="text-xs text-gray-600 dark:text-gray-400 mb-3">
+              <p className="text-xs font-normal leading-tight text-gray-600 dark:text-gray-400 mb-3">
                 This is how cards and content will appear in the selected theme.
               </p>
-              <button className="px-3 py-1.5 bg-primary-600 hover:bg-primary-700 text-white text-xs rounded transition-colors">
+              <button className="px-3 py-1.5 bg-primary-600 hover:bg-primary-700 text-white text-xs font-normal leading-tight rounded transition-colors">
                 Primary Button
               </button>
             </div>
@@ -173,16 +173,16 @@ export default function AppearancePage() {
                   <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                     FleetGuard AI
                   </div>
-                  <div className="text-xs text-gray-600 dark:text-gray-400">
+                  <div className="text-xs font-normal leading-tight text-gray-600 dark:text-gray-400">
                     Fleet Management System
                   </div>
                 </div>
               </div>
               <div className="flex gap-2">
-                <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 text-xs rounded">
+                <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 text-xs font-normal leading-tight rounded">
                   Active
                 </span>
-                <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-xs rounded">
+                <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-xs font-normal leading-tight rounded">
                   Premium
                 </span>
               </div>

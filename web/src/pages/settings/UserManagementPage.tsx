@@ -77,31 +77,79 @@ export default function UserManagementPage() {
   // Invite user mutation
   const inviteMutation = useMutation({
     mutationFn: async (formData: typeof inviteForm) => {
-      const { data: sessionData } = await supabase.auth.getSession();
-      if (!sessionData.session) {
-        throw new Error('Not authenticated');
+      // Get current user and their tenant_id
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      const { data: userProfile } = await supabase
+        .from('users')
+        .select('tenant_id, full_name')
+        .eq('id', user.id)
+        .single();
+
+      if (!userProfile?.tenant_id) throw new Error('User has no tenant');
+
+      // Generate invitation token
+      const token = crypto.randomUUID() + '-' + Date.now().toString(36);
+      const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+
+      // Create invitation record directly in database
+      const { data: invitation, error } = await supabase
+        .from('user_invitations')
+        .insert({
+          tenant_id: userProfile.tenant_id,
+          email: formData.email,
+          full_name: formData.fullName,
+          role: formData.role,
+          invited_by: user.id,
+          invitation_token: token,
+          expires_at: expiresAt.toISOString(),
+          status: 'pending',
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Database error:', error);
+        throw new Error(error.message || 'Failed to create invitation');
       }
 
-      const response = await supabase.functions.invoke('invite-user', {
-        body: formData,
-        headers: {
-          Authorization: `Bearer ${sessionData.session.access_token}`,
+      // Send invitation email (non-blocking)
+      try {
+        const { data: tenant } = await supabase
+          .from('tenants')
+          .select('name')
+          .eq('id', userProfile.tenant_id)
+          .single();
+
+        const appUrl = window.location.origin;
+        const invitationUrl = `${appUrl}/join?token=${token}`;
+
+        await supabase.functions.invoke('send-invitation-email', {
+          body: {
+            email: formData.email,
+            full_name: formData.fullName,
+            role: formData.role,
+            invitation_token: token,
+            invitation_url: invitationUrl,
+            tenant_name: tenant?.name || 'FleetGuard AI',
+            invited_by: userProfile.full_name,
+            tenant_id: userProfile.tenant_id,
+          },
+        });
+      } catch (emailError) {
+        console.warn('Email sending failed (non-critical):', emailError);
+      }
+
+      return {
+        success: true,
+        message: 'Invitation created successfully',
+        data: {
+          invitationId: invitation.id,
+          email: formData.email,
+          invitationUrl: `${window.location.origin}/join?token=${token}`,
         },
-      });
-
-      if (response.error) {
-        throw new Error(response.error.message || 'Failed to send invitation');
-      }
-
-      if (response.data && response.data.error) {
-        throw new Error(response.data.error);
-      }
-
-      if (!response.data || !response.data.success) {
-        throw new Error('Unexpected response from server');
-      }
-
-      return response.data;
+      };
     },
     onSuccess: (data) => {
       setInviteSuccess(data);
@@ -268,17 +316,17 @@ export default function UserManagementPage() {
         <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              <h1 className="text-3xl font-bold leading-tight text-gray-900 dark:text-gray-100">
                 User Management
               </h1>
-              <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+              <p className="mt-1 text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                 Manage user accounts and role assignments
               </p>
             </div>
             {canManageUsers && (
               <button
                 onClick={() => setInviteModalOpen(true)}
-                className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors text-sm font-medium"
+                className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors text-sm font-normal leading-normal"
               >
                 + Invite User
               </button>
@@ -290,7 +338,7 @@ export default function UserManagementPage() {
       <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8 space-y-6">
         {/* Active Users Table */}
         <div className="card">
-          <h2 className="text-lg font-semibold mb-4">Active Users</h2>
+          <h2 className="text-xl font-semibold leading-snug mb-4">Active Users</h2>
           {usersLoading ? (
             <div className="text-center py-8 text-gray-600 dark:text-gray-400">
               Loading users...
@@ -300,26 +348,26 @@ export default function UserManagementPage() {
               <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                 <thead className="bg-gray-50 dark:bg-gray-800">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    <th className="px-4 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase">
                       Name
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    <th className="px-4 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase">
                       Email
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    <th className="px-4 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase">
                       Role
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    <th className="px-4 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase">
                       Phone
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    <th className="px-4 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase">
                       Joined
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    <th className="px-4 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase">
                       Status
                     </th>
                     {canManageUsers && (
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                      <th className="px-4 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase">
                         Actions
                       </th>
                     )}
@@ -331,25 +379,25 @@ export default function UserManagementPage() {
                       <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100">
                         {user.full_name}
                         {user.id === currentUser?.id && (
-                          <span className="ml-2 text-xs text-gray-500">(You)</span>
+                          <span className="ml-2 text-xs font-normal leading-tight text-gray-500">(You)</span>
                         )}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                      <td className="px-4 py-3 text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                         {user.email}
                       </td>
-                      <td className="px-4 py-3 text-sm">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getRoleBadgeColor(user.role)}`}>
+                      <td className="px-4 py-3 text-sm font-normal leading-normal">
+                        <span className={`px-2 py-1 rounded-full text-xs font-normal leading-tight font-medium ${getRoleBadgeColor(user.role)}`}>
                           {formatRole(user.role)}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                      <td className="px-4 py-3 text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                         {user.phone || '-'}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                      <td className="px-4 py-3 text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                         {formatDate(user.created_at)}
                       </td>
-                      <td className="px-4 py-3 text-sm">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      <td className="px-4 py-3 text-sm font-normal leading-normal">
+                        <span className={`px-2 py-1 rounded-full text-xs font-normal leading-tight font-medium ${
                           user.is_active === false 
                             ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
                             : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
@@ -358,7 +406,7 @@ export default function UserManagementPage() {
                         </span>
                       </td>
                       {canManageUsers && (
-                        <td className="px-4 py-3 text-sm space-x-3">
+                        <td className="px-4 py-3 text-sm font-normal leading-normal space-x-3">
                           {user.id !== currentUser?.id && (
                             <>
                               <button
@@ -404,7 +452,7 @@ export default function UserManagementPage() {
         {/* Pending Invitations Table */}
         {canManageUsers && (
           <div className="card">
-            <h2 className="text-lg font-semibold mb-4">Pending Invitations</h2>
+            <h2 className="text-xl font-semibold leading-snug mb-4">Pending Invitations</h2>
             {invitationsLoading ? (
               <div className="text-center py-8 text-gray-600 dark:text-gray-400">
                 Loading invitations...
@@ -414,19 +462,19 @@ export default function UserManagementPage() {
                 <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                   <thead className="bg-gray-50 dark:bg-gray-800">
                     <tr>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                      <th className="px-4 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase">
                         Email
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                      <th className="px-4 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase">
                         Role
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                      <th className="px-4 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase">
                         Sent
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                      <th className="px-4 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase">
                         Expires
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                      <th className="px-4 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase">
                         Actions
                       </th>
                     </tr>
@@ -437,18 +485,18 @@ export default function UserManagementPage() {
                         <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100">
                           {invitation.email}
                         </td>
-                        <td className="px-4 py-3 text-sm">
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getRoleBadgeColor(invitation.role)}`}>
+                        <td className="px-4 py-3 text-sm font-normal leading-normal">
+                          <span className={`px-2 py-1 rounded-full text-xs font-normal leading-tight font-medium ${getRoleBadgeColor(invitation.role)}`}>
                             {formatRole(invitation.role)}
                           </span>
                         </td>
-                        <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                        <td className="px-4 py-3 text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                           {formatDate(invitation.created_at)}
                         </td>
-                        <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                        <td className="px-4 py-3 text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                           {formatDate(invitation.expires_at)}
                         </td>
-                        <td className="px-4 py-3 text-sm">
+                        <td className="px-4 py-3 text-sm font-normal leading-normal">
                           <button
                             onClick={() => cancelInviteMutation.mutate(invitation.id)}
                             disabled={cancelInviteMutation.isPending}
@@ -485,7 +533,7 @@ export default function UserManagementPage() {
               <div className="space-y-4">
                 <div className="bg-success-50 dark:bg-success-900/30 text-success-700 dark:text-success-300 p-4 rounded-lg">
                   <p className="font-medium mb-2">✓ Invitation sent successfully!</p>
-                  <p className="text-sm mb-3">
+                  <p className="text-sm font-normal leading-normal mb-3">
                     An invitation has been sent to {inviteSuccess.data.email}
                   </p>
                   {inviteSuccess.data.invitationUrl && (
@@ -498,11 +546,11 @@ export default function UserManagementPage() {
                           type="text"
                           value={inviteSuccess.data.invitationUrl}
                           readOnly
-                          className="flex-1 px-3 py-2 text-xs bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded"
+                          className="flex-1 px-3 py-2 text-xs font-normal leading-tight bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded"
                         />
                         <button
                           onClick={() => copyInvitationLink(inviteSuccess.data.invitationUrl)}
-                          className="px-3 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded text-xs"
+                          className="px-3 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded text-xs font-normal leading-tight"
                         >
                           Copy
                         </button>
@@ -514,7 +562,7 @@ export default function UserManagementPage() {
             ) : (
               <form onSubmit={handleInviteSubmit} className="space-y-4">
                 {inviteError && (
-                  <div className="bg-danger-50 dark:bg-danger-900/30 text-danger-700 dark:text-danger-300 p-3 rounded-lg text-sm">
+                  <div className="bg-danger-50 dark:bg-danger-900/30 text-danger-700 dark:text-danger-300 p-3 rounded-lg text-sm font-normal leading-normal">
                     {inviteError}
                   </div>
                 )}
@@ -553,7 +601,7 @@ export default function UserManagementPage() {
                       </option>
                     ))}
                   </select>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  <p className="text-xs font-normal leading-tight text-gray-500 dark:text-gray-400 mt-1">
                     {INVITABLE_ROLES.find((r) => r.value === inviteForm.role)?.description}
                   </p>
                 </div>
@@ -599,10 +647,10 @@ export default function UserManagementPage() {
             </h3>
 
             <div className="mb-4">
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+              <p className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400 mb-2">
                 User: <span className="font-medium text-gray-900 dark:text-gray-100">{editingUser.full_name}</span>
               </p>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+              <p className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400 mb-4">
                 Email: <span className="font-medium text-gray-900 dark:text-gray-100">{editingUser.email}</span>
               </p>
             </div>
@@ -624,7 +672,7 @@ export default function UserManagementPage() {
                   </option>
                 ))}
               </select>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+              <p className="text-xs font-normal leading-tight text-gray-500 dark:text-gray-400 mt-2">
                 {ALL_ROLES.find((r) => r.value === newRole)?.label === 'Super Admin' && 
                   'Super Admin has full system access'}
                 {INVITABLE_ROLES.find((r) => r.value === newRole)?.description}
@@ -646,7 +694,7 @@ export default function UserManagementPage() {
               <button
                 onClick={handleEditRoleSubmit}
                 disabled={editRoleMutation.isPending || newRole === editingUser.role}
-                className="flex-1 px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors text-sm font-normal leading-normal disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {editRoleMutation.isPending ? 'Updating...' : 'Update Role'}
               </button>

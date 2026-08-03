@@ -138,10 +138,10 @@ export default function ReceiveStockModal({ isOpen, onClose, part }: ReceiveStoc
 
           {/* Part Info */}
           <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 mb-6">
-            <div className="text-sm text-gray-600 dark:text-gray-400">Receiving stock for:</div>
+            <div className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">Receiving stock for:</div>
             <div className="font-semibold text-gray-900 dark:text-gray-100">{part.part_number}</div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">{part.description}</div>
-            <div className="mt-2 text-sm">
+            <div className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">{part.description}</div>
+            <div className="mt-2 text-sm font-normal leading-normal">
               <span className="text-gray-600 dark:text-gray-400">Current Stock: </span>
               <span className="font-medium text-gray-900 dark:text-gray-100">
                 {part.current_quantity} {part.unit_of_measure}
@@ -172,7 +172,7 @@ export default function ReceiveStockModal({ isOpen, onClose, part }: ReceiveStoc
                 placeholder="Enter quantity"
               />
               {errors.quantity && (
-                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.quantity}</p>
+                <p className="mt-1 text-sm font-normal leading-normal text-red-600 dark:text-red-400">{errors.quantity}</p>
               )}
             </div>
 
@@ -198,14 +198,14 @@ export default function ReceiveStockModal({ isOpen, onClose, part }: ReceiveStoc
                 placeholder="Enter unit cost"
               />
               {errors.unitCost && (
-                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.unitCost}</p>
+                <p className="mt-1 text-sm font-normal leading-normal text-red-600 dark:text-red-400">{errors.unitCost}</p>
               )}
             </div>
 
             {/* Total Cost Display */}
             {qty > 0 && cost > 0 && (
               <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3">
-                <div className="text-sm text-gray-600 dark:text-gray-400">Total Cost</div>
+                <div className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">Total Cost</div>
                 <div className="text-xl font-bold text-blue-600 dark:text-blue-400">
                   ${totalCost.toFixed(2)}
                 </div>
@@ -228,7 +228,7 @@ export default function ReceiveStockModal({ isOpen, onClose, part }: ReceiveStoc
 
             {/* New Stock Level Preview */}
             {qty > 0 && (
-              <div className="text-sm text-gray-600 dark:text-gray-400">
+              <div className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                 New stock level will be:{' '}
                 <span className="font-semibold text-gray-900 dark:text-gray-100">
                   {part.current_quantity + qty} {part.unit_of_measure}

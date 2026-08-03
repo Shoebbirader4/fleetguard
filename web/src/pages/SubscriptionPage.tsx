@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../stores/authStore';
+import Button from '../components/Button';
+import Card from '../components/Card';
 
 interface TenantSubscription {
   subscription_plan: 'starter' | 'professional' | 'enterprise';
@@ -181,7 +183,7 @@ export default function SubscriptionPage() {
         </svg>
       );
     }
-    return <span className="text-sm text-gray-700">{value}</span>;
+    return <span className="text-sm font-normal leading-normal text-gray-700">{value}</span>;
   };
 
   if (loading) {
@@ -198,16 +200,13 @@ export default function SubscriptionPage() {
   if (error) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="bg-white p-6 rounded-lg shadow-md max-w-md">
+        <Card>
           <h2 className="text-xl font-semibold text-red-600 mb-2">Error</h2>
           <p className="text-gray-700 mb-4">{error}</p>
-          <button
-            onClick={() => navigate('/dashboard')}
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-          >
+          <Button onClick={() => navigate('/dashboard')} variant="primary">
             Back to Dashboard
-          </button>
-        </div>
+          </Button>
+        </Card>
       </div>
     );
   }
@@ -238,18 +237,18 @@ export default function SubscriptionPage() {
         </div>
 
         {/* Current Plan Summary */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+        <Card className="mb-8">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Current Plan</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
-              <p className="text-sm text-gray-500 mb-1">Plan</p>
+              <p className="text-sm font-normal leading-normal text-gray-500 mb-1">Plan</p>
               <p className="text-2xl font-bold text-blue-600 capitalize">{subscription.subscription_plan}</p>
-              <p className="text-sm text-gray-600 mt-1">
+              <p className="text-sm font-normal leading-normal text-gray-600 mt-1">
                 ${PLAN_PRICING[subscription.subscription_plan][subscription.billing_cycle]} / {subscription.billing_cycle}
               </p>
             </div>
             <div>
-              <p className="text-sm text-gray-500 mb-1">Status</p>
+              <p className="text-sm font-normal leading-normal text-gray-500 mb-1">Status</p>
               <span
                 className={`inline-flex px-3 py-1 rounded-full text-sm font-semibold ${
                   subscription.subscription_status === 'active'
@@ -263,17 +262,17 @@ export default function SubscriptionPage() {
               </span>
             </div>
             <div>
-              <p className="text-sm text-gray-500 mb-1">Next Billing Date</p>
+              <p className="text-sm font-normal leading-normal text-gray-500 mb-1">Next Billing Date</p>
               <p className="text-lg font-semibold text-gray-900">
                 {new Date(subscription.next_billing_date).toLocaleDateString()}
               </p>
-              <p className="text-sm text-gray-600 mt-1">Billing Cycle: {subscription.billing_cycle}</p>
+              <p className="text-sm font-normal leading-normal text-gray-600 mt-1">Billing Cycle: {subscription.billing_cycle}</p>
             </div>
           </div>
-        </div>
+        </Card>
 
         {/* Vehicle Usage */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+        <Card className="mb-8">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Vehicle Usage</h2>
           <div className="mb-4">
             <div className="flex justify-between items-center mb-2">
@@ -306,10 +305,10 @@ export default function SubscriptionPage() {
               </p>
             </div>
           )}
-        </div>
+        </Card>
 
         {/* Plan Comparison */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+        <Card className="mb-8">
           <h2 className="text-xl font-semibold text-gray-900 mb-6">Compare Plans</h2>
           
           {/* Plan Cards */}
@@ -324,8 +323,8 @@ export default function SubscriptionPage() {
               <p className="text-3xl font-bold text-gray-900 mb-1">
                 ${PLAN_PRICING.starter[subscription.billing_cycle]}
               </p>
-              <p className="text-sm text-gray-600 mb-4">per {subscription.billing_cycle}</p>
-              <p className="text-sm text-gray-700 mb-6">Perfect for small fleets getting started</p>
+              <p className="text-sm font-normal leading-normal text-gray-600 mb-4">per {subscription.billing_cycle}</p>
+              <p className="text-sm font-normal leading-normal text-gray-700 mb-6">Perfect for small fleets getting started</p>
               {subscription.subscription_plan !== 'starter' ? (
                 <button
                   onClick={() => handlePlanChange('starter')}
@@ -349,13 +348,13 @@ export default function SubscriptionPage() {
             >
               <div className="flex justify-between items-start mb-2">
                 <h3 className="text-xl font-bold text-gray-900">Professional</h3>
-                <span className="px-2 py-1 bg-green-600 text-white text-xs font-semibold rounded">POPULAR</span>
+                <span className="px-2 py-1 bg-green-600 text-white text-xs font-normal leading-tight font-semibold rounded">POPULAR</span>
               </div>
               <p className="text-3xl font-bold text-gray-900 mb-1">
                 ${PLAN_PRICING.professional[subscription.billing_cycle]}
               </p>
-              <p className="text-sm text-gray-600 mb-4">per {subscription.billing_cycle}</p>
-              <p className="text-sm text-gray-700 mb-6">For growing fleets with advanced needs</p>
+              <p className="text-sm font-normal leading-normal text-gray-600 mb-4">per {subscription.billing_cycle}</p>
+              <p className="text-sm font-normal leading-normal text-gray-700 mb-6">For growing fleets with advanced needs</p>
               {subscription.subscription_plan !== 'professional' ? (
                 <button
                   onClick={() => handlePlanChange('professional')}
@@ -385,8 +384,8 @@ export default function SubscriptionPage() {
               <p className="text-3xl font-bold text-gray-900 mb-1">
                 ${PLAN_PRICING.enterprise[subscription.billing_cycle]}
               </p>
-              <p className="text-sm text-gray-600 mb-4">per {subscription.billing_cycle}</p>
-              <p className="text-sm text-gray-700 mb-6">For large fleets with unlimited vehicles</p>
+              <p className="text-sm font-normal leading-normal text-gray-600 mb-4">per {subscription.billing_cycle}</p>
+              <p className="text-sm font-normal leading-normal text-gray-700 mb-6">For large fleets with unlimited vehicles</p>
               {subscription.subscription_plan !== 'enterprise' ? (
                 <button
                   onClick={() => handlePlanChange('enterprise')}
@@ -408,16 +407,16 @@ export default function SubscriptionPage() {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 uppercase tracking-wider">
                     Feature
                   </th>
-                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-center text-xs font-normal leading-tight font-medium text-gray-500 uppercase tracking-wider">
                     Starter
                   </th>
-                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-center text-xs font-normal leading-tight font-medium text-gray-500 uppercase tracking-wider">
                     Professional
                   </th>
-                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-center text-xs font-normal leading-tight font-medium text-gray-500 uppercase tracking-wider">
                     Enterprise
                   </th>
                 </tr>
@@ -438,19 +437,17 @@ export default function SubscriptionPage() {
               </tbody>
             </table>
           </div>
-        </div>
+        </Card>
 
         {/* Help Section */}
         <div className="bg-blue-50 rounded-lg p-6 border border-blue-200">
-          <h3 className="text-lg font-semibold text-blue-900 mb-2">Need Help?</h3>
-          <p className="text-sm text-blue-800 mb-4">
+          <h3 className="text-lg font-semibold leading-snug text-blue-900 mb-2">Need Help?</h3>
+          <p className="text-sm font-normal leading-normal text-blue-800 mb-4">
             Have questions about plans or need assistance? Our team is here to help.
           </p>
           <div className="flex gap-4">
-            <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Contact Support</button>
-            <button className="px-4 py-2 border border-blue-600 text-blue-600 rounded hover:bg-blue-50">
-              View Documentation
-            </button>
+            <Button variant="primary">Contact Support</Button>
+            <Button variant="secondary">View Documentation</Button>
           </div>
         </div>
       </div>

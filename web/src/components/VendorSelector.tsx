@@ -16,6 +16,7 @@
 
 import { useVendors } from '../hooks/useVendors';
 import { Link } from 'react-router-dom';
+import { selectStyles, cardVariants, linkStyles } from '../utils/stylePatterns';
 
 interface VendorSelectorProps {
   value: string | null;
@@ -41,7 +42,7 @@ export default function VendorSelector({
 
   if (isError) {
     return (
-      <div className="w-full px-4 py-2 rounded-lg border border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 text-sm">
+      <div className="w-full px-4 py-2 rounded-lg border border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 text-sm font-normal leading-normal">
         Error loading vendors: {error?.message || 'Unknown error'}
       </div>
     );
@@ -50,13 +51,13 @@ export default function VendorSelector({
   // Show helpful message if no vendors exist
   if (!isLoading && vendors && vendors.length === 0) {
     return (
-      <div className="w-full px-4 py-3 rounded-lg border border-blue-300 dark:border-blue-600 bg-blue-50 dark:bg-blue-900/20">
-        <p className="text-blue-700 dark:text-blue-300 text-sm mb-2">
+      <div className={cardVariants.info}>
+        <p className="text-blue-700 dark:text-blue-300 text-sm font-normal leading-normal mb-2">
           No active vendors found. Please add a vendor first.
         </p>
         <Link
           to="/vendors/new"
-          className="inline-flex items-center text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
+          className={`${linkStyles} inline-flex items-center text-sm font-medium`}
         >
           <svg
             className="w-4 h-4 mr-1"
@@ -83,7 +84,7 @@ export default function VendorSelector({
       onChange={handleChange}
       required={required}
       disabled={disabled || isLoading}
-      className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+      className={selectStyles}
     >
       <option value="">
         {isLoading ? 'Loading vendors...' : placeholder}

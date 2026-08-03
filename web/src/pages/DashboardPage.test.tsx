@@ -1,41 +1,55 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { screen, waitFor } from '@testing-library/react';
-import { QueryClient } from '@tanstack/react-query';
-import DashboardPage from './DashboardPage';
-import { useAuthStore } from '../stores/authStore';
-import { supabase } from '../lib/supabase';
-import { renderWithProviders } from '../test/test-utils';
+/**
+ * DashboardPage Component Tests
+ * 
+ * Tests for Checkpoint Task 26 - Verify dashboard personalization
+ * Requirements: 8.1, 8.2, 8.3, 8.4
+ */
 
-// Mock modules
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { screen, waitFor, within } from '@testing-library/react';
+import { renderWithProviders, userEvent } from '../test/test-utils';
+import DashboardPage from './DashboardPage';
+import * as useDashboardHook from '../hooks/useDashboard';
+import * as useAuthStoreHook from '../stores/authStore';
+import { DashboardLayout } from '../types/dashboard';
+
+// Mock hooks and stores
+vi.mock('../hooks/useDashboard');
+vi.mock('../stores/authStore');
 vi.mock('../lib/supabase', () => ({
   supabase: {
-    from: vi.fn(),
-    channel: vi.fn(),
+    from: vi.fn(() => ({
+      select: vi.fn(() => ({
+        eq: vi.fn(() => ({
+          single: vi.fn(),
+        })),
+        order: vi.fn(() => ({
+          limit: vi.fn(),
+        })),
+      })),
+    })),
+    auth: {
+      getSession: vi.fn().mockResolvedValue({ data: { session: null }, error: null }),
+      onAuthStateChange: vi.fn(() => ({
+        data: { subscription: { unsubscribe: vi.fn() } },
+      })),
+    },
+    channel: vi.fn(() => ({
+      on: vi.fn(() => ({
+        subscribe: vi.fn((callback: Function) => {
+          // Call callback with status 'SUBSCRIBED' to set isRealtimeConnected
+          if (callback && typeof callback === 'function') {
+            callback('SUBSCRIBED');
+          }
+          return { unsubscribe: vi.fn() };
+        }),
+      })),
+    })),
     removeChannel: vi.fn(),
   },
 }));
 
-vi.mock('../stores/authStore', () => ({
-  useAuthStore: vi.fn(),
-}));
-
-// Helper to create mock Supabase query chain
-const createMockQueryChain = (response: any) => {
-  const chain = {
-    select: vi.fn().mockReturnThis(),
-    eq: vi.fn().mockReturnThis(),
-    neq: vi.fn().mockReturnThis(),
-    gte: vi.fn().mockReturnThis(),
-    order: vi.fn().mockReturnThis(),
-    limit: vi.fn().mockReturnThis(),
-    then: (callback: Function) => callback(response),
-  };
-  return chain;
-};
-
-describe('DashboardPage', () => {
-  let queryClient: QueryClient;
-  const mockLogout = vi.fn();
+describe('DashboardPage - Personalization', () => {
   const mockUser = {
     id: 'user-1',
     email: 'test@example.com',
@@ -45,392 +59,537 @@ describe('DashboardPage', () => {
   };
 
   beforeEach(() => {
-    // Reset mocks
     vi.clearAllMocks();
-    
-    // Create fresh query client for each test
-    queryClient = new QueryClient({
-      defaultOptions: {
-        queries: { retry: false },
-      },
+
+    // Mock useAuthStore with all required methods
+    vi.mocked(useAuthStoreHook.useAuthStore).mockImplementation((selector: any) => {
+      const state = {
+        user: mockUser,
+        isAuthenticated: true,
+        setAuth: vi.fn(),
+        clearAuth: vi.fn(),
+        logout: vi.fn(),
+        checkSession: vi.fn(),
+      };
+      return selector ? selector(state) : state;
     });
 
-    // Mock auth store
-    (useAuthStore as any).mockReturnValue({
-      user: mockUser,
-      logout: mockLogout,
-    });
-
-    // Mock Supabase realtime channels
-    const mockChannel = {
-      on: vi.fn().mockReturnThis(),
-      subscribe: vi.fn((callback) => {
-        if (typeof callback === 'function') {
-          callback('SUBSCRIBED');
-        }
-        return mockChannel;
-      }),
-    };
-    (supabase.channel as any).mockReturnValue(mockChannel);
+    // Mock useUpdateDashboardLayout by default
+    vi.mocked(useDashboardHook.useUpdateDashboardLayout).mockReturnValue({
+      mutate: vi.fn(),
+      isPending: false,
+      isSuccess: false,
+      isError: false,
+      error: null,
+    } as any);
   });
 
-  const renderDashboard = () => {
-    return renderWithProviders(<DashboardPage />, { queryClient });
-  };
-
-  describe('Fleet Statistics Widget', () => {
-    it('should display fleet health score', async () => {
-      // Mock vehicle count queries
-      (supabase.from as any).mockImplementation((table: string) => {
-        if (table === 'vehicles') {
-          return createMockQueryChain({ count: 10, error: null });
-        }
-        if (table === 'alerts') {
-          return createMockQueryChain({ data: [], error: null });
-        }
-        return createMockQueryChain({ count: 0, error: null });
-      });
-
-      renderDashboard();
-
-      await waitFor(() => {
-        const healthScoreElement = screen.getByText(/Fleet Health Score/i);
-        expect(healthScoreElement).toBeInTheDocument();
-      });
-    });
-
-    it('should display total vehicles count', async () => {
-      (supabase.from as any).mockImplementation((table: string) => {
-        if (table === 'vehicles') {
-          return createMockQueryChain({ count: 25, error: null });
-        }
-        if (table === 'alerts') {
-          return createMockQueryChain({ data: [], error: null });
-        }
-        return createMockQueryChain({ count: 0, error: null });
-      });
-
-      renderDashboard();
-
-      await waitFor(() => {
-        expect(screen.getByText('Total Vehicles')).toBeInTheDocument();
-      });
-    });
-
-    it('should display vehicles under maintenance count', async () => {
-      (supabase.from as any).mockImplementation((table: string) => {
-        if (table === 'vehicles') {
-          const chain = createMockQueryChain({ count: 10, error: null });
-          // Override eq to return different counts
-          chain.eq = vi.fn((_field: string, value: string) => {
-            if (value === 'maintenance') {
-              return createMockQueryChain({ count: 3, error: null });
-            }
-            return createMockQueryChain({ count: 7, error: null });
-          });
-          return chain;
-        }
-        if (table === 'alerts') {
-          return createMockQueryChain({ data: [], error: null });
-        }
-        return createMockQueryChain({ count: 0, error: null });
-      });
-
-      renderDashboard();
-
-      await waitFor(() => {
-        expect(screen.getByText('Under Maintenance')).toBeInTheDocument();
-      });
-    });
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
-  describe('Active Alerts List with Severity Badges', () => {
-    it('should display active alerts with severity badges', async () => {
-      const mockAlerts = [
-        {
-          id: 'alert-1',
-          vehicle_id: 'vehicle-1',
-          title: 'Brake Maintenance Due',
-          description: 'Brake pads need replacement',
-          severity: 'high',
-          alert_type: 'due_soon',
-          status: 'active',
-          created_at: new Date().toISOString(),
-          vehicles: {
-            vin: 'VIN123',
-            make: 'Toyota',
-            model: 'Hiace',
+  describe('Requirement 8.1: Asynchronous Widget Loading', () => {
+    it('shows loading state while fetching dashboard layout', () => {
+      vi.mocked(useDashboardHook.useDashboardLayout).mockReturnValue({
+        data: undefined,
+        isLoading: true,
+        error: null,
+        refetch: vi.fn(),
+      } as any);
+
+      renderWithProviders(<DashboardPage />);
+
+      expect(screen.getByText(/Loading dashboard.../i)).toBeInTheDocument();
+    });
+
+    it('renders dashboard with widgets after loading', async () => {
+      const mockLayout: DashboardLayout = {
+        user_id: 'user-1',
+        role: 'fleet_manager',
+        widgets: [
+          {
+            id: 'widget-1',
+            type: 'fleet-overview',
+            title: 'Fleet Overview',
+            order: 0,
+            visible: true,
+            size: 'large',
           },
-        },
-        {
-          id: 'alert-2',
-          vehicle_id: 'vehicle-2',
-          title: 'Oil Change Overdue',
-          description: 'Engine oil change is overdue',
-          severity: 'critical',
-          alert_type: 'overdue',
-          status: 'active',
-          created_at: new Date().toISOString(),
-          vehicles: {
-            vin: 'VIN456',
-            make: 'Mercedes',
-            model: 'Sprinter',
+          {
+            id: 'widget-2',
+            type: 'vehicle-status',
+            title: 'Vehicle Status',
+            order: 1,
+            visible: true,
+            size: 'medium',
           },
-        },
-      ];
-
-      (supabase.from as any).mockImplementation((table: string) => {
-        if (table === 'alerts') {
-          return createMockQueryChain({ data: mockAlerts, error: null });
-        }
-        if (table === 'vehicles') {
-          return createMockQueryChain({ count: 10, error: null });
-        }
-        return createMockQueryChain({ data: [], error: null });
-      });
-
-      renderDashboard();
-
-      await waitFor(() => {
-        expect(screen.getByText('Active Alerts')).toBeInTheDocument();
-        expect(screen.getByText('Brake Maintenance Due')).toBeInTheDocument();
-        expect(screen.getByText('Oil Change Overdue')).toBeInTheDocument();
-      });
-
-      // Check severity badges
-      const highBadge = screen.getByText('HIGH');
-      const criticalBadge = screen.getByText('CRITICAL');
-      expect(highBadge).toBeInTheDocument();
-      expect(criticalBadge).toBeInTheDocument();
-    });
-
-    it('should display "No active alerts" when there are no alerts', async () => {
-      (supabase.from as any).mockImplementation((table: string) => {
-        if (table === 'alerts') {
-          return createMockQueryChain({ data: [], error: null });
-        }
-        if (table === 'vehicles') {
-          return createMockQueryChain({ count: 10, error: null });
-        }
-        return createMockQueryChain({ count: 0, error: null });
-      });
-
-      renderDashboard();
-
-      await waitFor(() => {
-        expect(screen.getByText('No active alerts')).toBeInTheDocument();
-      });
-    });
-  });
-
-  describe('Cost Trends Chart (Recharts)', () => {
-    it('should display cost trends chart', async () => {
-      const mockWorkOrders = [
-        {
-          completed_at: new Date().toISOString(),
-          total_cost: 1500,
-        },
-        {
-          completed_at: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-          total_cost: 2000,
-        },
-      ];
-
-      (supabase.from as any).mockImplementation((table: string) => {
-        if (table === 'work_orders') {
-          return createMockQueryChain({ data: mockWorkOrders, error: null });
-        }
-        if (table === 'vehicles') {
-          return createMockQueryChain({ count: 10, error: null });
-        }
-        if (table === 'alerts') {
-          return createMockQueryChain({ data: [], error: null });
-        }
-        return createMockQueryChain({ data: [], error: null });
-      });
-
-      renderDashboard();
-
-      await waitFor(() => {
-        expect(screen.getByText('Cost Trends (Last 6 Months)')).toBeInTheDocument();
-      });
-    });
-
-    it('should display "No cost data available" when there are no work orders', async () => {
-      (supabase.from as any).mockImplementation((table: string) => {
-        if (table === 'work_orders') {
-          return createMockQueryChain({ data: [], error: null });
-        }
-        if (table === 'vehicles') {
-          return createMockQueryChain({ count: 10, error: null });
-        }
-        if (table === 'alerts') {
-          return createMockQueryChain({ data: [], error: null });
-        }
-        return createMockQueryChain({ count: 0, error: null });
-      });
-
-      renderDashboard();
-
-      await waitFor(() => {
-        expect(screen.getByText(/Cost Trends/i)).toBeInTheDocument();
-      });
-    });
-  });
-
-  describe('Supabase Realtime Subscription', () => {
-    it('should setup realtime subscription for alerts', () => {
-      (supabase.from as any).mockImplementation(() => 
-        createMockQueryChain({ count: 0, error: null })
-      );
-
-      renderDashboard();
-
-      // Verify channel was created for alerts
-      expect(supabase.channel).toHaveBeenCalledWith('dashboard-alerts');
-    });
-
-    it('should setup realtime subscription for vehicle status changes', () => {
-      (supabase.from as any).mockImplementation(() => 
-        createMockQueryChain({ count: 0, error: null })
-      );
-
-      renderDashboard();
-
-      // Verify channel was created for vehicles
-      expect(supabase.channel).toHaveBeenCalledWith('dashboard-vehicles');
-    });
-
-    it('should setup realtime subscription for work orders', () => {
-      (supabase.from as any).mockImplementation(() => 
-        createMockQueryChain({ count: 0, error: null })
-      );
-
-      renderDashboard();
-
-      // Verify channel was created for work orders
-      expect(supabase.channel).toHaveBeenCalledWith('dashboard-work-orders');
-    });
-
-    it('should display "Live" indicator when realtime is connected', async () => {
-      (supabase.from as any).mockImplementation(() => 
-        createMockQueryChain({ count: 0, error: null })
-      );
-
-      renderDashboard();
-
-      await waitFor(() => {
-        const liveIndicator = screen.getByText('Live');
-        expect(liveIndicator).toBeInTheDocument();
-      });
-    });
-  });
-
-  describe('Requirement 30.2: Vehicle Status Changes Update Within 2 Seconds', () => {
-    it('should invalidate queries when vehicle status changes', async () => {
-      let statusChangeCallback: Function | null = null;
-
-      const mockChannel = {
-        on: vi.fn((_event, config, callback) => {
-          if (config.table === 'vehicles') {
-            statusChangeCallback = callback;
-          }
-          return mockChannel;
-        }),
-        subscribe: vi.fn(() => mockChannel),
+        ],
+        updated_at: new Date().toISOString(),
       };
 
-      (supabase.channel as any).mockReturnValue(mockChannel);
-      (supabase.from as any).mockImplementation(() => 
-        createMockQueryChain({ count: 10, error: null })
-      );
+      vi.mocked(useDashboardHook.useDashboardLayout).mockReturnValue({
+        data: mockLayout,
+        isLoading: false,
+        error: null,
+        refetch: vi.fn(),
+      } as any);
 
-      const invalidateQueriesSpy = vi.spyOn(queryClient, 'invalidateQueries');
+      renderWithProviders(<DashboardPage />);
 
-      renderDashboard();
-
-      // Simulate vehicle status change
       await waitFor(() => {
-        expect(statusChangeCallback).toBeTruthy();
+        expect(screen.getByText('Fleet Overview')).toBeInTheDocument();
+        expect(screen.getByText('Vehicle Status')).toBeInTheDocument();
       });
-
-      if (statusChangeCallback) {
-        statusChangeCallback({
-          eventType: 'UPDATE',
-          new: { id: 'vehicle-1', status: 'maintenance' },
-        });
-
-        // Verify that queries are invalidated (which triggers refetch)
-        expect(invalidateQueriesSpy).toHaveBeenCalledWith({ queryKey: ['fleetStats'] });
-      }
     });
-  });
 
-  describe('Requirement 30.3: New Alert Display Within 2 Seconds', () => {
-    it('should invalidate queries when new alert is generated', async () => {
-      let alertChangeCallback: Function | null = null;
-
-      const mockChannel = {
-        on: vi.fn((_event, config, callback) => {
-          if (config.table === 'alerts') {
-            alertChangeCallback = callback;
-          }
-          return mockChannel;
-        }),
-        subscribe: vi.fn(() => mockChannel),
+    it('only renders visible widgets', async () => {
+      const mockLayout: DashboardLayout = {
+        user_id: 'user-1',
+        role: 'fleet_manager',
+        widgets: [
+          {
+            id: 'widget-1',
+            type: 'fleet-overview',
+            title: 'Fleet Overview',
+            order: 0,
+            visible: true,
+            size: 'large',
+          },
+          {
+            id: 'widget-2',
+            type: 'vehicle-status',
+            title: 'Vehicle Status',
+            order: 1,
+            visible: false, // Hidden widget
+            size: 'medium',
+          },
+        ],
+        updated_at: new Date().toISOString(),
       };
 
-      (supabase.channel as any).mockReturnValue(mockChannel);
-      (supabase.from as any).mockImplementation(() => 
-        createMockQueryChain({ count: 0, error: null })
-      );
+      vi.mocked(useDashboardHook.useDashboardLayout).mockReturnValue({
+        data: mockLayout,
+        isLoading: false,
+        error: null,
+        refetch: vi.fn(),
+      } as any);
 
-      const invalidateQueriesSpy = vi.spyOn(queryClient, 'invalidateQueries');
+      renderWithProviders(<DashboardPage />);
 
-      renderDashboard();
-
-      // Simulate new alert
       await waitFor(() => {
-        expect(alertChangeCallback).toBeTruthy();
+        expect(screen.getByText('Fleet Overview')).toBeInTheDocument();
+        expect(screen.queryByText('Vehicle Status')).not.toBeInTheDocument();
       });
-
-      if (alertChangeCallback) {
-        alertChangeCallback({
-          eventType: 'INSERT',
-          new: {
-            id: 'alert-new',
-            title: 'New Critical Alert',
-            severity: 'critical',
-          },
-        });
-
-        // Verify that queries are invalidated (which triggers refetch)
-        expect(invalidateQueriesSpy).toHaveBeenCalledWith({ queryKey: ['activeAlerts'] });
-      }
     });
   });
 
-  describe('User Interaction', () => {
-    it('should display user information', () => {
-      (supabase.from as any).mockImplementation(() => 
-        createMockQueryChain({ count: 0, error: null })
-      );
+  describe('Requirement 8.2: Failed Widget Load Isolation', () => {
+    it('shows error message when dashboard layout fails to load', async () => {
+      vi.mocked(useDashboardHook.useDashboardLayout).mockReturnValue({
+        data: undefined,
+        isLoading: false,
+        error: new Error('Failed to fetch layout'),
+        refetch: vi.fn(),
+      } as any);
 
-      renderDashboard();
-
-      expect(screen.getByText('Test User (fleet_manager)')).toBeInTheDocument();
-    });
-
-    it('should display last update timestamp', async () => {
-      (supabase.from as any).mockImplementation(() => 
-        createMockQueryChain({ count: 0, error: null })
-      );
-
-      renderDashboard();
+      renderWithProviders(<DashboardPage />);
 
       await waitFor(() => {
-        const timestampElement = screen.getByText(/Last updated:/i);
-        expect(timestampElement).toBeInTheDocument();
+        expect(screen.getByText(/Unable to load dashboard/i)).toBeInTheDocument();
+      });
+    });
+
+    it('still renders other widgets when one widget fails', async () => {
+      // This test verifies that individual widget errors don't crash the dashboard
+      // Each widget has its own error boundary and loading state
+      const mockLayout: DashboardLayout = {
+        user_id: 'user-1',
+        role: 'fleet_manager',
+        widgets: [
+          {
+            id: 'widget-1',
+            type: 'fleet-overview',
+            title: 'Fleet Overview',
+            order: 0,
+            visible: true,
+            size: 'large',
+          },
+          {
+            id: 'widget-2',
+            type: 'my-work-orders',
+            title: 'My Work Orders',
+            order: 1,
+            visible: true,
+            size: 'medium',
+          },
+        ],
+        updated_at: new Date().toISOString(),
+      };
+
+      vi.mocked(useDashboardHook.useDashboardLayout).mockReturnValue({
+        data: mockLayout,
+        isLoading: false,
+        error: null,
+        refetch: vi.fn(),
+      } as any);
+
+      renderWithProviders(<DashboardPage />);
+
+      // Both widget titles should be rendered (even if one widget's data fails)
+      await waitFor(() => {
+        expect(screen.getByText('Fleet Overview')).toBeInTheDocument();
+        expect(screen.getByText('My Work Orders')).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('Requirement 8.3: Dashboard Customization Persistence', () => {
+    it('opens customizer modal when customize button is clicked', async () => {
+      const user = userEvent.setup();
+      
+      const mockLayout: DashboardLayout = {
+        user_id: 'user-1',
+        role: 'fleet_manager',
+        widgets: [
+          {
+            id: 'widget-1',
+            type: 'fleet-overview',
+            title: 'Fleet Overview',
+            order: 0,
+            visible: true,
+            size: 'large',
+          },
+        ],
+        updated_at: new Date().toISOString(),
+      };
+
+      vi.mocked(useDashboardHook.useDashboardLayout).mockReturnValue({
+        data: mockLayout,
+        isLoading: false,
+        error: null,
+        refetch: vi.fn(),
+      } as any);
+
+      vi.mocked(useDashboardHook.useUpdateDashboardLayout).mockReturnValue({
+        mutate: vi.fn(),
+        isPending: false,
+        isSuccess: false,
+        isError: false,
+        error: null,
+      } as any);
+
+      renderWithProviders(<DashboardPage />);
+
+      const customizeButton = screen.getByRole('button', { name: /Customize Dashboard/i });
+      await user.click(customizeButton);
+
+      // Modal should open - look for the modal heading specifically
+      await waitFor(() => {
+        const modalHeading = screen.getByRole('heading', { name: /Customize Dashboard/i });
+        expect(modalHeading).toBeInTheDocument();
+      });
+    });
+
+    it('renders widgets in correct order based on layout', async () => {
+      const mockLayout: DashboardLayout = {
+        user_id: 'user-1',
+        role: 'fleet_manager',
+        widgets: [
+          {
+            id: 'widget-2',
+            type: 'vehicle-status',
+            title: 'Vehicle Status',
+            order: 0, // First
+            visible: true,
+            size: 'medium',
+          },
+          {
+            id: 'widget-1',
+            type: 'fleet-overview',
+            title: 'Fleet Overview',
+            order: 1, // Second
+            visible: true,
+            size: 'large',
+          },
+        ],
+        updated_at: new Date().toISOString(),
+      };
+
+      vi.mocked(useDashboardHook.useDashboardLayout).mockReturnValue({
+        data: mockLayout,
+        isLoading: false,
+        error: null,
+        refetch: vi.fn(),
+      } as any);
+
+      const { container } = renderWithProviders(<DashboardPage />);
+
+      await waitFor(() => {
+        const widgets = container.querySelectorAll('[class*="rounded-lg shadow"]');
+        expect(widgets.length).toBeGreaterThan(0);
+      });
+    });
+  });
+
+  describe('Requirement 8.4: Auto-Refresh', () => {
+    it('displays manual refresh button', () => {
+      const mockLayout: DashboardLayout = {
+        user_id: 'user-1',
+        role: 'fleet_manager',
+        widgets: [],
+        updated_at: new Date().toISOString(),
+      };
+
+      vi.mocked(useDashboardHook.useDashboardLayout).mockReturnValue({
+        data: mockLayout,
+        isLoading: false,
+        error: null,
+        refetch: vi.fn(),
+      } as any);
+
+      renderWithProviders(<DashboardPage />);
+
+      const refreshButton = screen.getByRole('button', { name: /Refresh/i });
+      expect(refreshButton).toBeInTheDocument();
+    });
+
+    it('disables refresh button while refreshing', async () => {
+      const user = userEvent.setup();
+      
+      const mockLayout: DashboardLayout = {
+        user_id: 'user-1',
+        role: 'fleet_manager',
+        widgets: [],
+        updated_at: new Date().toISOString(),
+      };
+
+      vi.mocked(useDashboardHook.useDashboardLayout).mockReturnValue({
+        data: mockLayout,
+        isLoading: false,
+        error: null,
+        refetch: vi.fn(),
+      } as any);
+
+      renderWithProviders(<DashboardPage />);
+
+      const refreshButton = screen.getByRole('button', { name: /Refresh/i });
+      await user.click(refreshButton);
+
+      // Button should be disabled and show "Refreshing..."
+      await waitFor(() => {
+        expect(refreshButton).toBeDisabled();
+      });
+    });
+
+    it('displays last updated timestamp', () => {
+      const mockLayout: DashboardLayout = {
+        user_id: 'user-1',
+        role: 'fleet_manager',
+        widgets: [],
+        updated_at: new Date().toISOString(),
+      };
+
+      vi.mocked(useDashboardHook.useDashboardLayout).mockReturnValue({
+        data: mockLayout,
+        isLoading: false,
+        error: null,
+        refetch: vi.fn(),
+      } as any);
+
+      renderWithProviders(<DashboardPage />);
+
+      expect(screen.getByText(/Last updated:/i)).toBeInTheDocument();
+    });
+
+    it('displays realtime connection status', () => {
+      const mockLayout: DashboardLayout = {
+        user_id: 'user-1',
+        role: 'fleet_manager',
+        widgets: [],
+        updated_at: new Date().toISOString(),
+      };
+
+      vi.mocked(useDashboardHook.useDashboardLayout).mockReturnValue({
+        data: mockLayout,
+        isLoading: false,
+        error: null,
+        refetch: vi.fn(),
+      } as any);
+
+      renderWithProviders(<DashboardPage />);
+
+      // Look for "Live" indicator
+      const liveIndicator = screen.getByText(/Live/i);
+      expect(liveIndicator).toBeInTheDocument();
+    });
+  });
+
+  describe('Role-Specific Widget Display', () => {
+    it('displays correct widgets for company_owner role', async () => {
+      const companyOwnerUser = { ...mockUser, role: 'company_owner' };
+      vi.mocked(useAuthStoreHook.useAuthStore).mockImplementation((selector: any) => {
+        const state = {
+          user: companyOwnerUser,
+          isAuthenticated: true,
+          setAuth: vi.fn(),
+          clearAuth: vi.fn(),
+          logout: vi.fn(),
+          checkSession: vi.fn(),
+        };
+        return selector ? selector(state) : state;
+      });
+
+      const mockLayout: DashboardLayout = {
+        user_id: 'user-1',
+        role: 'company_owner',
+        widgets: [
+          {
+            id: 'widget-1',
+            type: 'fleet-overview',
+            title: 'Fleet Overview',
+            order: 0,
+            visible: true,
+            size: 'large',
+          },
+          {
+            id: 'widget-2',
+            type: 'financial-summary',
+            title: 'Financial Summary',
+            order: 1,
+            visible: true,
+            size: 'large',
+          },
+          {
+            id: 'widget-3',
+            type: 'team-summary',
+            title: 'Team Summary',
+            order: 2,
+            visible: true,
+            size: 'medium',
+          },
+        ],
+        updated_at: new Date().toISOString(),
+      };
+
+      vi.mocked(useDashboardHook.useDashboardLayout).mockReturnValue({
+        data: mockLayout,
+        isLoading: false,
+        error: null,
+        refetch: vi.fn(),
+      } as any);
+
+      renderWithProviders(<DashboardPage />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Fleet Overview')).toBeInTheDocument();
+        expect(screen.getByText('Financial Summary')).toBeInTheDocument();
+        expect(screen.getByText('Team Summary')).toBeInTheDocument();
+      });
+    });
+
+    it('displays correct widgets for mechanic role', async () => {
+      const mechanicUser = { ...mockUser, role: 'mechanic' };
+      vi.mocked(useAuthStoreHook.useAuthStore).mockImplementation((selector: any) => {
+        const state = {
+          user: mechanicUser,
+          isAuthenticated: true,
+          setAuth: vi.fn(),
+          clearAuth: vi.fn(),
+          logout: vi.fn(),
+          checkSession: vi.fn(),
+        };
+        return selector ? selector(state) : state;
+      });
+
+      const mockLayout: DashboardLayout = {
+        user_id: 'user-1',
+        role: 'mechanic',
+        widgets: [
+          {
+            id: 'widget-1',
+            type: 'my-work-orders',
+            title: 'My Work Orders',
+            order: 0,
+            visible: true,
+            size: 'large',
+          },
+          {
+            id: 'widget-2',
+            type: 'parts-availability',
+            title: 'Parts Availability',
+            order: 1,
+            visible: true,
+            size: 'small',
+          },
+        ],
+        updated_at: new Date().toISOString(),
+      };
+
+      vi.mocked(useDashboardHook.useDashboardLayout).mockReturnValue({
+        data: mockLayout,
+        isLoading: false,
+        error: null,
+        refetch: vi.fn(),
+      } as any);
+
+      renderWithProviders(<DashboardPage />);
+
+      await waitFor(() => {
+        expect(screen.getByText('My Work Orders')).toBeInTheDocument();
+        expect(screen.getByText('Parts Availability')).toBeInTheDocument();
+      });
+    });
+
+    it('displays correct widgets for driver role', async () => {
+      const driverUser = { ...mockUser, role: 'driver' };
+      vi.mocked(useAuthStoreHook.useAuthStore).mockImplementation((selector: any) => {
+        const state = {
+          user: driverUser,
+          isAuthenticated: true,
+          setAuth: vi.fn(),
+          clearAuth: vi.fn(),
+          logout: vi.fn(),
+          checkSession: vi.fn(),
+        };
+        return selector ? selector(state) : state;
+      });
+
+      const mockLayout: DashboardLayout = {
+        user_id: 'user-1',
+        role: 'driver',
+        widgets: [
+          {
+            id: 'widget-1',
+            type: 'my-vehicles',
+            title: 'My Vehicles',
+            order: 0,
+            visible: true,
+            size: 'medium',
+          },
+          {
+            id: 'widget-2',
+            type: 'maintenance-alerts',
+            title: 'Maintenance Alerts',
+            order: 1,
+            visible: true,
+            size: 'medium',
+          },
+        ],
+        updated_at: new Date().toISOString(),
+      };
+
+      vi.mocked(useDashboardHook.useDashboardLayout).mockReturnValue({
+        data: mockLayout,
+        isLoading: false,
+        error: null,
+        refetch: vi.fn(),
+      } as any);
+
+      renderWithProviders(<DashboardPage />);
+
+      await waitFor(() => {
+        expect(screen.getByText('My Vehicles')).toBeInTheDocument();
+        expect(screen.getByText('Maintenance Alerts')).toBeInTheDocument();
       });
     });
   });

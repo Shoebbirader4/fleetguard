@@ -59,7 +59,7 @@ export function VehicleFormWithValidation() {
           placeholder="Select a driver..."
           disabled={isSubmitting}
         />
-        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+        <p className="mt-1 text-xs font-normal leading-tight text-gray-500 dark:text-gray-400">
           Select a driver to assign to this vehicle (optional)
         </p>
       </div>
@@ -134,7 +134,7 @@ export function VehicleFilterExample() {
           {filterDriverId && (
             <button
               onClick={handleClearFilter}
-              className="px-3 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-lg transition-colors text-sm"
+              className="px-3 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-lg transition-colors text-sm font-normal leading-normal"
             >
               Clear
             </button>
@@ -180,7 +180,7 @@ export function VehicleWithDriverChangeTracking() {
       {changeHistory.length > 0 && (
         <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
           <h4 className="text-sm font-medium mb-2">Change History:</h4>
-          <ul className="text-xs space-y-1 text-gray-600 dark:text-gray-400">
+          <ul className="text-xs font-normal leading-tight space-y-1 text-gray-600 dark:text-gray-400">
             {changeHistory.map((entry, i) => (
               <li key={i}>{entry}</li>
             ))}

@@ -17,6 +17,9 @@ import { canManageVendors } from '../utils/authorization';
 import type { Vendor } from '../types/vendor';
 import Layout from '../components/Layout';
 import LoadingSpinner from '../components/LoadingSpinner';
+import ErrorDisplay from '../components/ErrorDisplay';
+import { ListPageSkeleton } from '../components/SkeletonScreens';
+import { getErrorMessage } from '../hooks/useQueryError';
 
 // Extended vendor type with order count for list view
 interface VendorWithOrderCount extends Vendor {
@@ -29,7 +32,7 @@ export default function VendorsPage() {
   
   // Fetch vendors with order count using a custom query
   // This satisfies requirement 3.1: "list of all vendors with status, contact info, and total orders"
-  const { data: vendors, isLoading, error } = useQuery({
+  const { data: vendors, isLoading, error, refetch } = useQuery({
     queryKey: ['vendors', 'with-order-count'],
     queryFn: async () => {
       // Fetch all vendors
@@ -102,7 +105,7 @@ export default function VendorsPage() {
       <div className="bg-white dark:bg-gray-800 shadow-soft border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+            <h1 className="text-3xl font-bold leading-tight text-gray-900 dark:text-gray-100">
               Vendors
             </h1>
             {canManage && (
@@ -153,7 +156,7 @@ export default function VendorsPage() {
 
           {/* Results Summary */}
           {vendors && (
-            <div className="mt-4 text-sm text-gray-600 dark:text-gray-400">
+            <div className="mt-4 text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
               Showing {filteredVendors.length} of {vendors.length} vendors
             </div>
           )}
@@ -161,16 +164,13 @@ export default function VendorsPage() {
 
         {/* Vendor Table */}
         {isLoading ? (
-          <div className="card text-center py-12">
-            <LoadingSpinner size="lg" className="mx-auto" />
-            <p className="mt-4 text-gray-600 dark:text-gray-400">Loading vendors...</p>
-          </div>
+          <ListPageSkeleton />
         ) : error ? (
-          <div className="card bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
-            <p className="text-red-800 dark:text-red-200">
-              Error loading vendors: {error instanceof Error ? error.message : 'Unknown error'}
-            </p>
-          </div>
+          <ErrorDisplay
+            error={error as Error}
+            message={getErrorMessage(error)}
+            onRetry={() => refetch()}
+          />
         ) : filteredVendors.length === 0 ? (
           <div className="card text-center py-12">
             <svg
@@ -213,43 +213,43 @@ export default function VendorsPage() {
                   <tr>
                     <th
                       scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+                      className="px-6 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                     >
                       Vendor Name
                     </th>
                     <th
                       scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+                      className="px-6 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                     >
                       Contact Person
                     </th>
                     <th
                       scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+                      className="px-6 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                     >
                       Email
                     </th>
                     <th
                       scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+                      className="px-6 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                     >
                       Phone
                     </th>
                     <th
                       scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+                      className="px-6 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                     >
                       Status
                     </th>
                     <th
                       scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+                      className="px-6 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                     >
                       Total Orders
                     </th>
                     <th
                       scope="col"
-                      className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+                      className="px-6 py-3 text-right text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                     >
                       Actions
                     </th>
@@ -264,23 +264,23 @@ export default function VendorsPage() {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-600 dark:text-gray-400">
+                        <div className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                           {vendor.contact_person || '-'}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-600 dark:text-gray-400">
+                        <div className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                           {vendor.email}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-600 dark:text-gray-400">
+                        <div className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                           {vendor.phone}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusBadgeColor(
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-normal leading-tight font-medium ${getStatusBadgeColor(
                             vendor.status
                           )}`}
                         >
@@ -288,7 +288,7 @@ export default function VendorsPage() {
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-600 dark:text-gray-400">
+                        <div className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                           {vendor.order_count}
                         </div>
                       </td>

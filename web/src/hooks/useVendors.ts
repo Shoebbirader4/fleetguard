@@ -9,6 +9,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
+import { toast } from '../components/ToastContainer';
 import type { Vendor, VendorWithStats, VendorFormData } from '../types/vendor';
 
 /**
@@ -109,6 +110,13 @@ export function useCreateVendor() {
     onSuccess: () => {
       // Invalidate all vendor queries to refresh lists and dropdowns
       queryClient.invalidateQueries({ queryKey: ['vendors'] });
+      
+      // Show success toast
+      toast.success('Vendor created successfully');
+    },
+    onError: (error: Error) => {
+      // Show error toast
+      toast.error(`Failed to create vendor: ${error.message}`);
     },
   });
 }
@@ -144,6 +152,13 @@ export function useUpdateVendor() {
       // Invalidate vendor queries to refresh lists and detail pages
       queryClient.invalidateQueries({ queryKey: ['vendors'] });
       queryClient.invalidateQueries({ queryKey: ['vendors', data.id] });
+      
+      // Show success toast
+      toast.success('Vendor updated successfully');
+    },
+    onError: (error: Error) => {
+      // Show error toast
+      toast.error(`Failed to update vendor: ${error.message}`);
     },
   });
 }
@@ -180,6 +195,13 @@ export function useDeactivateVendor() {
       // Invalidate vendor queries to refresh lists and remove from active dropdowns
       queryClient.invalidateQueries({ queryKey: ['vendors'] });
       queryClient.invalidateQueries({ queryKey: ['vendors', data.id] });
+      
+      // Show success toast
+      toast.success('Vendor deactivated successfully');
+    },
+    onError: (error: Error) => {
+      // Show error toast
+      toast.error(`Failed to deactivate vendor: ${error.message}`);
     },
   });
 }

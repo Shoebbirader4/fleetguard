@@ -95,13 +95,13 @@ export default function LoginPage() {
       <div className="card max-w-md w-full">
         <div className="text-center mb-6">
           <h2 className="text-2xl font-bold mb-2">FleetGuard AI</h2>
-          <p className="text-gray-600 dark:text-gray-400 text-sm">
+          <p className="text-gray-600 dark:text-gray-400 text-sm font-normal leading-normal">
             Sign in to your account
           </p>
         </div>
 
         {error && (
-          <div className="bg-danger-50 dark:bg-danger-900/30 text-danger-700 dark:text-danger-300 p-3 rounded-lg mb-4 text-sm">
+          <div className="bg-danger-50 dark:bg-danger-900/30 text-danger-700 dark:text-danger-300 p-3 rounded-lg mb-4 text-sm font-normal leading-normal">
             {error}
           </div>
         )}
@@ -151,14 +151,14 @@ export default function LoginPage() {
                 className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
                 disabled={loading}
               />
-              <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">
+              <span className="ml-2 text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                 Remember me
               </span>
             </label>
 
             <Link
               to="/password-reset"
-              className="text-sm text-primary-600 dark:text-primary-400 hover:underline"
+              className="text-sm font-normal leading-normal text-primary-600 dark:text-primary-400 hover:underline"
             >
               Forgot password?
             </Link>
@@ -174,7 +174,7 @@ export default function LoginPage() {
         </form>
 
         <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700 text-center">
-          <p className="text-sm text-gray-600 dark:text-gray-400">
+          <p className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
             Don't have an account?{' '}
             <Link
               to="/signup"
@@ -183,7 +183,7 @@ export default function LoginPage() {
               Sign Up
             </Link>
           </p>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-4">
+          <p className="text-xs font-normal leading-tight text-gray-500 dark:text-gray-400 mt-4">
             Demo credentials will be provided by your administrator.
           </p>
         </div>

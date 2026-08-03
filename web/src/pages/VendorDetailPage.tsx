@@ -21,6 +21,8 @@ import { useAuthStore } from '../stores/authStore';
 import { canManageVendors } from '../utils/authorization';
 import { toast } from '../components/ToastContainer';
 import ConfirmationModal from '../components/ConfirmationModal';
+import Button from '../components/Button';
+import Badge from '../components/Badge';
 
 interface PurchaseOrder {
   id: string;
@@ -105,9 +107,9 @@ export default function VendorDetailPage() {
             <p className="text-red-800 dark:text-red-200">
               Error loading vendor: {vendorError instanceof Error ? vendorError.message : 'Vendor not found'}
             </p>
-            <button onClick={handleBack} className="mt-4 btn-primary">
+            <Button onClick={handleBack} variant="primary" className="mt-4">
               Back to Vendors
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -115,30 +117,18 @@ export default function VendorDetailPage() {
   }
 
   const getStatusBadge = (status: string) => {
-    const statusClasses = {
-      active: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
-      inactive: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
-    };
-
     return (
-      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusClasses[status as keyof typeof statusClasses] || statusClasses.active}`}>
+      <Badge context="status" value={status}>
         {status.charAt(0).toUpperCase() + status.slice(1)}
-      </span>
+      </Badge>
     );
   };
 
   const getPOStatusBadge = (status: string) => {
-    const statusClasses = {
-      pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
-      ordered: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
-      received: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
-      cancelled: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
-    };
-
     return (
-      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusClasses[status as keyof typeof statusClasses] || statusClasses.pending}`}>
+      <Badge context="status" value={status}>
         {status.charAt(0).toUpperCase() + status.slice(1)}
-      </span>
+      </Badge>
     );
   };
 
@@ -159,32 +149,33 @@ export default function VendorDetailPage() {
                 </svg>
               </button>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                <h1 className="text-3xl font-bold leading-tight text-gray-900 dark:text-gray-100">
                   {vendor.vendor_name}
                 </h1>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+                <p className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                   Vendor Details
                 </p>
               </div>
             </div>
             {canManage && (
               <div className="flex items-center gap-3">
-                <button onClick={handleEdit} className="btn-primary flex items-center gap-2">
+                <Button onClick={handleEdit} variant="primary">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                   </svg>
                   Edit
-                </button>
+                </Button>
                 {vendor.status === 'active' && (
-                  <button
+                  <Button
                     onClick={() => setShowDeactivateModal(true)}
-                    className="btn-secondary text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 flex items-center gap-2"
+                    variant="secondary"
+                    className="text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
                     </svg>
                     Deactivate
-                  </button>
+                  </Button>
                 )}
               </div>
             )}
@@ -204,21 +195,21 @@ export default function VendorDetailPage() {
               </h2>
               <div className="space-y-4">
                 <div>
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Vendor Name</span>
+                  <span className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">Vendor Name</span>
                   <p className="font-medium text-gray-900 dark:text-gray-100">
                     {vendor.vendor_name}
                   </p>
                 </div>
                 {vendor.contact_person && (
                   <div>
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Contact Person</span>
+                    <span className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">Contact Person</span>
                     <p className="font-medium text-gray-900 dark:text-gray-100">
                       {vendor.contact_person}
                     </p>
                   </div>
                 )}
                 <div>
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Email</span>
+                  <span className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">Email</span>
                   <p className="font-medium text-gray-900 dark:text-gray-100">
                     <a href={`mailto:${vendor.email}`} className="text-blue-600 dark:text-blue-400 hover:underline">
                       {vendor.email}
@@ -226,7 +217,7 @@ export default function VendorDetailPage() {
                   </p>
                 </div>
                 <div>
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Phone</span>
+                  <span className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">Phone</span>
                   <p className="font-medium text-gray-900 dark:text-gray-100">
                     <a href={`tel:${vendor.phone}`} className="text-blue-600 dark:text-blue-400 hover:underline">
                       {vendor.phone}
@@ -235,7 +226,7 @@ export default function VendorDetailPage() {
                 </div>
                 {vendor.address && (
                   <div>
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Address</span>
+                    <span className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">Address</span>
                     <p className="font-medium text-gray-900 dark:text-gray-100 whitespace-pre-line">
                       {vendor.address}
                     </p>
@@ -243,14 +234,14 @@ export default function VendorDetailPage() {
                 )}
                 {vendor.payment_terms && (
                   <div>
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Payment Terms</span>
+                    <span className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">Payment Terms</span>
                     <p className="font-medium text-gray-900 dark:text-gray-100">
                       {vendor.payment_terms}
                     </p>
                   </div>
                 )}
                 <div>
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Status</span>
+                  <span className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">Status</span>
                   <div className="mt-1">
                     {getStatusBadge(vendor.status)}
                   </div>
@@ -262,7 +253,7 @@ export default function VendorDetailPage() {
                 <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">
                   Metadata
                 </h3>
-                <div className="space-y-2 text-sm">
+                <div className="space-y-2 text-sm font-normal leading-normal">
                   <div>
                     <span className="text-gray-600 dark:text-gray-400">Created:</span>
                     <p className="text-gray-900 dark:text-gray-100">
@@ -287,7 +278,7 @@ export default function VendorDetailPage() {
               <div className="space-y-4">
                 <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Total Orders</span>
+                    <span className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">Total Orders</span>
                     <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">
                       {vendor.total_orders}
                     </span>
@@ -295,7 +286,7 @@ export default function VendorDetailPage() {
                 </div>
                 <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Total Spent</span>
+                    <span className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">Total Spent</span>
                     <span className="text-2xl font-bold text-green-600 dark:text-green-400">
                       ${vendor.total_spent.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </span>
@@ -303,7 +294,7 @@ export default function VendorDetailPage() {
                 </div>
                 <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Pending Orders</span>
+                    <span className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">Pending Orders</span>
                     <span className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
                       {vendor.pending_orders}
                     </span>
@@ -324,7 +315,7 @@ export default function VendorDetailPage() {
                   <Link
                     to="/inventory/purchase-orders/new"
                     state={{ vendorId: vendor.id }}
-                    className="btn-primary text-sm"
+                    className="btn-primary text-sm font-normal leading-normal"
                   >
                     + New Purchase Order
                   </Link>
@@ -364,7 +355,7 @@ export default function VendorDetailPage() {
                             </h3>
                             {getPOStatusBadge(po.status)}
                           </div>
-                          <div className="mt-2 grid grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+                          <div className="mt-2 grid grid-cols-2 lg:grid-cols-3 gap-4 text-sm font-normal leading-normal">
                             <div>
                               <span className="text-gray-600 dark:text-gray-400">Order Date:</span>
                               <span className="ml-2 text-gray-900 dark:text-gray-100">

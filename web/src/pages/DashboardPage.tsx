@@ -1,10 +1,16 @@
 import { useEffect, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { Cog6ToothIcon } from '@heroicons/react/24/outline';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../stores/authStore';
 import SubscriptionWidget from '../components/SubscriptionWidget';
 import Layout from '../components/Layout';
+import { useDashboardLayout } from '../hooks/useDashboard';
+import DashboardWidget from '../components/dashboard/DashboardWidget';
+import DashboardCustomizer from '../components/dashboard/DashboardCustomizer';
+import { DashboardPageSkeleton } from '../components/SkeletonScreens';
+import TireReplacementWidget from '../components/dashboard/TireReplacementWidget';
 
 interface Alert {
   id: string;
@@ -56,8 +62,39 @@ export default function DashboardPage() {
   const queryClient = useQueryClient();
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
   const [isRealtimeConnected, setIsRealtimeConnected] = useState(false);
+  const [isCustomizerOpen, setIsCustomizerOpen] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // Fetch fleet statistics
+  // Fetch user's dashboard layout with role-specific widgets
+  const { data: dashboardLayout, isLoading: layoutLoading } = useDashboardLayout();
+
+  // Manual refresh function for all dashboard queries
+  const handleManualRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      // Invalidate all dashboard-related queries to trigger refetch
+      await queryClient.invalidateQueries({ queryKey: ['fleetStats'] });
+      await queryClient.invalidateQueries({ queryKey: ['activeAlerts'] });
+      await queryClient.invalidateQueries({ queryKey: ['costTrends'] });
+      await queryClient.invalidateQueries({ queryKey: ['fleet-health'] });
+      await queryClient.invalidateQueries({ queryKey: ['alerts-summary'] });
+      await queryClient.invalidateQueries({ queryKey: ['work-orders'] });
+      await queryClient.invalidateQueries({ queryKey: ['financial-summary'] });
+      await queryClient.invalidateQueries({ queryKey: ['team-summary'] });
+      await queryClient.invalidateQueries({ queryKey: ['my-vehicles'] });
+      await queryClient.invalidateQueries({ queryKey: ['parts-availability'] });
+      await queryClient.invalidateQueries({ queryKey: ['driver-assignments'] });
+      await queryClient.invalidateQueries({ queryKey: ['vehicles-overdue'] });
+      await queryClient.invalidateQueries({ queryKey: ['vehicles-upcoming-maintenance'] });
+      
+      setLastUpdate(new Date());
+    } finally {
+      // Keep the button disabled briefly to prevent spam
+      setTimeout(() => setIsRefreshing(false), 1000);
+    }
+  };
+
+  // Fetch fleet statistics (kept for compatibility with existing widgets)
   const { data: fleetStats, isLoading: statsLoading } = useQuery<FleetStats>({
     queryKey: ['fleetStats'],
     queryFn: async () => {
@@ -114,7 +151,7 @@ export default function DashboardPage() {
     refetchInterval: 60000, // Refetch every minute as fallback
   });
 
-  // Fetch active alerts
+  // Fetch active alerts (kept for compatibility, but can be removed once all widgets use their own hooks)
   const { data: alerts, isLoading: alertsLoading } = useQuery<Alert[]>({
     queryKey: ['activeAlerts'],
     queryFn: async () => {
@@ -150,7 +187,7 @@ export default function DashboardPage() {
     enabled: !!user,
   });
 
-  // Fetch cost trends (last 6 months)
+  // Fetch cost trends (kept for compatibility, but can be removed once all widgets use their own hooks)
   const { data: costTrends, isLoading: costsLoading } = useQuery<CostTrend[]>({
     queryKey: ['costTrends'],
     queryFn: async () => {
@@ -314,233 +351,101 @@ export default function DashboardPage() {
         <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                Fleet Dashboard
+              <h1 className="text-3xl font-bold leading-tight text-gray-900 dark:text-gray-100">
+                Dashboard
               </h1>
-              <div className="flex items-center gap-2 mt-1">
-                <span className="text-xs text-gray-500 dark:text-gray-400">
+              <div className="flex items-center gap-3 mt-2">
+                <span className="text-xs font-normal leading-tight font-normal leading-tight text-gray-500 dark:text-gray-400">
                   Last updated: {lastUpdate.toLocaleTimeString()}
                 </span>
                 {isRealtimeConnected && (
-                  <span className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400">
+                  <span className="flex items-center gap-1 text-xs font-normal leading-tight font-normal leading-tight text-green-600 dark:text-green-400">
                     <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
                     Live
                   </span>
                 )}
               </div>
             </div>
+            
+            {/* Action Buttons */}
+            <div className="flex items-center gap-2">
+              {/* Manual Refresh Button */}
+              <button
+                onClick={handleManualRefresh}
+                disabled={isRefreshing}
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-normal leading-normal font-normal leading-normal text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Refresh dashboard data"
+              >
+                <svg
+                  className={`h-5 w-5 ${isRefreshing ? 'animate-spin' : ''}`}
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                  />
+                </svg>
+                {isRefreshing ? 'Refreshing...' : 'Refresh'}
+              </button>
+              
+              {/* Customize Dashboard Button */}
+              <button
+                onClick={() => setIsCustomizerOpen(true)}
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-normal leading-normal font-normal leading-normal text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              >
+                <Cog6ToothIcon className="h-5 w-5" />
+                Customize Dashboard
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
       <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-        {/* Fleet Statistics Widgets */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
-          {/* Fleet Health Score Widget */}
-          <div className="card">
-            <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
-              Fleet Health Score
-            </h3>
-            {statsLoading ? (
-              <div className="text-2xl font-bold text-gray-400">Loading...</div>
-            ) : (
-              <>
-                <div className={`text-4xl font-bold ${getHealthScoreColor(fleetStats?.fleet_health_score || 0)}`}>
-                  {fleetStats?.fleet_health_score || 0}
-                </div>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">out of 100</p>
-              </>
-            )}
-          </div>
-
-          {/* Total Vehicles Widget */}
-          <div className="card">
-            <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
-              Total Vehicles
-            </h3>
-            {statsLoading ? (
-              <div className="text-2xl font-bold text-gray-400">Loading...</div>
-            ) : (
-              <div className="text-4xl font-bold text-primary-600 dark:text-primary-400">
-                {fleetStats?.total_vehicles || 0}
-              </div>
-            )}
-          </div>
-
-          {/* Vehicles in Service Widget */}
-          <div className="card">
-            <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
-              In Service
-            </h3>
-            {statsLoading ? (
-              <div className="text-2xl font-bold text-gray-400">Loading...</div>
-            ) : (
-              <div className="text-4xl font-bold text-green-600 dark:text-green-400">
-                {fleetStats?.vehicles_in_service || 0}
-              </div>
-            )}
-          </div>
-
-          {/* Vehicles Under Maintenance Widget */}
-          <div className="card">
-            <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
-              Under Maintenance
-            </h3>
-            {statsLoading ? (
-              <div className="text-2xl font-bold text-gray-400">Loading...</div>
-            ) : (
-              <div className="text-4xl font-bold text-orange-600 dark:text-orange-400">
-                {fleetStats?.vehicles_under_maintenance || 0}
-              </div>
-            )}
-          </div>
-
-          {/* Vehicles Overdue Widget */}
-          <div className="card">
-            <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
-              Overdue Alerts
-            </h3>
-            {statsLoading ? (
-              <div className="text-2xl font-bold text-gray-400">Loading...</div>
-            ) : (
-              <div className="text-4xl font-bold text-red-600 dark:text-red-400">
-                {fleetStats?.vehicles_overdue || 0}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Subscription Widget */}
-        <div className="mb-8 max-w-md">
-          <SubscriptionWidget />
-        </div>
-
-        {/* Cost Trends Chart */}
-        <div className="card mb-8">
-          <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">
-            Cost Trends (Last 6 Months)
-          </h2>
-          {costsLoading ? (
-            <div className="h-64 flex items-center justify-center text-gray-400">
-              Loading cost data...
+        {/* Loading State */}
+        {layoutLoading ? (
+          <DashboardPageSkeleton />
+        ) : dashboardLayout ? (
+          <>
+            {/* Role-specific Dashboard Widgets - Task 29.4: Single column on mobile, grid on desktop */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8">
+              {dashboardLayout.widgets
+                .filter(widget => widget.visible)
+                .sort((a, b) => a.order - b.order)
+                .map(widget => (
+                  <DashboardWidget
+                    key={widget.id}
+                    widget={widget}
+                  />
+                ))}
             </div>
-          ) : costTrends && costTrends.length > 0 ? (
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={costTrends}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-gray-300 dark:stroke-gray-700" />
-                <XAxis 
-                  dataKey="month" 
-                  className="text-gray-600 dark:text-gray-400"
-                  tick={{ fill: 'currentColor' }}
-                />
-                <YAxis 
-                  className="text-gray-600 dark:text-gray-400"
-                  tick={{ fill: 'currentColor' }}
-                />
-                <Tooltip 
-                  contentStyle={{
-                    backgroundColor: 'var(--tooltip-bg, #fff)',
-                    border: '1px solid var(--tooltip-border, #ccc)',
-                    borderRadius: '8px',
-                  }}
-                />
-                <Legend />
-                <Line
-                  type="monotone"
-                  dataKey="total_cost"
-                  stroke="#3b82f6"
-                  strokeWidth={2}
-                  name="Total Cost ($)"
-                  dot={{ fill: '#3b82f6' }}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="cost_per_vehicle"
-                  stroke="#10b981"
-                  strokeWidth={2}
-                  name="Cost per Vehicle ($)"
-                  dot={{ fill: '#10b981' }}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="cost_per_km"
-                  stroke="#f59e0b"
-                  strokeWidth={2}
-                  name="Cost per km ($)"
-                  dot={{ fill: '#f59e0b' }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          ) : (
-            <div className="h-64 flex items-center justify-center text-gray-400">
-              No cost data available
-            </div>
-          )}
-        </div>
 
-        {/* Active Alerts List */}
-        <div className="card">
-          <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">
-            Active Alerts
-          </h2>
-          {alertsLoading ? (
-            <div className="text-gray-600 dark:text-gray-400">Loading alerts...</div>
-          ) : alerts && alerts.length > 0 ? (
-            <div className="space-y-3">
-              {alerts.map((alert) => (
-                <div
-                  key={alert.id}
-                  className={`p-4 rounded-lg border-l-4 bg-gray-50 dark:bg-gray-800 ${severityBorderColors[alert.severity]}`}
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${severityColors[alert.severity]}`}>
-                          {alert.severity.toUpperCase()}
-                        </span>
-                        <span className="text-xs text-gray-500 dark:text-gray-400">
-                          {alert.alert_type.replace(/_/g, ' ').toUpperCase()}
-                        </span>
-                      </div>
-                      <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">
-                        {alert.title}
-                      </h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                        {alert.description}
-                      </p>
-                      {alert.vehicle && (
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                          Vehicle: {alert.vehicle.make} {alert.vehicle.model} ({alert.vehicle.vin})
-                        </p>
-                      )}
-                    </div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400 ml-4">
-                      {formatTimestamp(alert.created_at)}
-                    </div>
-                  </div>
-                </div>
-              ))}
+            {/* ML-Powered Tire Replacement Forecast Widget - Batch 1 */}
+            <div className="mb-8">
+              <TireReplacementWidget />
             </div>
-          ) : (
-            <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-              <svg
-                className="mx-auto h-12 w-12 text-gray-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-              <p className="mt-2">No active alerts</p>
+
+            {/* Subscription Widget */}
+            <div className="mb-8 max-w-full md:max-w-md">
+              <SubscriptionWidget />
             </div>
-          )}
-        </div>
+          </>
+        ) : (
+          <div className="text-center py-12">
+            <p className="text-base font-normal leading-normal font-normal leading-normal text-gray-500 dark:text-gray-400">Unable to load dashboard. Please try refreshing the page.</p>
+          </div>
+        )}
       </main>
+      
+      {/* Dashboard Customizer Modal */}
+      <DashboardCustomizer
+        isOpen={isCustomizerOpen}
+        onClose={() => setIsCustomizerOpen(false)}
+      />
     </Layout>
   );
 }

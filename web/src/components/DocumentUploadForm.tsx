@@ -158,14 +158,14 @@ export default function DocumentUploadForm({ onClose, onSuccess }: DocumentUploa
                 type="file"
                 accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
                 onChange={handleFileChange}
-                className="block w-full text-sm text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer bg-gray-50 dark:bg-gray-700 focus:outline-none"
+                className="block w-full text-sm font-normal leading-normal text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer bg-gray-50 dark:bg-gray-700 focus:outline-none"
               />
               {file && (
-                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                <p className="mt-1 text-xs font-normal leading-tight text-gray-500 dark:text-gray-400">
                   Selected: {file.name} ({formatFileSize(file.size)})
                 </p>
               )}
-              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              <p className="mt-1 text-xs font-normal leading-tight text-gray-500 dark:text-gray-400">
                 Max file size: 10 MB. Supported: PDF, JPG, PNG, DOC
               </p>
             </div>
@@ -220,7 +220,7 @@ export default function DocumentUploadForm({ onClose, onSuccess }: DocumentUploa
                 onChange={(e) => setExpiryDate(e.target.value)}
                 className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500"
               />
-              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              <p className="mt-1 text-xs font-normal leading-tight text-gray-500 dark:text-gray-400">
                 Set expiry date for certificates and insurance documents
               </p>
             </div>
@@ -228,7 +228,7 @@ export default function DocumentUploadForm({ onClose, onSuccess }: DocumentUploa
             {/* Error Message */}
             {uploadError && (
               <div className="p-3 bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg">
-                <p className="text-sm text-red-800 dark:text-red-300">{uploadError}</p>
+                <p className="text-sm font-normal leading-normal text-red-800 dark:text-red-300">{uploadError}</p>
               </div>
             )}
 
@@ -244,7 +244,7 @@ export default function DocumentUploadForm({ onClose, onSuccess }: DocumentUploa
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors text-sm font-medium disabled:opacity-50"
+                className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors text-sm font-normal leading-normal disabled:opacity-50"
                 disabled={uploadMutation.isPending || !file}
               >
                 {uploadMutation.isPending ? 'Uploading...' : 'Upload'}

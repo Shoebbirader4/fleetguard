@@ -215,7 +215,7 @@ export default function WelcomePage() {
             Welcome to FleetGuard AI!
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-400 mb-2">
-            Hi {user.full_name}, you're all set!
+            Hi {user.fullName}, you're all set!
           </p>
           <div className="inline-flex items-center px-4 py-2 bg-blue-50 dark:bg-blue-900/30 rounded-full">
             <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
@@ -231,7 +231,7 @@ export default function WelcomePage() {
           </h2>
           <p className="text-gray-600 dark:text-gray-400 mb-6">{roleInfo.description}</p>
 
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Key Features:</h3>
+          <h3 className="text-lg font-semibold leading-snug text-gray-900 dark:text-white mb-4">Key Features:</h3>
           <ul className="space-y-3 mb-8">
             {content.features.map((feature, index) => (
               <li key={index} className="flex items-start">
@@ -253,7 +253,7 @@ export default function WelcomePage() {
             ))}
           </ul>
 
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+          <h3 className="text-lg font-semibold leading-snug text-gray-900 dark:text-white mb-4">
             Quick Links:
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

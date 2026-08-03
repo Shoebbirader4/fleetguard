@@ -56,10 +56,10 @@ export default function PrivacyPage() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <header className="bg-white dark:bg-gray-800 shadow-soft">
         <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+          <h1 className="text-3xl font-bold leading-tight text-gray-900 dark:text-gray-100">
             Privacy & Data Protection
           </h1>
-          <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+          <p className="mt-1 text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
             Manage your personal data and privacy preferences (GDPR Compliance)
           </p>
         </div>
@@ -75,8 +75,8 @@ export default function PrivacyPage() {
               </svg>
             </div>
             <div className="flex-1">
-              <h2 className="text-lg font-semibold mb-2">Export Your Data</h2>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+              <h2 className="text-xl font-semibold leading-snug mb-2">Export Your Data</h2>
+              <p className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400 mb-4">
                 Download a copy of all your personal data stored in FleetGuard AI. This includes your profile information, 
                 activity history, and any content you've created.
               </p>
@@ -88,12 +88,12 @@ export default function PrivacyPage() {
                 {exportMutation.isPending ? 'Preparing Export...' : 'Request Data Export'}
               </button>
               {exportSuccess && (
-                <div className="mt-3 bg-success-50 dark:bg-success-900/30 text-success-700 dark:text-success-300 p-3 rounded-lg text-sm">
+                <div className="mt-3 bg-success-50 dark:bg-success-900/30 text-success-700 dark:text-success-300 p-3 rounded-lg text-sm font-normal leading-normal">
                   ✓ Your data export has been prepared and should download shortly.
                 </div>
               )}
               {exportMutation.isError && (
-                <div className="mt-3 bg-danger-50 dark:bg-danger-900/30 text-danger-700 dark:text-danger-300 p-3 rounded-lg text-sm">
+                <div className="mt-3 bg-danger-50 dark:bg-danger-900/30 text-danger-700 dark:text-danger-300 p-3 rounded-lg text-sm font-normal leading-normal">
                   Failed to export data. Please try again or contact support.
                 </div>
               )}
@@ -110,15 +110,15 @@ export default function PrivacyPage() {
               </svg>
             </div>
             <div className="flex-1">
-              <h2 className="text-lg font-semibold mb-2">Privacy Policy</h2>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+              <h2 className="text-xl font-semibold leading-snug mb-2">Privacy Policy</h2>
+              <p className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400 mb-4">
                 Learn how we collect, use, and protect your personal information.
               </p>
               <a
                 href="/docs/privacy-policy"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-primary-600 hover:text-primary-700 font-medium text-sm"
+                className="text-primary-600 hover:text-primary-700 font-medium text-sm font-normal leading-normal"
               >
                 View Privacy Policy →
               </a>
@@ -135,11 +135,11 @@ export default function PrivacyPage() {
               </svg>
             </div>
             <div className="flex-1">
-              <h2 className="text-lg font-semibold mb-2">Data Retention</h2>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+              <h2 className="text-xl font-semibold leading-snug mb-2">Data Retention</h2>
+              <p className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400 mb-3">
                 We retain your data for the following periods:
               </p>
-              <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-2">
+              <ul className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400 space-y-2">
                 <li className="flex items-start gap-2">
                   <span className="text-green-600 mt-0.5">•</span>
                   <span><strong>Profile Data:</strong> While your account is active + 7 years after deletion (for compliance)</span>
@@ -163,29 +163,29 @@ export default function PrivacyPage() {
 
         {/* Your Rights Section */}
         <div className="card">
-          <h2 className="text-lg font-semibold mb-4">Your Rights (GDPR)</h2>
+          <h2 className="text-xl font-semibold leading-snug mb-4">Your Rights (GDPR)</h2>
           <div className="grid gap-4 md:grid-cols-2">
             <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-              <h3 className="font-medium text-sm mb-1">Right to Access</h3>
-              <p className="text-xs text-gray-600 dark:text-gray-400">
+              <h3 className="font-medium text-sm font-normal leading-normal mb-1">Right to Access</h3>
+              <p className="text-xs font-normal leading-tight text-gray-600 dark:text-gray-400">
                 You can request a copy of your personal data at any time.
               </p>
             </div>
             <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-              <h3 className="font-medium text-sm mb-1">Right to Rectification</h3>
-              <p className="text-xs text-gray-600 dark:text-gray-400">
+              <h3 className="font-medium text-sm font-normal leading-normal mb-1">Right to Rectification</h3>
+              <p className="text-xs font-normal leading-tight text-gray-600 dark:text-gray-400">
                 You can update your profile information in Settings.
               </p>
             </div>
             <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-              <h3 className="font-medium text-sm mb-1">Right to Erasure</h3>
-              <p className="text-xs text-gray-600 dark:text-gray-400">
+              <h3 className="font-medium text-sm font-normal leading-normal mb-1">Right to Erasure</h3>
+              <p className="text-xs font-normal leading-tight text-gray-600 dark:text-gray-400">
                 You can request deletion of your account and data.
               </p>
             </div>
             <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-              <h3 className="font-medium text-sm mb-1">Right to Portability</h3>
-              <p className="text-xs text-gray-600 dark:text-gray-400">
+              <h3 className="font-medium text-sm font-normal leading-normal mb-1">Right to Portability</h3>
+              <p className="text-xs font-normal leading-tight text-gray-600 dark:text-gray-400">
                 Export your data in machine-readable format.
               </p>
             </div>
@@ -201,14 +201,14 @@ export default function PrivacyPage() {
               </svg>
             </div>
             <div className="flex-1">
-              <h2 className="text-lg font-semibold mb-2 text-red-600 dark:text-red-400">Delete Account</h2>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+              <h2 className="text-xl font-semibold leading-snug mb-2 text-red-600 dark:text-red-400">Delete Account</h2>
+              <p className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400 mb-4">
                 <strong>Warning:</strong> This action cannot be undone. All your data will be permanently deleted after a 30-day grace period. 
                 During this period, you can contact support to cancel the deletion request.
               </p>
               <button
                 onClick={() => setDeleteConfirmOpen(true)}
-                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors text-sm font-medium"
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors text-sm font-normal leading-normal"
               >
                 Request Account Deletion
               </button>
@@ -233,15 +233,15 @@ export default function PrivacyPage() {
             </div>
 
             <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-              <p className="text-sm text-red-800 dark:text-red-300 font-medium mb-2">
+              <p className="text-sm font-normal leading-normal text-red-800 dark:text-red-300 font-medium mb-2">
                 This will permanently delete:
               </p>
-              <ul className="text-sm text-red-700 dark:text-red-400 space-y-1">
+              <ul className="text-sm font-normal leading-normal text-red-700 dark:text-red-400 space-y-1">
                 <li>• Your profile and account information</li>
                 <li>• All your activity history</li>
                 <li>• Access to all company data</li>
               </ul>
-              <p className="text-xs text-red-600 dark:text-red-400 mt-3">
+              <p className="text-xs font-normal leading-tight text-red-600 dark:text-red-400 mt-3">
                 Note: Company data (vehicles, maintenance records) will be preserved for legal compliance.
               </p>
             </div>
@@ -277,7 +277,7 @@ export default function PrivacyPage() {
             </div>
 
             {deleteMutation.isError && (
-              <div className="mb-4 bg-danger-50 dark:bg-danger-900/30 text-danger-700 dark:text-danger-300 p-3 rounded-lg text-sm">
+              <div className="mb-4 bg-danger-50 dark:bg-danger-900/30 text-danger-700 dark:text-danger-300 p-3 rounded-lg text-sm font-normal leading-normal">
                 Failed to process deletion request. Please try again or contact support.
               </div>
             )}
@@ -286,7 +286,7 @@ export default function PrivacyPage() {
               <button
                 onClick={handleDeleteRequest}
                 disabled={deleteMutation.isPending || deleteConfirmText !== 'DELETE MY ACCOUNT' || !deleteReason.trim()}
-                className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors text-sm font-normal leading-normal disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {deleteMutation.isPending ? 'Processing...' : 'Yes, Delete My Account'}
               </button>

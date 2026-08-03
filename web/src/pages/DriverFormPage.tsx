@@ -76,20 +76,80 @@ export default function DriverFormPage() {
   // Create mutation - Creates a user with driver role via invitation
   const createMutation = useMutation({
     mutationFn: async (data: DriverFormData) => {
-      // Use the invite-user edge function to create a driver
-      const { data: result, error } = await supabase.functions.invoke('invite-user', {
-        body: {
+      // Get current user's tenant_id
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      const { data: userProfile } = await supabase
+        .from('users')
+        .select('tenant_id, full_name')
+        .eq('id', user.id)
+        .single();
+
+      if (!userProfile?.tenant_id) throw new Error('User has no tenant');
+
+      // Generate invitation token
+      const token = crypto.randomUUID() + '-' + Date.now().toString(36);
+      const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+
+      // Create invitation record directly in database
+      const { data: invitation, error } = await supabase
+        .from('user_invitations')
+        .insert({
+          tenant_id: userProfile.tenant_id,
           email: data.email,
           full_name: data.full_name,
-          phone: data.phone || undefined,
           role: 'driver',
-          license_number: data.license_number || undefined,
-          license_expiry: data.license_expiry || undefined,
-        },
-      });
+          phone: data.phone || null,
+          invited_by: user.id,
+          invitation_token: token,
+          expires_at: expiresAt.toISOString(),
+          status: 'pending',
+        })
+        .select()
+        .single();
 
-      if (error) throw error;
-      return result;
+      if (error) {
+        console.error('Database error:', error);
+        throw new Error(error.message || 'Failed to create driver invitation');
+      }
+
+      // Send invitation email (non-blocking - don't fail if email fails)
+      try {
+        const { data: tenant } = await supabase
+          .from('tenants')
+          .select('name')
+          .eq('id', userProfile.tenant_id)
+          .single();
+
+        const appUrl = window.location.origin;
+        const invitationUrl = `${appUrl}/join?token=${token}`;
+
+        // Call lightweight email-sending Edge Function
+        const { error: emailError } = await supabase.functions.invoke('send-invitation-email', {
+          body: {
+            email: data.email,
+            full_name: data.full_name,
+            role: 'driver',
+            invitation_token: token,
+            invitation_url: invitationUrl,
+            tenant_name: tenant?.name || 'FleetGuard AI',
+            invited_by: userProfile.full_name,
+            tenant_id: userProfile.tenant_id,
+          },
+        });
+
+        if (emailError) {
+          console.warn('Email sending failed (non-critical):', emailError);
+          // Don't throw - invitation is created successfully
+        }
+      } catch (emailError) {
+        console.warn('Failed to send invitation email (non-critical):', emailError);
+        // Don't fail the whole operation if email fails
+      }
+
+      // Note: License info (license_number, license_expiry) will be added when the driver accepts the invitation
+      return invitation;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['drivers'] });
@@ -159,9 +219,11 @@ export default function DriverFormPage() {
     }
 
     // Phone validation (optional)
-    const phoneError = validatePhone(formData.phone);
-    if (phoneError) {
-      newErrors.phone = phoneError;
+    if (formData.phone) {
+      const phoneError = validatePhone(formData.phone);
+      if (phoneError) {
+        newErrors.phone = phoneError;
+      }
     }
 
     // License number validation (optional, max length)
@@ -202,6 +264,12 @@ export default function DriverFormPage() {
       }
     } catch (error) {
       console.error('Form submission error:', error);
+      // Show specific error message to user
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error('Failed to submit form. Please try again.');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -233,7 +301,7 @@ export default function DriverFormPage() {
       {/* Header */}
       <div className="bg-white dark:bg-gray-800 shadow-soft border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+          <h1 className="text-3xl font-bold leading-tight text-gray-900 dark:text-gray-100">
             {isEditMode ? 'Edit Driver' : 'Add New Driver'}
           </h1>
         </div>
@@ -257,10 +325,10 @@ export default function DriverFormPage() {
                 placeholder="driver@example.com"
               />
               {errors.email && (
-                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.email}</p>
+                <p className="mt-1 text-sm font-normal leading-normal text-red-600 dark:text-red-400">{errors.email}</p>
               )}
               {isEditMode && (
-                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                <p className="mt-1 text-sm font-normal leading-normal text-gray-500 dark:text-gray-400">
                   Email cannot be changed after driver is created
                 </p>
               )}
@@ -280,7 +348,7 @@ export default function DriverFormPage() {
                 placeholder="John Doe"
               />
               {errors.full_name && (
-                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.full_name}</p>
+                <p className="mt-1 text-sm font-normal leading-normal text-red-600 dark:text-red-400">{errors.full_name}</p>
               )}
             </div>
 
@@ -298,9 +366,9 @@ export default function DriverFormPage() {
                 placeholder="+1234567890"
               />
               {errors.phone && (
-                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.phone}</p>
+                <p className="mt-1 text-sm font-normal leading-normal text-red-600 dark:text-red-400">{errors.phone}</p>
               )}
-              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+              <p className="mt-1 text-sm font-normal leading-normal text-gray-500 dark:text-gray-400">
                 Use international format (e.g., +1234567890)
               </p>
             </div>
@@ -319,7 +387,7 @@ export default function DriverFormPage() {
                 placeholder="DL123456789"
               />
               {errors.license_number && (
-                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.license_number}</p>
+                <p className="mt-1 text-sm font-normal leading-normal text-red-600 dark:text-red-400">{errors.license_number}</p>
               )}
             </div>
 
@@ -336,7 +404,7 @@ export default function DriverFormPage() {
                 className="input-field"
               />
               {errors.license_expiry && (
-                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.license_expiry}</p>
+                <p className="mt-1 text-sm font-normal leading-normal text-red-600 dark:text-red-400">{errors.license_expiry}</p>
               )}
             </div>
 
@@ -357,7 +425,7 @@ export default function DriverFormPage() {
                       d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                     />
                   </svg>
-                  <div className="text-sm text-blue-700 dark:text-blue-300">
+                  <div className="text-sm font-normal leading-normal text-blue-700 dark:text-blue-300">
                     The driver will receive an invitation email to complete their account setup.
                   </div>
                 </div>

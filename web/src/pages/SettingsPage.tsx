@@ -21,8 +21,8 @@ export default function SettingsPage() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <header className="bg-white dark:bg-gray-800 shadow-soft">
         <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Settings</h1>
-          <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+          <h1 className="text-3xl font-bold leading-tight text-gray-900 dark:text-gray-100">Settings</h1>
+          <p className="mt-1 text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
             Manage your system configuration and preferences
           </p>
         </div>
@@ -37,7 +37,7 @@ export default function SettingsPage() {
                 <button
                   key={tab.id}
                   onClick={() => handleTabClick(tab.path)}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                  className={`py-4 px-1 border-b-2 font-medium text-sm font-normal leading-normal transition-colors ${
                     activeTab === tab.id
                       ? 'border-primary-600 text-primary-600 dark:text-primary-400'
                       : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'

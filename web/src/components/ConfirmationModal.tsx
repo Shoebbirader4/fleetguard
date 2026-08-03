@@ -136,7 +136,7 @@ export default function ConfirmationModal({
                 {title}
               </h3>
               <div className="mt-2">
-                <p className="text-sm text-gray-500 dark:text-gray-400">{message}</p>
+                <p className="text-sm font-normal leading-normal text-gray-500 dark:text-gray-400">{message}</p>
               </div>
             </div>
           </div>
@@ -144,7 +144,7 @@ export default function ConfirmationModal({
             <button
               type="button"
               disabled={isLoading}
-              className={`inline-flex w-full justify-center rounded-md border border-transparent px-4 py-2 text-base font-medium text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 sm:col-start-2 sm:text-sm ${getButtonStyles()}`}
+              className={`inline-flex w-full justify-center rounded-md border border-transparent px-4 py-2 text-base font-normal leading-normal font-medium text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 sm:col-start-2 sm:text-sm font-normal leading-normal ${getButtonStyles()}`}
               onClick={onConfirm}
             >
               {isLoading ? (
@@ -166,7 +166,7 @@ export default function ConfirmationModal({
             <button
               type="button"
               disabled={isLoading}
-              className="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2 text-base font-medium text-gray-700 dark:text-gray-200 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 sm:col-start-1 sm:mt-0 sm:text-sm"
+              className="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2 text-base font-normal leading-normal font-medium text-gray-700 dark:text-gray-200 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 sm:col-start-1 sm:mt-0 sm:text-sm font-normal leading-normal"
               onClick={onClose}
             >
               {cancelText}

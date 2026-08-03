@@ -389,10 +389,10 @@ export default function WorkOrderDetailPage() {
                 ← Back
               </button>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                <h1 className="text-3xl font-bold leading-tight text-gray-900 dark:text-gray-100">
                   {workOrder.work_order_number}
                 </h1>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+                <p className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                   Work Order Details
                 </p>
               </div>
@@ -406,13 +406,13 @@ export default function WorkOrderDetailPage() {
               </button>
               <button
                 onClick={() => setShowDeleteModal(true)}
-                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors text-sm font-medium"
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors text-sm font-normal leading-normal"
               >
                 🗑️ Delete
               </button>
               <button
                 onClick={() => setShowStatusModal(true)}
-                className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors text-sm font-medium"
+                className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors text-sm font-normal leading-normal"
               >
                 Update Status
               </button>
@@ -436,7 +436,7 @@ export default function WorkOrderDetailPage() {
                 </span>
               </div>
 
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+              <h2 className="text-xl font-semibold leading-snug text-gray-900 dark:text-gray-100 mb-2">
                 Description
               </h2>
               <p className="text-gray-700 dark:text-gray-300">{workOrder.description}</p>
@@ -445,10 +445,10 @@ export default function WorkOrderDetailPage() {
             {/* Vehicle Information */}
             {workOrder.vehicle && (
               <div className="card">
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                <h2 className="text-xl font-semibold leading-snug text-gray-900 dark:text-gray-100 mb-4">
                   Vehicle Information
                 </h2>
-                <div className="grid grid-cols-2 gap-4 text-sm">
+                <div className="grid grid-cols-2 gap-4 text-sm font-normal leading-normal">
                   <div>
                     <p className="text-gray-500 dark:text-gray-400">Vehicle</p>
                     <p className="font-medium text-gray-900 dark:text-gray-100">
@@ -480,12 +480,12 @@ export default function WorkOrderDetailPage() {
             {/* Labor Hours */}
             <div className="card">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                <h2 className="text-xl font-semibold leading-snug text-gray-900 dark:text-gray-100">
                   Labor Hours
                 </h2>
                 <button
                   onClick={() => setShowLaborModal(true)}
-                  className="px-3 py-1.5 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors text-sm font-medium"
+                  className="px-3 py-1.5 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors text-sm font-normal leading-normal"
                 >
                   + Add Labor
                 </button>
@@ -501,11 +501,11 @@ export default function WorkOrderDetailPage() {
                         <p className="font-medium text-gray-900 dark:text-gray-100">
                           {labor.user?.full_name}
                         </p>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                        <p className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                           {labor.labor_type}
                         </p>
                         {labor.description && (
-                          <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                          <p className="text-xs font-normal leading-tight text-gray-500 dark:text-gray-500 mt-1">
                             {labor.description}
                           </p>
                         )}
@@ -514,7 +514,7 @@ export default function WorkOrderDetailPage() {
                         <p className="font-medium text-gray-900 dark:text-gray-100">
                           {labor.hours.toFixed(1)}h
                         </p>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                        <p className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                           {formatCurrency(labor.total_cost)}
                         </p>
                       </div>
@@ -537,12 +537,12 @@ export default function WorkOrderDetailPage() {
             {/* Parts Consumed */}
             <div className="card">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                <h2 className="text-xl font-semibold leading-snug text-gray-900 dark:text-gray-100">
                   Parts Consumed
                 </h2>
                 <button
                   onClick={handlePartsModalOpen}
-                  className="px-3 py-1.5 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors text-sm font-medium"
+                  className="px-3 py-1.5 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors text-sm font-normal leading-normal"
                 >
                   + Add Parts
                 </button>
@@ -558,7 +558,7 @@ export default function WorkOrderDetailPage() {
                         <p className="font-medium text-gray-900 dark:text-gray-100">
                           {part.spare_part?.part_number}
                         </p>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                        <p className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                           {part.spare_part?.description}
                         </p>
                       </div>
@@ -566,7 +566,7 @@ export default function WorkOrderDetailPage() {
                         <p className="font-medium text-gray-900 dark:text-gray-100">
                           {part.quantity} {part.spare_part?.unit_of_measure}
                         </p>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                        <p className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                           {formatCurrency(part.line_total)}
                         </p>
                       </div>
@@ -589,7 +589,7 @@ export default function WorkOrderDetailPage() {
             {/* Service Report */}
             {workOrder.service_report && (
               <div className="card">
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                <h2 className="text-xl font-semibold leading-snug text-gray-900 dark:text-gray-100 mb-4">
                   Service Report
                 </h2>
                 <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
@@ -627,10 +627,10 @@ export default function WorkOrderDetailPage() {
                   />
                 </svg>
                 <div className="flex-1">
-                  <p className="text-xs text-blue-600 dark:text-blue-400 font-medium">
+                  <p className="text-xs font-normal leading-tight text-blue-600 dark:text-blue-400 font-medium">
                     Last Updated
                   </p>
-                  <p className="text-sm text-blue-900 dark:text-blue-100 font-semibold">
+                  <p className="text-sm font-normal leading-normal text-blue-900 dark:text-blue-100 font-semibold">
                     {formatDate(workOrder.updated_at)}
                   </p>
                 </div>
@@ -639,7 +639,7 @@ export default function WorkOrderDetailPage() {
 
             {/* Timeline */}
             <div className="card">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+              <h2 className="text-xl font-semibold leading-snug text-gray-900 dark:text-gray-100 mb-4">
                 Timeline
               </h2>
               <div className="space-y-4">
@@ -654,10 +654,10 @@ export default function WorkOrderDetailPage() {
                       <p className="font-medium text-gray-900 dark:text-gray-100">
                         {event.label}
                       </p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                      <p className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                         {event.description}
                       </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                      <p className="text-xs font-normal leading-tight text-gray-500 dark:text-gray-500 mt-1">
                         {formatDate(event.date)}
                       </p>
                     </div>
@@ -668,7 +668,7 @@ export default function WorkOrderDetailPage() {
 
             {/* Cost Summary */}
             <div className="card">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+              <h2 className="text-xl font-semibold leading-snug text-gray-900 dark:text-gray-100 mb-4">
                 Cost Summary
               </h2>
               <div className="space-y-3">
@@ -701,30 +701,30 @@ export default function WorkOrderDetailPage() {
 
             {/* People */}
             <div className="card">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+              <h2 className="text-xl font-semibold leading-snug text-gray-900 dark:text-gray-100 mb-4">
                 People
               </h2>
               <div className="space-y-3">
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Requested By</p>
+                  <p className="text-sm font-normal leading-normal text-gray-500 dark:text-gray-400">Requested By</p>
                   <p className="font-medium text-gray-900 dark:text-gray-100">
                     {workOrder.requested_by_user?.full_name}
                   </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                  <p className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                     {workOrder.requested_by_user?.email}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Assigned To</p>
+                  <p className="text-sm font-normal leading-normal text-gray-500 dark:text-gray-400">Assigned To</p>
                   <p className="font-medium text-gray-900 dark:text-gray-100">
                     {workOrder.assigned_to_user?.full_name || 'Unassigned'}
                   </p>
                   {workOrder.assigned_to_user && (
                     <>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                      <p className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                         {workOrder.assigned_to_user.email}
                       </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-500 capitalize">
+                      <p className="text-xs font-normal leading-tight text-gray-500 dark:text-gray-500 capitalize">
                         {workOrder.assigned_to_user.role?.replace('_', ' ')}
                       </p>
                     </>
@@ -860,7 +860,7 @@ export default function WorkOrderDetailPage() {
 
               {laborForm.hours && laborForm.hourly_rate && (
                 <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Total Cost</p>
+                  <p className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">Total Cost</p>
                   <p className="text-lg font-bold text-primary-600">
                     {formatCurrency(parseFloat(laborForm.hours) * parseFloat(laborForm.hourly_rate))}
                   </p>
@@ -971,7 +971,7 @@ export default function WorkOrderDetailPage() {
 
               {partsForm.quantity && partsForm.unit_cost && (
                 <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Line Total</p>
+                  <p className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">Line Total</p>
                   <p className="text-lg font-bold text-primary-600">
                     {formatCurrency(parseFloat(partsForm.quantity) * parseFloat(partsForm.unit_cost))}
                   </p>

@@ -10,6 +10,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
+import { toast } from '../components/ToastContainer';
 import type { User, UserRole, UserInvitation, InviteUserFormData } from '../types/user';
 
 /**
@@ -82,6 +83,13 @@ export function useInviteUser() {
       // Invalidate both users and invitations queries
       queryClient.invalidateQueries({ queryKey: ['users'] });
       queryClient.invalidateQueries({ queryKey: ['invitations'] });
+      
+      // Show success toast
+      toast.success('User invitation sent successfully');
+    },
+    onError: (error: Error) => {
+      // Show error toast
+      toast.error(`Failed to send invitation: ${error.message}`);
     },
   });
 }
@@ -116,6 +124,13 @@ export function useUpdateUserRole() {
     onSuccess: () => {
       // Invalidate users queries to refresh the list
       queryClient.invalidateQueries({ queryKey: ['users'] });
+      
+      // Show success toast
+      toast.success('User role updated successfully');
+    },
+    onError: (error: Error) => {
+      // Show error toast
+      toast.error(`Failed to update user role: ${error.message}`);
     },
   });
 }
@@ -148,6 +163,13 @@ export function useDeactivateUser() {
     onSuccess: () => {
       // Invalidate users queries to refresh the list
       queryClient.invalidateQueries({ queryKey: ['users'] });
+      
+      // Show success toast
+      toast.success('User deactivated successfully');
+    },
+    onError: (error: Error) => {
+      // Show error toast
+      toast.error(`Failed to deactivate user: ${error.message}`);
     },
   });
 }
@@ -228,6 +250,13 @@ export function useResendInvitation() {
     onSuccess: () => {
       // Invalidate invitations query to show updated invitation
       queryClient.invalidateQueries({ queryKey: ['invitations'] });
+      
+      // Show success toast
+      toast.success('Invitation resent successfully');
+    },
+    onError: (error: Error) => {
+      // Show error toast
+      toast.error(`Failed to resend invitation: ${error.message}`);
     },
   });
 }

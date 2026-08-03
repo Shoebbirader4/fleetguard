@@ -140,11 +140,11 @@ export default function WorkOrderAssignmentCard({
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            <h2 className="text-xl font-semibold leading-snug text-gray-900 dark:text-gray-100">
               Assignment
             </h2>
             {statusBadge && (
-              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mt-1 ${statusBadge.color}`}>
+              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-normal leading-tight font-medium mt-1 ${statusBadge.color}`}>
                 {statusBadge.label}
               </span>
             )}
@@ -160,7 +160,7 @@ export default function WorkOrderAssignmentCard({
           ) : (
             <button
               onClick={handleAssignClick}
-              className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm font-medium"
+              className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm font-normal leading-normal"
             >
               Assign Work Order
             </button>
@@ -183,15 +183,15 @@ export default function WorkOrderAssignmentCard({
                   <p className="font-medium text-gray-900 dark:text-gray-100">
                     {currentAssignee.full_name}
                   </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                  <p className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                     {ROLE_DISPLAY_MAP[currentAssignee.role] || currentAssignee.role.replace('_', ' ')}
                   </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-500 break-all">
+                  <p className="text-sm font-normal leading-normal text-gray-500 dark:text-gray-500 break-all">
                     {currentAssignee.email}
                   </p>
                 </div>
                 <div>
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-normal leading-tight font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
                     Assigned
                   </span>
                 </div>
@@ -199,19 +199,19 @@ export default function WorkOrderAssignmentCard({
               
               {/* Assignment History Info */}
               <div className="pl-3 pt-2 border-l-2 border-gray-200 dark:border-gray-700">
-                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                <p className="text-xs font-normal leading-tight text-gray-500 dark:text-gray-400 mb-1">
                   Assignment History
                 </p>
                 <div className="space-y-1.5">
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 rounded-full bg-blue-600"></div>
-                    <p className="text-sm text-gray-700 dark:text-gray-300">
+                    <p className="text-sm font-normal leading-normal text-gray-700 dark:text-gray-300">
                       Currently assigned to <span className="font-medium">{currentAssignee.full_name}</span>
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 rounded-full bg-gray-400"></div>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                    <p className="text-xs font-normal leading-tight text-gray-500 dark:text-gray-400">
                       Assignment status: {workOrder.status}
                     </p>
                   </div>
@@ -239,7 +239,7 @@ export default function WorkOrderAssignmentCard({
               <p className="text-gray-600 dark:text-gray-400 font-medium">
                 Unassigned
               </p>
-              <p className="text-sm text-gray-500 dark:text-gray-500 mt-1">
+              <p className="text-sm font-normal leading-normal text-gray-500 dark:text-gray-500 mt-1">
                 This work order needs to be assigned to a mechanic
               </p>
             </div>
@@ -264,7 +264,7 @@ export default function WorkOrderAssignmentCard({
 
           {assignMutation.isError && (
             <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-              <p className="text-sm text-red-700 dark:text-red-300">
+              <p className="text-sm font-normal leading-normal text-red-700 dark:text-red-300">
                 {(assignMutation.error as any)?.message || 'Failed to assign work order'}
               </p>
             </div>
@@ -272,7 +272,7 @@ export default function WorkOrderAssignmentCard({
 
           {reassignMutation.isError && (
             <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-              <p className="text-sm text-red-700 dark:text-red-300">
+              <p className="text-sm font-normal leading-normal text-red-700 dark:text-red-300">
                 {(reassignMutation.error as any)?.message || 'Failed to reassign work order'}
               </p>
             </div>
@@ -323,10 +323,10 @@ export default function WorkOrderAssignmentCard({
               </div>
             </div>
 
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 text-center mb-2">
+            <h3 className="text-lg font-semibold leading-snug text-gray-900 dark:text-gray-100 text-center mb-2">
               Confirm Reassignment
             </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400 text-center mb-6">
+            <p className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400 text-center mb-6">
               Are you sure you want to reassign this work order? The current assignee will be notified of this change.
             </p>
 

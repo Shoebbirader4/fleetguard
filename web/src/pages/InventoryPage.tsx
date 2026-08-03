@@ -102,7 +102,7 @@ export default function InventoryPage() {
       <header className="bg-white dark:bg-gray-800 shadow-soft">
         <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+            <h1 className="text-3xl font-bold leading-tight text-gray-900 dark:text-gray-100">
               Spare Parts Inventory
             </h1>
             <div className="flex gap-3">
@@ -114,7 +114,7 @@ export default function InventoryPage() {
               </button>
               <button
                 onClick={() => navigate('/inventory/parts/new')}
-                className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors text-sm font-medium"
+                className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors text-sm font-normal leading-normal"
               >
                 + Add Part
               </button>
@@ -133,7 +133,7 @@ export default function InventoryPage() {
             <div className="mt-2 text-3xl font-bold text-primary-600">
               {formatCurrency(totalInventoryValue)}
             </div>
-            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            <p className="mt-1 text-xs font-normal leading-tight text-gray-500 dark:text-gray-400">
               Weighted average cost
             </p>
           </div>
@@ -145,7 +145,7 @@ export default function InventoryPage() {
             <div className="mt-2 text-3xl font-bold text-gray-900 dark:text-gray-100">
               {parts?.length || 0}
             </div>
-            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            <p className="mt-1 text-xs font-normal leading-tight text-gray-500 dark:text-gray-400">
               Unique parts in catalog
             </p>
           </div>
@@ -157,7 +157,7 @@ export default function InventoryPage() {
             <div className="mt-2 text-3xl font-bold text-warning-600">
               {lowStockCount}
             </div>
-            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            <p className="mt-1 text-xs font-normal leading-tight text-gray-500 dark:text-gray-400">
               Parts below reorder level
             </p>
           </div>
@@ -223,28 +223,28 @@ export default function InventoryPage() {
               <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                 <thead className="bg-gray-50 dark:bg-gray-800">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    <th className="px-4 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase">
                       Part Number
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    <th className="px-4 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase">
                       Description
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    <th className="px-4 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase">
                       Category
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    <th className="px-4 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase">
                       Stock
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    <th className="px-4 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase">
                       Unit Cost
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    <th className="px-4 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase">
                       Total Value
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    <th className="px-4 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase">
                       Status
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    <th className="px-4 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase">
                       Actions
                     </th>
                   </tr>
@@ -259,32 +259,32 @@ export default function InventoryPage() {
                         <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100">
                           {part.part_number}
                         </td>
-                        <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                        <td className="px-4 py-3 text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                           {part.description}
                         </td>
-                        <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                        <td className="px-4 py-3 text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                           {part.category}
                         </td>
-                        <td className="px-4 py-3 text-sm">
+                        <td className="px-4 py-3 text-sm font-normal leading-normal">
                           <span className={part.current_quantity <= part.reorder_level ? 'text-warning-600 font-semibold' : 'text-gray-900 dark:text-gray-100'}>
                             {part.current_quantity}
                           </span>
-                          <span className="text-gray-500 dark:text-gray-400 text-xs ml-1">
+                          <span className="text-gray-500 dark:text-gray-400 text-xs font-normal leading-tight ml-1">
                             / {part.reorder_level} {part.unit_of_measure}
                           </span>
                         </td>
-                        <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
+                        <td className="px-4 py-3 text-sm font-normal leading-normal text-gray-900 dark:text-gray-100">
                           {formatCurrency(part.unit_cost)}
                         </td>
-                        <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 font-medium">
+                        <td className="px-4 py-3 text-sm font-normal leading-normal text-gray-900 dark:text-gray-100 font-medium">
                           {formatCurrency(totalValue)}
                         </td>
-                        <td className="px-4 py-3 text-sm">
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${status.color}`}>
+                        <td className="px-4 py-3 text-sm font-normal leading-normal">
+                          <span className={`px-2 py-1 rounded-full text-xs font-normal leading-tight font-medium ${status.color}`}>
                             {status.label}
                           </span>
                         </td>
-                        <td className="px-4 py-3 text-sm space-x-3">
+                        <td className="px-4 py-3 text-sm font-normal leading-normal space-x-3">
                           <button
                             onClick={() => navigate(`/inventory/parts/${part.id}/edit`)}
                             className="text-primary-600 hover:text-primary-700 font-medium"
@@ -312,7 +312,7 @@ export default function InventoryPage() {
               {!searchQuery && selectedCategory === 'all' && (
                 <button
                   onClick={() => navigate('/inventory/parts/new')}
-                  className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors text-sm font-medium"
+                  className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors text-sm font-normal leading-normal"
                 >
                   + Add Part
                 </button>

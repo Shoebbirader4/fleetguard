@@ -92,10 +92,10 @@ export default function NotificationPreferencesPage() {
         <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              <h1 className="text-3xl font-bold leading-tight text-gray-900 dark:text-gray-100">
                 Notification Preferences
               </h1>
-              <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+              <p className="mt-1 text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                 Configure how you receive alerts and notifications
               </p>
             </div>
@@ -110,7 +110,7 @@ export default function NotificationPreferencesPage() {
                 </button>
                 <button
                   onClick={handleSave}
-                  className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors text-sm font-medium disabled:opacity-50"
+                  className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors text-sm font-normal leading-normal disabled:opacity-50"
                   disabled={saveMutation.isPending}
                 >
                   {saveMutation.isPending ? 'Saving...' : 'Save Changes'}
@@ -130,10 +130,10 @@ export default function NotificationPreferencesPage() {
                 className="pb-6 border-b border-gray-200 dark:border-gray-700 last:border-0 last:pb-0"
               >
                 <div className="mb-3">
-                  <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">
+                  <h3 className="text-base font-normal leading-normal font-semibold text-gray-900 dark:text-gray-100">
                     {alertType.label}
                   </h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                  <p className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                     {alertType.description}
                   </p>
                 </div>
@@ -150,7 +150,7 @@ export default function NotificationPreferencesPage() {
                         onChange={() => handleToggleChannel(alertType.value, channel.value)}
                         className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
                       />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">
+                      <span className="text-sm font-normal leading-normal text-gray-700 dark:text-gray-300">
                         {channel.label}
                       </span>
                     </label>
@@ -158,7 +158,7 @@ export default function NotificationPreferencesPage() {
                 </div>
 
                 {preferences[alertType.value]?.length === 0 && (
-                  <p className="mt-2 text-xs text-orange-600 dark:text-orange-400">
+                  <p className="mt-2 text-xs font-normal leading-tight text-orange-600 dark:text-orange-400">
                     Warning: No notification channels selected for this alert type
                   </p>
                 )}
@@ -171,7 +171,7 @@ export default function NotificationPreferencesPage() {
             <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-200 mb-1">
               About Notification Channels
             </h4>
-            <ul className="text-xs text-blue-800 dark:text-blue-300 space-y-1">
+            <ul className="text-xs font-normal leading-tight text-blue-800 dark:text-blue-300 space-y-1">
               <li>• <strong>Email:</strong> Notifications sent to your registered email address</li>
               <li>• <strong>SMS:</strong> Text messages sent to your phone number</li>
               <li>• <strong>WhatsApp:</strong> Messages via WhatsApp Business API</li>
@@ -181,7 +181,7 @@ export default function NotificationPreferencesPage() {
 
           {saveMutation.isError && (
             <div className="mt-4 p-3 bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg">
-              <p className="text-sm text-red-800 dark:text-red-300">
+              <p className="text-sm font-normal leading-normal text-red-800 dark:text-red-300">
                 Failed to save preferences. Please try again.
               </p>
             </div>
@@ -189,7 +189,7 @@ export default function NotificationPreferencesPage() {
 
           {saveMutation.isSuccess && !hasChanges && (
             <div className="mt-4 p-3 bg-green-100 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-lg">
-              <p className="text-sm text-green-800 dark:text-green-300">
+              <p className="text-sm font-normal leading-normal text-green-800 dark:text-green-300">
                 Preferences saved successfully!
               </p>
             </div>

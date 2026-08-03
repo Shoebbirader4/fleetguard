@@ -7,27 +7,221 @@
     @apply bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100;
     font-family: 'Inter', system-ui, sans-serif;
   }
+
+  /* Typography Scale - FleetGuard AI Design System */
+  /* Heading 1: 2.25rem (36px), font-bold, leading-tight */
+  h1 {
+    @apply text-4xl font-bold leading-tight;
+  }
+
+  /* Heading 2: 1.875rem (30px), font-bold, leading-tight */
+  h2 {
+    @apply text-3xl font-bold leading-tight;
+  }
+
+  /* Heading 3: 1.5rem (24px), font-semibold, leading-snug */
+  h3 {
+    @apply text-2xl font-semibold leading-snug;
+  }
+
+  /* Heading 4: 1.25rem (20px), font-semibold, leading-snug */
+  h4 {
+    @apply text-xl font-semibold leading-snug;
+  }
+
+  /* Body Large: 1.125rem (18px), font-normal, leading-relaxed */
+  h5 {
+    @apply text-lg font-normal leading-relaxed;
+  }
+
+  /* Body: 1rem (16px), font-normal, leading-normal */
+  h6 {
+    @apply text-base font-normal leading-normal;
+  }
+
+  /* Body: 1rem (16px), font-normal, leading-normal */
+  p {
+    @apply text-base font-normal leading-normal;
+  }
 }
 
 @layer components {
-  /* Custom component styles can be added here */
+  /* FleetGuard AI Design System - Component Patterns */
+  
+  /* Typography Utility Classes */
+  .heading-1 {
+    @apply text-4xl font-bold leading-tight;
+  }
+
+  .heading-2 {
+    @apply text-3xl font-bold leading-tight;
+  }
+
+  .heading-3 {
+    @apply text-2xl font-semibold leading-snug;
+  }
+
+  .heading-4 {
+    @apply text-xl font-semibold leading-snug;
+  }
+
+  .body-large {
+    @apply text-lg font-normal leading-relaxed;
+  }
+
+  .body {
+    @apply text-base font-normal leading-normal;
+  }
+
+  .body-small {
+    @apply text-sm font-normal leading-normal;
+  }
+
+  .caption {
+    @apply text-xs font-normal leading-tight;
+  }
+
+  /* Button Variants */
   .btn-primary {
-    @apply bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors font-medium;
+    @apply bg-blue-600 hover:bg-blue-700 text-white font-normal px-4 py-2 rounded-lg 
+           transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 
+           disabled:opacity-50 disabled:cursor-not-allowed leading-normal;
   }
 
   .btn-secondary {
-    @apply bg-gray-200 text-gray-900 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors font-medium dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600;
+    @apply bg-white hover:bg-gray-50 text-gray-700 font-normal px-4 py-2 rounded-lg border 
+           border-gray-300 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 
+           focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-800 
+           dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-700 leading-normal;
   }
 
+  .btn-danger {
+    @apply bg-red-600 hover:bg-red-700 text-white font-normal px-4 py-2 rounded-lg 
+           transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 
+           disabled:opacity-50 disabled:cursor-not-allowed leading-normal;
+  }
+
+  .btn-success {
+    @apply bg-green-600 hover:bg-green-700 text-white font-normal px-4 py-2 rounded-lg 
+           transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 
+           disabled:opacity-50 disabled:cursor-not-allowed leading-normal;
+  }
+
+  /* Card Pattern */
   .card {
-    @apply bg-white dark:bg-gray-800 rounded-lg shadow-soft p-6;
+    @apply bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 
+           dark:border-gray-700 p-6 hover:shadow-md transition-shadow;
   }
 
+  /* Form Input Pattern */
   .input-field {
-    @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100;
+    @apply w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm 
+           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+           disabled:bg-gray-50 disabled:text-gray-500 dark:bg-gray-700 
+           dark:border-gray-600 dark:text-white dark:focus:ring-blue-500;
   }
 
+  /* Label Pattern */
   .label {
     @apply block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1;
+  }
+
+  /* Badge Pattern */
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+
+  .badge-blue {
+    @apply badge bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300;
+  }
+
+  .badge-green {
+    @apply badge bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300;
+  }
+
+  .badge-yellow {
+    @apply badge bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300;
+  }
+
+  .badge-red {
+    @apply badge bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300;
+  }
+
+  .badge-gray {
+    @apply badge bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300;
+  }
+
+  /* Status Badge Variants */
+  .badge-success {
+    @apply badge bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300;
+  }
+
+  .badge-warning {
+    @apply badge bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300;
+  }
+
+  .badge-error {
+    @apply badge bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300;
+  }
+
+  .badge-info {
+    @apply badge bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300;
+  }
+}
+
+@layer utilities {
+  /* Mobile Responsiveness Utilities - Task 29 */
+  
+  /* Touch Target Minimum Size (44x44px) - Task 29.1, 29.3 */
+  .touch-target {
+    @apply min-w-[44px] min-h-[44px];
+  }
+
+  /* Mobile-friendly button */
+  .btn-mobile {
+    @apply min-h-[44px] text-base sm:text-sm;
+  }
+
+  /* Mobile-optimized input */
+  .input-mobile {
+    @apply min-h-[44px] text-base sm:text-sm px-4 py-3 sm:py-2;
+  }
+
+  /* Responsive padding utilities */
+  .container-mobile {
+    @apply px-3 sm:px-4 lg:px-6;
+  }
+
+  /* Responsive text sizing */
+  .text-responsive {
+    @apply text-base sm:text-sm;
+  }
+
+  .heading-responsive {
+    @apply text-lg sm:text-xl lg:text-2xl;
+  }
+
+  /* Mobile-first spacing */
+  .spacing-mobile {
+    @apply space-y-4 sm:space-y-6;
+  }
+
+  /* Grid responsive utilities */
+  .grid-mobile {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4;
+  }
+
+  /* Horizontal scroll container with shadows - Task 29.2 */
+  .scroll-container {
+    @apply overflow-x-auto relative;
+  }
+
+  /* Safe area for mobile devices with notches */
+  .safe-area-top {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
   }
 }

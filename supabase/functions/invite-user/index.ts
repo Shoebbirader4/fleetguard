@@ -58,8 +58,18 @@ serve(async (req) => {
     } = await supabaseClient.auth.getUser();
 
     if (userError || !user) {
+      console.error('Auth error:', userError);
+      console.error('User:', user);
+      console.error('Auth header present:', !!authHeader);
       return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
+        JSON.stringify({ 
+          error: 'Unauthorized',
+          details: userError?.message || 'No user found',
+          debug: {
+            hasAuthHeader: !!authHeader,
+            errorCode: userError?.code
+          }
+        }),
         {
           status: 401,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -68,15 +78,25 @@ serve(async (req) => {
     }
 
     // Get user profile to check role and tenant
-    const { data: userProfile, error: profileError } = await supabaseClient
+    // Use service role to bypass RLS since we need to read user's own profile
+    const supabaseAdmin = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
+
+    const { data: userProfile, error: profileError} = await supabaseAdmin
       .from('users')
       .select('tenant_id, role, full_name')
       .eq('id', user.id)
       .single();
 
     if (profileError || !userProfile) {
+      console.error('Error fetching user profile:', profileError);
       return new Response(
-        JSON.stringify({ error: 'User profile not found' }),
+        JSON.stringify({ 
+          error: 'User profile not found',
+          details: profileError?.message 
+        }),
         {
           status: 404,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },

@@ -7,6 +7,7 @@ import { formatVIN } from '../lib/validations';
 import ExportButton from '../components/ExportButton';
 import Layout from '../components/Layout';
 import { VirtualList } from '../components/VirtualList';
+import { GridCardSkeleton } from '../components/SkeletonScreens';
 
 export default function VehicleListPage() {
   const navigate = useNavigate();
@@ -103,10 +104,10 @@ export default function VehicleListPage() {
     >
       <div className="flex justify-between items-start mb-4">
         <div className="flex-1">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+          <h3 className="text-lg font-semibold leading-snug text-gray-900 dark:text-gray-100">
             {vehicle.make} {vehicle.model} ({vehicle.year})
           </h3>
-          <p className="text-sm text-gray-600 dark:text-gray-400 font-mono">
+          <p className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400 font-mono">
             VIN: {formatVIN(vehicle.vin)}
           </p>
         </div>
@@ -126,7 +127,7 @@ export default function VehicleListPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 text-sm">
+      <div className="grid grid-cols-2 gap-4 text-sm font-normal leading-normal">
         <div>
           <span className="text-gray-600 dark:text-gray-400">Type:</span>
           <span className="ml-2 font-medium text-gray-900 dark:text-gray-100">
@@ -171,9 +172,9 @@ export default function VehicleListPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
-            <span className="text-xs text-green-600 dark:text-green-400">GPS Enabled</span>
+            <span className="text-xs font-normal leading-tight text-green-600 dark:text-green-400">GPS Enabled</span>
             {vehicle.last_gps_update && (
-              <span className="text-xs text-gray-500 dark:text-gray-400">
+              <span className="text-xs font-normal leading-tight text-gray-500 dark:text-gray-400">
                 • Last update: {new Date(vehicle.last_gps_update).toLocaleString()}
               </span>
             )}
@@ -188,7 +189,7 @@ export default function VehicleListPage() {
       <div className="bg-white dark:bg-gray-800 shadow-soft border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+            <h1 className="text-3xl font-bold leading-tight text-gray-900 dark:text-gray-100">
               Vehicles
             </h1>
             <div className="flex gap-3">
@@ -297,7 +298,7 @@ export default function VehicleListPage() {
 
           {/* Results Summary */}
           {vehicles && (
-            <div className="mt-4 text-sm text-gray-600 dark:text-gray-400">
+            <div className="mt-4 text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
               Showing {filteredVehicles.length} of {vehicles.length} vehicles
             </div>
           )}
@@ -305,10 +306,7 @@ export default function VehicleListPage() {
 
         {/* Vehicle List */}
         {isLoading ? (
-          <div className="card text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
-            <p className="mt-4 text-gray-600 dark:text-gray-400">Loading vehicles...</p>
-          </div>
+          <GridCardSkeleton count={6} />
         ) : error ? (
           <div className="card bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
             <p className="text-red-800 dark:text-red-200">

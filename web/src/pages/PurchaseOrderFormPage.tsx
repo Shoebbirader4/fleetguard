@@ -285,10 +285,10 @@ export default function PurchaseOrderFormPage() {
               ← Back
             </button>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              <h1 className="text-3xl font-bold leading-tight text-gray-900 dark:text-gray-100">
                 {isEditMode ? 'Edit Purchase Order' : 'Create Purchase Order'}
               </h1>
-              <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+              <p className="mt-1 text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
                 {isEditMode ? 'Update purchase order details' : 'Create a new purchase order for parts'}
               </p>
             </div>
@@ -300,7 +300,7 @@ export default function PurchaseOrderFormPage() {
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* PO Header */}
           <div className="card">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Order Information</h2>
+            <h2 className="text-xl font-semibold leading-snug text-gray-900 dark:text-gray-100 mb-4">Order Information</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -315,7 +315,7 @@ export default function PurchaseOrderFormPage() {
                   required={true}
                   placeholder="Select vendor..."
                 />
-                {errors.vendor_id && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.vendor_id}</p>}
+                {errors.vendor_id && <p className="mt-1 text-sm font-normal leading-normal text-red-600 dark:text-red-400">{errors.vendor_id}</p>}
               </div>
 
               <div>
@@ -371,7 +371,7 @@ export default function PurchaseOrderFormPage() {
 
           {/* Line Items */}
           <div className="card">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Line Items</h2>
+            <h2 className="text-xl font-semibold leading-snug text-gray-900 dark:text-gray-100 mb-4">Line Items</h2>
             
             {/* Add Line Item */}
             <div className="mb-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
@@ -426,19 +426,19 @@ export default function PurchaseOrderFormPage() {
                 <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                   <thead className="bg-gray-50 dark:bg-gray-800">
                     <tr>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                      <th className="px-4 py-3 text-left text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase">
                         Part
                       </th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                      <th className="px-4 py-3 text-right text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase">
                         Quantity
                       </th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                      <th className="px-4 py-3 text-right text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase">
                         Unit Cost
                       </th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                      <th className="px-4 py-3 text-right text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase">
                         Line Total
                       </th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                      <th className="px-4 py-3 text-right text-xs font-normal leading-tight font-medium text-gray-500 dark:text-gray-400 uppercase">
                         Actions
                       </th>
                     </tr>
@@ -448,19 +448,19 @@ export default function PurchaseOrderFormPage() {
                       const part = spareParts?.find((p) => p.id === item.part_id);
                       return (
                         <tr key={item.id}>
-                          <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
+                          <td className="px-4 py-3 text-sm font-normal leading-normal text-gray-900 dark:text-gray-100">
                             {part?.part_number} - {part?.description}
                           </td>
-                          <td className="px-4 py-3 text-sm text-right text-gray-900 dark:text-gray-100">
+                          <td className="px-4 py-3 text-sm font-normal leading-normal text-right text-gray-900 dark:text-gray-100">
                             {item.quantity}
                           </td>
-                          <td className="px-4 py-3 text-sm text-right text-gray-900 dark:text-gray-100">
+                          <td className="px-4 py-3 text-sm font-normal leading-normal text-right text-gray-900 dark:text-gray-100">
                             ${item.unit_cost.toFixed(2)}
                           </td>
-                          <td className="px-4 py-3 text-sm text-right font-medium text-gray-900 dark:text-gray-100">
+                          <td className="px-4 py-3 text-sm font-normal leading-normal text-right font-medium text-gray-900 dark:text-gray-100">
                             ${item.line_total.toFixed(2)}
                           </td>
-                          <td className="px-4 py-3 text-sm text-right">
+                          <td className="px-4 py-3 text-sm font-normal leading-normal text-right">
                             <button
                               type="button"
                               onClick={() => handleRemoveLineItem(item.id)}
@@ -491,7 +491,7 @@ export default function PurchaseOrderFormPage() {
                 No line items added yet. Add parts above to create the purchase order.
               </div>
             )}
-            {errors.line_items && <p className="mt-2 text-sm text-red-600 dark:text-red-400">{errors.line_items}</p>}
+            {errors.line_items && <p className="mt-2 text-sm font-normal leading-normal text-red-600 dark:text-red-400">{errors.line_items}</p>}
           </div>
 
           {/* Form Actions */}

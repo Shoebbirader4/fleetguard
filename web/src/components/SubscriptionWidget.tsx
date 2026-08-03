@@ -23,8 +23,8 @@ export default function SubscriptionWidget() {
     // Show a minimal error state without disrupting the dashboard
     return (
       <div className="card border-gray-200 dark:border-gray-700">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Subscription</h3>
-        <p className="text-sm text-gray-500 dark:text-gray-400">
+        <h3 className="text-lg font-semibold leading-snug text-gray-900 dark:text-gray-100 mb-2">Subscription</h3>
+        <p className="text-sm font-normal leading-normal text-gray-500 dark:text-gray-400">
           Unable to load subscription status
         </p>
       </div>
@@ -50,15 +50,15 @@ export default function SubscriptionWidget() {
   return (
     <div className={`card ${isAtLimit ? 'border-red-200 dark:border-red-800' : isNearLimit ? 'border-yellow-200 dark:border-yellow-800' : ''}`}>
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Subscription</h3>
-        <span className={`px-2 py-1 rounded-full text-xs font-semibold capitalize ${getStatusColor()}`}>
+        <h3 className="text-lg font-semibold leading-snug text-gray-900 dark:text-gray-100">Subscription</h3>
+        <span className={`px-2 py-1 rounded-full text-xs font-normal leading-tight font-semibold capitalize ${getStatusColor()}`}>
           {subscriptionPlan}
         </span>
       </div>
 
       <div className="mb-3">
         <div className="flex justify-between items-center mb-2">
-          <span className="text-sm text-gray-600 dark:text-gray-400">Vehicle Usage</span>
+          <span className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">Vehicle Usage</span>
           <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
             {currentCount} / {vehicleLimit === 999999 ? '∞' : vehicleLimit}
           </span>
@@ -73,10 +73,10 @@ export default function SubscriptionWidget() {
 
       {isAtLimit && (
         <div className="mb-3 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-          <p className="text-sm text-red-800 dark:text-red-200 font-medium mb-2">
+          <p className="text-sm font-normal leading-normal text-red-800 dark:text-red-200 font-medium mb-2">
             Vehicle limit reached!
           </p>
-          <p className="text-xs text-red-700 dark:text-red-300">
+          <p className="text-xs font-normal leading-tight text-red-700 dark:text-red-300">
             Upgrade your plan to add more vehicles and unlock advanced features.
           </p>
         </div>
@@ -84,7 +84,7 @@ export default function SubscriptionWidget() {
 
       {!isAtLimit && isNearLimit && (
         <div className="mb-3 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
-          <p className="text-sm text-yellow-800 dark:text-yellow-200 font-medium">
+          <p className="text-sm font-normal leading-normal text-yellow-800 dark:text-yellow-200 font-medium">
             Approaching limit ({usagePercentage.toFixed(0)}% used)
           </p>
         </div>
