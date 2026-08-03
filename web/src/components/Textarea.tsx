@@ -3,9 +3,11 @@
  * 
  * Standardized textarea component with consistent styling and focus states.
  * Supports full dark mode and validation states.
+ * Enhanced with ARIA attributes for accessibility.
  * 
  * Task 27.2 - Standardize component styling
- * Requirements: 5.1, 5.2
+ * Task 30.2 - Add screen reader support
+ * Requirements: 5.1, 5.2, 5.8
  */
 
 import { TextareaHTMLAttributes, forwardRef } from 'react';
@@ -20,6 +22,8 @@ interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
 const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
   ({ label, error, helperText, className = '', id, ...props }, ref) => {
     const textareaId = id || label?.toLowerCase().replace(/\s+/g, '_');
+    const errorId = error ? `${textareaId}-error` : undefined;
+    const helperTextId = helperText ? `${textareaId}-helper` : undefined;
     const textareaClasses = error ? INPUT_CLASSES.error : INPUT_CLASSES.default;
     
     return (
@@ -30,22 +34,31 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
             className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
           >
             {label}
-            {props.required && <span className="text-red-500 ml-1">*</span>}
+            {props.required && <span className="text-red-500 ml-1" aria-label="required">*</span>}
           </label>
         )}
         <textarea
           ref={ref}
           id={textareaId}
           className={`${textareaClasses} resize-none ${className}`}
+          aria-invalid={error ? 'true' : 'false'}
+          aria-describedby={error ? errorId : helperTextId}
           {...props}
         />
         {error && (
-          <p className="mt-1 text-sm font-normal leading-normal text-red-600 dark:text-red-400">
+          <p 
+            id={errorId}
+            className="mt-1 text-sm font-normal leading-normal text-red-600 dark:text-red-400"
+            role="alert"
+          >
             {error}
           </p>
         )}
         {!error && helperText && (
-          <p className="mt-1 text-sm font-normal leading-normal text-gray-500 dark:text-gray-400">
+          <p 
+            id={helperTextId}
+            className="mt-1 text-sm font-normal leading-normal text-gray-500 dark:text-gray-400"
+          >
             {helperText}
           </p>
         )}

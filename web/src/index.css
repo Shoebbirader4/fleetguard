@@ -170,6 +170,27 @@
 }
 
 @layer utilities {
+  /* Accessibility Utilities - Task 30 */
+  
+  /* Screen reader only - visible to screen readers but not visually */
+  .sr-only {
+    @apply absolute w-px h-px p-0 -m-px overflow-hidden whitespace-nowrap border-0;
+    clip: rect(0, 0, 0, 0);
+  }
+
+  /* Show element when focused (for skip links) */
+  .focus\:not-sr-only:focus {
+    @apply static w-auto h-auto overflow-visible whitespace-normal;
+    clip: auto;
+    padding: initial;
+    margin: initial;
+  }
+
+  /* Visible focus indicator with high contrast */
+  .focus-visible {
+    @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+  }
+
   /* Mobile Responsiveness Utilities - Task 29 */
   
   /* Touch Target Minimum Size (44x44px) - Task 29.1, 29.3 */

@@ -41,16 +41,27 @@ export default function Navigation() {
     setMobileMenuOpen(false);
   }, [location.pathname]);
 
-  // Close mobile menu when clicking outside (Task 29.1)
+  // Close mobile menu with Escape key and when clicking outside (Task 29.1, 30.1)
   useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && mobileMenuOpen) {
+        setMobileMenuOpen(false);
+      }
+    };
+
     const handleClickOutside = (event: MouseEvent) => {
       if (mobileMenuOpen && mobileMenuRef.current && !mobileMenuRef.current.contains(event.target as Node)) {
         setMobileMenuOpen(false);
       }
     };
 
+    document.addEventListener('keydown', handleEscape);
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
   }, [mobileMenuOpen]);
 
   // Prevent body scroll when mobile menu is open (Task 29.1)
@@ -200,7 +211,10 @@ export default function Navigation() {
       </div>
 
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex lg:flex-col lg:fixed lg:inset-y-0 lg:w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700">
+      <nav 
+        className="hidden lg:flex lg:flex-col lg:fixed lg:inset-y-0 lg:w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700"
+        aria-label="Main navigation"
+      >
         {/* Logo */}
         <div className="flex items-center gap-2 px-6 py-4 border-b border-gray-200 dark:border-gray-700">
           <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
@@ -277,7 +291,7 @@ export default function Navigation() {
             Logout
           </button>
         </div>
-      </aside>
+      </nav>
     </>
   );
 }

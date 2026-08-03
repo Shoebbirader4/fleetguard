@@ -1,3 +1,13 @@
+/**
+ * Toast Component
+ * 
+ * Toast notification with auto-dismiss and accessibility support.
+ * Enhanced with ARIA live regions for screen reader announcements.
+ * 
+ * Task 30.2 - Add screen reader support
+ * Requirements: 5.2, 5.8
+ */
+
 import { useEffect, useState } from 'react';
 
 export type ToastType = 'success' | 'error' | 'info' | 'warning';
@@ -88,18 +98,21 @@ const Toast = ({ toast, onDismiss }: ToastProps) => {
     <div
       className={`pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg border-l-4 shadow-lg ${getToastStyles()}`}
       role="alert"
+      aria-live="polite"
+      aria-atomic="true"
     >
       <div className="p-4">
         <div className="flex items-start">
-          <div className="flex-shrink-0">{getIcon()}</div>
+          <div className="flex-shrink-0" aria-hidden="true">{getIcon()}</div>
           <div className="ml-3 w-0 flex-1 pt-0.5">
             <p className="text-sm font-medium">{toast.message}</p>
           </div>
           <div className="ml-4 flex flex-shrink-0">
             <button
               type="button"
-              className="inline-flex rounded-md hover:opacity-75 focus:outline-none focus:ring-2 focus:ring-offset-2"
+              className="inline-flex rounded-md hover:opacity-75 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
               onClick={() => onDismiss(toast.id)}
+              aria-label="Dismiss notification"
             >
               <span className="sr-only">Close</span>
               <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
