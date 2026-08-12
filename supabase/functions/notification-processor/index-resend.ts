@@ -1,22 +1,12 @@
 /**
- * Notification Processor Edge Function
+ * Notification Processor Edge Function - FIXED WITH RESEND
  * 
- * Processes queued notification jobs with exponential backoff retry logic.
- * Handles delivery via WhatsApp, SMS, Email, and Push notifications.
- * Implements escalation for critical alerts not acknowledged within 2 hours.
+ * Processes queued notification jobs using Resend email API.
+ * Handles delivery via Email and Push notifications.
  * 
  * Requirements:
- * - 10.5: Track alert delivery status and retry failed deliveries up to 3 times
- * - 10.6: Escalate critical alerts to Fleet Manager if not acknowledged within 2 hours
- * 
- * Trigger: Can be invoked as a cron job or manually
- * 
- * Process Flow:
- * 1. Fetch queued and retry-ready failed jobs
- * 2. Process each job through channel-specific handler
- * 3. Update job status and schedule retries for failures
- * 4. Check critical alerts for escalation timeout
- * 5. Return processing summary
+ * - RESEND_API_KEY environment variable (get from resend.com)
+ * - FCM_SERVER_KEY environment variable (optional, for push notifications)
  */
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
@@ -45,22 +35,12 @@ interface NotificationJob {
   updated_at: string;
 }
 
-interface Alert {
-  id: string;
-  tenant_id: string;
-  severity: string;
-  status: string;
-  created_at: string;
-  acknowledged_at: string | null;
-}
-
 interface ProcessingResult {
   total_processed: number;
   successful: number;
   failed: number;
   retry_scheduled: number;
   max_retries_exceeded: number;
-  escalations_created: number;
 }
 
 interface DeliveryResult {
@@ -73,12 +53,11 @@ interface DeliveryResult {
 // ============================================================================
 
 const MAX_RETRY_ATTEMPTS = 3;
-const RETRY_DELAYS = [1, 5, 15]; // minutes: 1st retry after 1min, 2nd after 5min, 3rd after 15min
-const CRITICAL_ALERT_TIMEOUT = 2 * 60 * 60 * 1000; // 2 hours in milliseconds
-const BATCH_SIZE = 50; // Process jobs in batches
+const RETRY_DELAYS = [1, 5, 15]; // minutes
+const BATCH_SIZE = 50;
 
 // ============================================================================
-// Channel Handlers
+// Resend Email Service
 // ============================================================================
 
 /**
@@ -145,7 +124,7 @@ function generateAlertEmailHtml(payload: Record<string, unknown>): string {
 /**
  * Send email via Resend API
  */
-async function sendEmail(job: NotificationJob): Promise<DeliveryResult> {
+async function sendEmailViaResend(job: NotificationJob): Promise<DeliveryResult> {
   try {
     const resendApiKey = Deno.env.get('RESEND_API_KEY');
 
@@ -153,7 +132,7 @@ async function sendEmail(job: NotificationJob): Promise<DeliveryResult> {
       console.warn('[Notification Processor] RESEND_API_KEY not configured');
       return {
         success: false,
-        error: 'Resend API key not configured',
+        error: 'Resend API key not configured. Set RESEND_API_KEY in Supabase secrets.',
       };
     }
 
@@ -161,7 +140,7 @@ async function sendEmail(job: NotificationJob): Promise<DeliveryResult> {
     const htmlContent = generateAlertEmailHtml(job.payload);
 
     const emailPayload = {
-      from: 'FleetGuard AI <onboarding@resend.dev>',
+      from: 'FleetGuard AI <onboarding@resend.dev>', // Use resend.dev for testing, replace with your domain later
       to: [job.recipient],
       subject: subject,
       html: htmlContent,
@@ -209,10 +188,10 @@ async function sendPush(job: NotificationJob): Promise<DeliveryResult> {
     const fcmServerKey = Deno.env.get('FCM_SERVER_KEY');
 
     if (!fcmServerKey) {
-      console.warn('[Notification Processor] FCM credentials not configured');
+      console.warn('[Notification Processor] FCM_SERVER_KEY not configured');
       return {
         success: false,
-        error: 'FCM push notifications not configured',
+        error: 'FCM not configured',
       };
     }
 
@@ -266,7 +245,7 @@ async function deliverNotification(job: NotificationJob): Promise<DeliveryResult
 
   switch (job.channel) {
     case 'email':
-      return await sendEmail(job);
+      return await sendEmailViaResend(job);
     case 'push':
       return await sendPush(job);
     default:
@@ -281,12 +260,9 @@ async function deliverNotification(job: NotificationJob): Promise<DeliveryResult
 // Retry Logic
 // ============================================================================
 
-/**
- * Calculate next retry time using exponential backoff
- */
 function calculateNextRetryTime(attempt: number): string | null {
   if (attempt >= MAX_RETRY_ATTEMPTS) {
-    return null; // No more retries
+    return null;
   }
 
   const delayMinutes = RETRY_DELAYS[attempt] || RETRY_DELAYS[RETRY_DELAYS.length - 1];
@@ -294,9 +270,6 @@ function calculateNextRetryTime(attempt: number): string | null {
   return nextRetry.toISOString();
 }
 
-/**
- * Process a single notification job
- */
 async function processJob(supabase: any, job: NotificationJob): Promise<{
   success: boolean;
   retry_scheduled: boolean;
@@ -345,7 +318,7 @@ async function processJob(supabase: any, job: NotificationJob): Promise<{
         .eq('id', job.id);
 
       console.log(
-        `[Notification Processor] Job ${job.id} failed (attempt ${newAttempt}/${MAX_RETRY_ATTEMPTS}). Retry scheduled for ${nextRetryTime}`
+        `[Notification Processor] Job ${job.id} failed (attempt ${newAttempt}/${MAX_RETRY_ATTEMPTS}). Retry at ${nextRetryTime}`
       );
       return { success: false, retry_scheduled: true, max_retries_exceeded: false };
     } else {
@@ -369,160 +342,6 @@ async function processJob(supabase: any, job: NotificationJob): Promise<{
 }
 
 // ============================================================================
-// Escalation Logic
-// ============================================================================
-
-/**
- * Check and escalate critical alerts not acknowledged within 2 hours
- */
-async function checkEscalations(supabase: any): Promise<number> {
-  try {
-    const twoHoursAgo = new Date(Date.now() - CRITICAL_ALERT_TIMEOUT).toISOString();
-
-    // Find critical alerts created more than 2 hours ago that are not acknowledged
-    const { data: criticalAlerts, error: alertError } = await supabase
-      .from('alerts')
-      .select('id, tenant_id, vehicle_id, title, description')
-      .eq('severity', 'critical')
-      .eq('status', 'active')
-      .is('acknowledged_at', null)
-      .lt('created_at', twoHoursAgo)
-      .limit(BATCH_SIZE);
-
-    if (alertError) {
-      console.error('[Notification Processor] Error fetching critical alerts:', alertError);
-      return 0;
-    }
-
-    if (!criticalAlerts || criticalAlerts.length === 0) {
-      return 0;
-    }
-
-    console.log(`[Notification Processor] Found ${criticalAlerts.length} critical alerts requiring escalation`);
-
-    let escalationCount = 0;
-
-    for (const alert of criticalAlerts) {
-      // Check if already escalated
-      const { data: existingEscalation } = await supabase
-        .from('alert_escalations')
-        .select('id')
-        .eq('alert_id', alert.id)
-        .limit(1);
-
-      if (existingEscalation && existingEscalation.length > 0) {
-        continue; // Already escalated
-      }
-
-      // Find Fleet Managers for this tenant
-      const { data: fleetManagers, error: managerError } = await supabase
-        .from('users')
-        .select('id, email, full_name, phone, fcm_token, notification_preferences')
-        .eq('tenant_id', alert.tenant_id)
-        .eq('role', 'fleet_manager')
-        .limit(5);
-
-      if (managerError || !fleetManagers || fleetManagers.length === 0) {
-        console.error(`[Notification Processor] No Fleet Managers found for tenant ${alert.tenant_id}`);
-        continue;
-      }
-
-      // Get original notification jobs for this alert to find original recipients
-      const { data: originalJobs } = await supabase
-        .from('notification_jobs')
-        .select('user_id')
-        .eq('alert_id', alert.id)
-        .limit(1);
-
-      const originalUserId = originalJobs && originalJobs.length > 0
-        ? originalJobs[0].user_id
-        : null;
-
-      // Create escalation records and notification jobs for Fleet Managers
-      for (const manager of fleetManagers) {
-        // Create escalation record
-        const { error: escalationError } = await supabase
-          .from('alert_escalations')
-          .insert({
-            tenant_id: alert.tenant_id,
-            alert_id: alert.id,
-            original_user_id: originalUserId,
-            escalated_to_user_id: manager.id,
-            escalation_reason: 'Critical alert not acknowledged within 2 hours',
-            escalated_at: new Date().toISOString(),
-          });
-
-        if (escalationError) {
-          console.error('[Notification Processor] Error creating escalation:', escalationError);
-          continue;
-        }
-
-        // Get preferred channels for manager
-        const preferences = manager.notification_preferences || {};
-        const channels = preferences['critical'] || ['email', 'push'];
-
-        // Create escalation notification jobs
-        for (const channel of channels) {
-          // Validate manager has required contact info
-          let recipient = '';
-          let skip = false;
-
-          switch (channel) {
-            case 'whatsapp':
-            case 'sms':
-              if (!manager.phone) skip = true;
-              else recipient = manager.phone;
-              break;
-            case 'email':
-              if (!manager.email) skip = true;
-              else recipient = manager.email;
-              break;
-            case 'push':
-              if (!manager.fcm_token) skip = true;
-              else recipient = manager.fcm_token;
-              break;
-          }
-
-          if (skip) continue;
-
-          const payload = {
-            alert_id: alert.id,
-            alert_type: 'escalation',
-            severity: 'critical',
-            title: `ESCALATION: ${alert.title}`,
-            description: `This critical alert has not been acknowledged for 2 hours. ${alert.description}`,
-            user_name: manager.full_name,
-            escalation: true,
-          };
-
-          await supabase
-            .from('notification_jobs')
-            .insert({
-              tenant_id: alert.tenant_id,
-              alert_id: alert.id,
-              user_id: manager.id,
-              channel,
-              recipient,
-              payload,
-              status: 'queued',
-              attempt: 0,
-            });
-        }
-
-        escalationCount++;
-      }
-
-      console.log(`[Notification Processor] Escalated alert ${alert.id} to ${fleetManagers.length} Fleet Managers`);
-    }
-
-    return escalationCount;
-  } catch (err) {
-    console.error('[Notification Processor] Error in escalation check:', err);
-    return 0;
-  }
-}
-
-// ============================================================================
 // Main Handler
 // ============================================================================
 
@@ -530,7 +349,6 @@ Deno.serve(async (req) => {
   try {
     console.log('[Notification Processor] Starting job processing');
 
-    // Initialize Supabase client with service role (bypasses RLS)
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
@@ -541,10 +359,9 @@ Deno.serve(async (req) => {
       failed: 0,
       retry_scheduled: 0,
       max_retries_exceeded: 0,
-      escalations_created: 0,
     };
 
-    // Step 1: Fetch queued jobs
+    // Fetch queued jobs
     const { data: queuedJobs, error: queueError } = await supabase
       .from('notification_jobs')
       .select('*')
@@ -553,11 +370,10 @@ Deno.serve(async (req) => {
       .limit(BATCH_SIZE);
 
     if (queueError) {
-      console.error('[Notification Processor] Error fetching queued jobs:', queueError);
       throw new Error(`Failed to fetch queued jobs: ${queueError.message}`);
     }
 
-    // Step 2: Fetch retry-ready failed jobs
+    // Fetch retry-ready failed jobs
     const now = new Date().toISOString();
     const { data: retryJobs, error: retryError } = await supabase
       .from('notification_jobs')
@@ -569,7 +385,6 @@ Deno.serve(async (req) => {
       .limit(BATCH_SIZE);
 
     if (retryError) {
-      console.error('[Notification Processor] Error fetching retry jobs:', retryError);
       throw new Error(`Failed to fetch retry jobs: ${retryError.message}`);
     }
 
@@ -579,7 +394,7 @@ Deno.serve(async (req) => {
 
     console.log(`[Notification Processor] Processing ${allJobs.length} jobs (${queuedJobs?.length || 0} queued, ${retryJobs?.length || 0} retries)`);
 
-    // Step 3: Process each job
+    // Process each job
     for (const job of allJobs) {
       try {
         const jobResult = await processJob(supabase, job);
@@ -600,10 +415,6 @@ Deno.serve(async (req) => {
         result.failed++;
       }
     }
-
-    // Step 4: Check for critical alert escalations
-    const escalationsCreated = await checkEscalations(supabase);
-    result.escalations_created = escalationsCreated;
 
     console.log('[Notification Processor] Processing complete:', result);
 

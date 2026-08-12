@@ -702,7 +702,7 @@ The implementation follows 6 phases as outlined in the design document, building
     - _Requirements: 5.1_
 
 
-- [-] 28. Implement loading states and error handling
+- [ ] 28. Implement loading states and error handling
   - [x] 28.1 Add loading states for all async operations
     - Replace generic spinners with skeleton screens for list pages
     - Add inline spinners for buttons during submit
