@@ -1,57 +1,26 @@
-/**
- * Protected Route Component
- * 
- * Wraps routes that require authentication and/or specific roles.
- * 
- * Requirements:
- * - 6.1: Check authentication status using useAuth hook
- * - 6.2: Redirect to /login if not authenticated
- * - 6.2: Redirect to /forbidden if user lacks required role
- * - 6.5: Show LoadingSpinner while checking auth
- */
-
 import { useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
 import LoadingSpinner from './LoadingSpinner';
+import { FeatureKey, useSubscription } from '../hooks/useSubscription';
 import type { UserRole } from '../types/user';
 
-interface ProtectedRouteProps {
-  children: React.ReactNode;
-  requiredRoles?: UserRole[];
-}
+interface ProtectedRouteProps { children: React.ReactNode; requiredRoles?: UserRole[]; requiredFeature?: FeatureKey; }
 
-export default function ProtectedRoute({ children, requiredRoles }: ProtectedRouteProps) {
+export default function ProtectedRoute({ children, requiredRoles, requiredFeature }: ProtectedRouteProps) {
   const { isAuthenticated, user, checkSession } = useAuthStore();
   const [isChecking, setIsChecking] = useState(true);
   const location = useLocation();
+  const publicPaths = new Set(['/','/login','/signup','/join','/password-reset','/reset-password']);
+  const isPublicRoute = publicPaths.has(location.pathname);
+  const subscription = useSubscription();
 
-  useEffect(() => {
-    const verifySession = async () => {
-      await checkSession();
-      setIsChecking(false);
-    };
-    verifySession();
-  }, [checkSession]);
+  useEffect(() => { checkSession().finally(() => setIsChecking(false)); }, [checkSession]);
 
-  // Show loading state while checking session (Requirement 6.5)
-  if (isChecking) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-        <LoadingSpinner size="lg" />
-      </div>
-    );
-  }
-
-  // Redirect to login if not authenticated (Requirement 6.2)
-  if (!isAuthenticated) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
-  }
-
-  // Redirect to forbidden page if user lacks required role (Requirement 6.2)
-  if (requiredRoles && user && !requiredRoles.includes(user.role)) {
-    return <Navigate to="/forbidden" replace />;
-  }
-
+  if (isPublicRoute) return <>{children}</>;
+  if (isChecking || (isAuthenticated && requiredFeature && subscription.loading)) return <div className="grid min-h-screen place-items-center bg-slate-50 dark:bg-slate-950"><LoadingSpinner size="lg" /></div>;
+  if (!isAuthenticated) return <Navigate to="/login" state={{ from: location }} replace />;
+  if (requiredRoles && user && !requiredRoles.includes(user.role)) return <Navigate to="/forbidden" replace />;
+  if (requiredFeature && !subscription.hasFeature(requiredFeature)) return <Navigate to="/subscription" state={{ blockedFeature: requiredFeature }} replace />;
   return <>{children}</>;
 }

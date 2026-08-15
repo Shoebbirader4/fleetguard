@@ -70,7 +70,7 @@ function LoadingFallback() {
 
 function App() {
   const theme = useThemeStore((state) => state.theme);
-
+  const gated = (feature: import('./hooks/useSubscription').FeatureKey, element: React.ReactNode) => <ProtectedRoute requiredFeature={feature}>{element}</ProtectedRoute>;
   // Apply theme class to HTML element
   if (typeof document !== 'undefined') {
     document.documentElement.classList.toggle('dark', theme === 'dark');
@@ -82,7 +82,7 @@ function App() {
         <OfflineIndicator />
         <ToastContainer />
         <Suspense fallback={<LoadingFallback />}>
-          <Routes>
+          <ProtectedRoute><Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignUpPage />} />
@@ -91,29 +91,29 @@ function App() {
           <Route path="/onboarding" element={<OnboardingPage />} />
           <Route path="/password-reset" element={<PasswordResetPage />} />
           <Route path="/reset-password" element={<UpdatePasswordPage />} />
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/vehicles" element={<VehicleListPage />} />
-          <Route path="/vehicles/new" element={<VehicleFormPage />} />
-          <Route path="/vehicles/:id" element={<VehicleDetailPage />} />
-          <Route path="/vehicles/:id/edit" element={<VehicleFormPage />} />
-          <Route path="/components" element={<ComponentsPage />} />
-          <Route path="/components/new" element={<ComponentFormPage />} />
-          <Route path="/components/:id/edit" element={<ComponentFormPage />} />
-          <Route path="/vehicles/:vehicleId/components/new" element={<ComponentFormPage />} />
-          <Route path="/work-orders" element={<WorkOrderListPage />} />
-          <Route path="/work-orders/new" element={<WorkOrderFormPage />} />
-          <Route path="/work-orders/:id" element={<WorkOrderDetailPage />} />
-          <Route path="/work-orders/:id/edit" element={<WorkOrderFormPage />} />
-          <Route path="/inventory" element={<InventoryPage />} />
-          <Route path="/inventory/parts/new" element={<SparePartFormPage />} />
-          <Route path="/inventory/parts/:id/edit" element={<SparePartFormPage />} />
-          <Route path="/inventory/purchase-orders" element={<PurchaseOrderPage />} />
-          <Route path="/inventory/purchase-orders/new" element={<PurchaseOrderFormPage />} />
-          <Route path="/inventory/purchase-orders/:id" element={<PurchaseOrderDetailPage />} />
-          <Route path="/inventory/purchase-orders/:id/edit" element={<PurchaseOrderFormPage />} />
-          <Route path="/analytics" element={<AnalyticsPage />} />
+          <Route path="/dashboard" element={gated('dashboard', <DashboardPage />)} />
+          <Route path="/vehicles" element={gated('vehicles', <VehicleListPage />)} />
+          <Route path="/vehicles/new" element={gated('vehicles', <VehicleFormPage />)} />
+          <Route path="/vehicles/:id" element={gated('vehicles', <VehicleDetailPage />)} />
+          <Route path="/vehicles/:id/edit" element={gated('vehicles', <VehicleFormPage />)} />
+          <Route path="/components" element={gated('components', <ComponentsPage />)} />
+          <Route path="/components/new" element={gated('components', <ComponentFormPage />)} />
+          <Route path="/components/:id/edit" element={gated('components', <ComponentFormPage />)} />
+          <Route path="/vehicles/:vehicleId/components/new" element={gated('components', <ComponentFormPage />)} />
+          <Route path="/work-orders" element={gated('work_orders', <WorkOrderListPage />)} />
+          <Route path="/work-orders/new" element={gated('work_orders', <WorkOrderFormPage />)} />
+          <Route path="/work-orders/:id" element={gated('work_orders', <WorkOrderDetailPage />)} />
+          <Route path="/work-orders/:id/edit" element={gated('work_orders', <WorkOrderFormPage />)} />
+          <Route path="/inventory" element={gated('inventory', <InventoryPage />)} />
+          <Route path="/inventory/parts/new" element={gated('inventory', <SparePartFormPage />)} />
+          <Route path="/inventory/parts/:id/edit" element={gated('inventory', <SparePartFormPage />)} />
+          <Route path="/inventory/purchase-orders" element={gated('inventory', <PurchaseOrderPage />)} />
+          <Route path="/inventory/purchase-orders/new" element={gated('inventory', <PurchaseOrderFormPage />)} />
+          <Route path="/inventory/purchase-orders/:id" element={gated('inventory', <PurchaseOrderDetailPage />)} />
+          <Route path="/inventory/purchase-orders/:id/edit" element={gated('inventory', <PurchaseOrderFormPage />)} />
+          <Route path="/analytics" element={gated('analytics', <AnalyticsPage />)} />
           <Route path="/calendar" element={<MaintenanceCalendarPage />} />
-          <Route path="/gps-tracking" element={<GPSTrackingPage />} />
+          <Route path="/gps-tracking" element={gated('gps_tracking', <GPSTrackingPage />)} />
           <Route path="/recurring-maintenance" element={<RecurringMaintenancePage />} />
           <Route path="/documents" element={<DocumentsPage />} />
           <Route path="/settings" element={<SettingsPage />} />
@@ -198,7 +198,7 @@ function App() {
           />
           <Route path="/forbidden" element={<ForbiddenPage />} />
           <Route path="*" element={<NotFoundPage />} />
-        </Routes>
+        </Routes></ProtectedRoute>
       </Suspense>
     </div>
     </ErrorBoundary>

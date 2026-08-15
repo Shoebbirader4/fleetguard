@@ -1,73 +1,16 @@
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { BellIcon, ClipboardDocumentCheckIcon, Cog6ToothIcon, PaintBrushIcon, ShieldCheckIcon, CreditCardIcon, UserGroupIcon, DocumentMagnifyingGlassIcon } from '@heroicons/react/24/outline';
+
+const settings = [
+  { path: '/settings/users', label: 'User management', description: 'Invite teammates, assign roles, and deactivate access.', icon: UserGroupIcon, tone: 'bg-indigo-50 text-indigo-700' },
+  { path: '/settings/checklists', label: 'Inspection checklists', description: 'Standardize inspections and capture repeatable field data.', icon: ClipboardDocumentCheckIcon, tone: 'bg-lime-50 text-lime-700' },
+  { path: '/settings/notifications', label: 'Notification preferences', description: 'Choose how your team receives alerts and reminders.', icon: BellIcon, tone: 'bg-amber-50 text-amber-700' },
+  { path: '/settings/appearance', label: 'Appearance', description: 'Control theme, density, and workspace presentation.', icon: PaintBrushIcon, tone: 'bg-pink-50 text-pink-700' },
+  { path: '/subscription', label: 'Plans and billing', description: 'Manage INR per-vehicle billing and feature access.', icon: CreditCardIcon, tone: 'bg-cyan-50 text-cyan-700' },
+  { path: '/audit-logs', label: 'Audit logs', description: 'Review security-sensitive activity across your workspace.', icon: DocumentMagnifyingGlassIcon, tone: 'bg-slate-100 text-slate-700' },
+];
 
 export default function SettingsPage() {
   const navigate = useNavigate();
-  const location = useLocation();
-
-  const tabs = [
-    { id: 'users', label: 'User Management', path: '/settings/users' },
-    { id: 'checklists', label: 'Inspection Checklists', path: '/settings/checklists' },
-    { id: 'notifications', label: 'Notification Preferences', path: '/settings/notifications' },
-    { id: 'appearance', label: 'Appearance', path: '/settings/appearance' },
-  ];
-
-  const activeTab = tabs.find((tab) => location.pathname.startsWith(tab.path))?.id || 'users';
-
-  const handleTabClick = (path: string) => {
-    navigate(path);
-  };
-
-  return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <header className="bg-white dark:bg-gray-800 shadow-soft">
-        <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
-          <h1 className="text-3xl font-bold leading-tight text-gray-900 dark:text-gray-100">Settings</h1>
-          <p className="mt-1 text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">
-            Manage your system configuration and preferences
-          </p>
-        </div>
-      </header>
-
-      <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-        {/* Tabs */}
-        <div className="card mb-6">
-          <div className="border-b border-gray-200 dark:border-gray-700">
-            <nav className="-mb-px flex space-x-8">
-              {tabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => handleTabClick(tab.path)}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm font-normal leading-normal transition-colors ${
-                    activeTab === tab.id
-                      ? 'border-primary-600 text-primary-600 dark:text-primary-400'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </nav>
-          </div>
-        </div>
-
-        {/* Tab Content Placeholder */}
-        <div className="card">
-          <p className="text-gray-600 dark:text-gray-400">
-            Please select a tab or navigate to a specific settings page.
-          </p>
-          <div className="mt-4 space-y-2">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => handleTabClick(tab.path)}
-                className="block w-full text-left px-4 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
-              >
-                → {tab.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      </main>
-    </div>
-  );
+  return <div className="min-h-screen bg-transparent"><header className="border-b border-slate-200/80 bg-white/70 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-950/70"><div className="mx-auto max-w-7xl px-5 py-8 sm:px-8"><div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-[.16em] text-indigo-600"><Cog6ToothIcon className="h-4 w-4" /> Workspace controls</div><h1 className="text-slate-950 dark:text-white">Settings</h1><p className="mt-2 max-w-2xl text-sm text-slate-500">Configure the people, policies, appearance, and commercial settings that keep your fleet operation running cleanly.</p></div></header><main className="mx-auto max-w-7xl px-5 py-8 sm:px-8"><div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">{settings.map(({ path, label, description, icon: Icon, tone }) => <button key={path} onClick={() => navigate(path)} className="card group text-left"><div className={`flex h-11 w-11 items-center justify-center rounded-2xl ${tone}`}><Icon className="h-5 w-5" /></div><h2 className="mt-5 text-lg text-slate-950 group-hover:text-indigo-600 dark:text-white">{label}</h2><p className="mt-2 text-sm leading-relaxed text-slate-500">{description}</p><div className="mt-5 text-sm font-semibold text-indigo-600">Open settings →</div></button>)}</div><div className="mt-8 rounded-2xl border border-indigo-100 bg-indigo-50/70 p-5 text-sm text-indigo-900"><div className="flex items-start gap-3"><ShieldCheckIcon className="h-5 w-5 shrink-0 text-indigo-600" /><div><div className="font-semibold">Security baseline</div><p className="mt-1 leading-relaxed text-indigo-800/80">FleetGuard protects every workspace with tenant isolation, role-based access, database-level vehicle entitlements, and an auditable activity trail.</p></div></div></div></main></div>;
 }

@@ -4,6 +4,7 @@ import { Bars3Icon, MoonIcon, SunIcon, XMarkIcon, ArrowRightOnRectangleIcon, Tru
 import { useAuthStore } from '../stores/authStore';
 import { useThemeStore } from '../stores/themeStore';
 import { getVisibleNavItems, isPathActive } from '../config/navigation';
+import { useSubscription } from '../hooks/useSubscription';
 
 function Brand() {
   return (
@@ -28,7 +29,8 @@ export default function Navigation() {
   const toggleTheme = useThemeStore((state) => state.toggleTheme);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
-  const visibleNavItems = user ? getVisibleNavItems(user.role) : [];
+  const { hasFeature } = useSubscription();
+  const visibleNavItems = user ? getVisibleNavItems(user.role).filter((item) => !item.feature || hasFeature(item.feature)) : [];
 
   useEffect(() => setMobileMenuOpen(false), [location.pathname]);
 

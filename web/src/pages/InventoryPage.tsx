@@ -7,7 +7,7 @@ import { SparePart } from '../types/inventory';
 import { useAuthStore } from '../stores/authStore';
 import ReceiveStockModal from '../components/ReceiveStockModal';
 
-const currency = (amount: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(amount);
+const currency = (amount: number) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(amount);
 
 function stockState(part: SparePart) {
   if (part.current_quantity <= 0) return { label: 'Out of stock', tone: 'bg-rose-50 text-rose-700 border-rose-100', dot: 'bg-rose-500' };

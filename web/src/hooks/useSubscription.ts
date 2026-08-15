@@ -1,138 +1,57 @@
-import { useState, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../stores/authStore';
 
-interface SubscriptionCheck {
-  allowed: boolean;
-  current_count: number;
-  vehicle_limit: number;
-  subscription_plan: string;
-  upgrade_message?: string;
+export type PlanCode = 'basic' | 'plus' | 'all';
+export type FeatureKey = 'vehicles' | 'component_health' | 'dashboard' | 'vehicle_tracking' | 'components' | 'analytics' | 'work_orders' | 'inventory' | 'gps_tracking' | 'reports' | 'team_management' | 'data_export' | 'api_access';
+
+export interface SubscriptionSnapshot {
+  tenant_id: string;
+  plan: PlanCode;
+  plan_name: string;
+  price_per_vehicle_inr: number;
+  billing_currency: 'INR';
+  billing_interval: 'monthly' | 'annual';
+  subscription_status: string;
+  vehicle_count: number;
+  features: Record<FeatureKey, boolean>;
 }
 
-interface SubscriptionStatus {
-  loading: boolean;
-  error: string | null;
-  canAddVehicle: boolean;
-  currentCount: number;
-  vehicleLimit: number;
-  subscriptionPlan: string;
-  upgradeMessage?: string;
-}
+interface SubscriptionResponse extends SubscriptionSnapshot { allowed: boolean; feature_allowed?: boolean; upgrade_message?: string; }
 
-/**
- * Hook to check subscription status and vehicle limits
- * Requirement 18.2: Enforce vehicle limits per subscription plan
- * Requirement 18.3: Prevent adding new vehicles and display upgrade prompt
- */
-export function useSubscription(): SubscriptionStatus {
+export function useSubscription() {
   const user = useAuthStore((state) => state.user);
-  const [loading, setLoading] = useState(true);
+  const [snapshot, setSnapshot] = useState<SubscriptionSnapshot | null>(null);
+  const [loading, setLoading] = useState(Boolean(user?.tenantId));
   const [error, setError] = useState<string | null>(null);
-  const [status, setStatus] = useState<SubscriptionCheck | null>(null);
 
-  useEffect(() => {
-    if (user?.tenantId) {
-      checkSubscription();
-    }
+  const check = useCallback(async (feature?: FeatureKey): Promise<SubscriptionResponse | null> => {
+    if (!user?.tenantId) return null;
+    const { data: sessionData } = await supabase.auth.getSession();
+    if (!sessionData.session) throw new Error('Not authenticated');
+    const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/subscription-enforcer`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${sessionData.session.access_token}` }, body: JSON.stringify({ tenant_id: user.tenantId, feature, action: feature ? 'feature:check' : 'vehicle:create' }) });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || 'Unable to check subscription');
+    return data as SubscriptionResponse;
   }, [user?.tenantId]);
 
-  const checkSubscription = async () => {
-    if (!user?.tenantId) {
-      setError('No tenant ID available');
-      setLoading(false);
-      return;
-    }
+  const refresh = useCallback(async () => {
+    if (!user?.tenantId) { setSnapshot(null); setLoading(false); return; }
+    try { setLoading(true); setError(null); const { data, error: rpcError } = await supabase.rpc('subscription_snapshot', { requested_tenant_id: user.tenantId }); if (rpcError) throw rpcError; setSnapshot(data as SubscriptionSnapshot); } catch (err) { setError(err instanceof Error ? err.message : 'Unable to load subscription'); } finally { setLoading(false); }
+  }, [user?.tenantId]);
 
-    try {
-      setLoading(true);
-      setError(null);
+  useEffect(() => { refresh(); }, [refresh]);
 
-      // Call subscription-enforcer Edge Function
-      const { data: sessionData } = await supabase.auth.getSession();
-      if (!sessionData.session) {
-        throw new Error('Not authenticated');
-      }
-
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/subscription-enforcer`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${sessionData.session.access_token}`,
-          },
-          body: JSON.stringify({
-            tenant_id: user.tenantId,
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to check subscription');
-      }
-
-      const data: SubscriptionCheck = await response.json();
-      setStatus(data);
-    } catch (err) {
-      console.error('Error checking subscription:', err);
-      setError(err instanceof Error ? err.message : 'Failed to check subscription');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return {
-    loading,
-    error,
-    canAddVehicle: status?.allowed ?? false,
-    currentCount: status?.current_count ?? 0,
-    vehicleLimit: status?.vehicle_limit ?? 0,
-    subscriptionPlan: status?.subscription_plan ?? '',
-    upgradeMessage: status?.upgrade_message,
-  };
+  const hasFeature = (feature: FeatureKey) => Boolean(snapshot?.features?.[feature]);
+  return { snapshot, loading, error, refresh, hasFeature, check, canAddVehicle: snapshot ? snapshot.subscription_status === 'active' : false, currentCount: snapshot?.vehicle_count || 0, vehicleLimit: snapshot?.vehicle_count || 0, subscriptionPlan: snapshot?.plan || '' };
 }
 
-/**
- * Check if vehicle can be added before creation
- * Returns null if allowed, otherwise returns error message
- */
 export async function checkVehicleCreationAllowed(tenantId: string): Promise<string | null> {
   try {
     const { data: sessionData } = await supabase.auth.getSession();
-    if (!sessionData.session) {
-      return 'Not authenticated';
-    }
-
-    const response = await fetch(
-      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/subscription-enforcer`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${sessionData.session.access_token}`,
-        },
-        body: JSON.stringify({
-          tenant_id: tenantId,
-        }),
-      }
-    );
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      return errorData.error || 'Failed to check subscription';
-    }
-
-    const data: SubscriptionCheck = await response.json();
-
-    if (!data.allowed) {
-      return data.upgrade_message || 'Vehicle limit reached';
-    }
-
-    return null;
-  } catch (err) {
-    console.error('Error checking vehicle creation:', err);
-    return err instanceof Error ? err.message : 'Failed to check subscription';
-  }
+    if (!sessionData.session) return 'Not authenticated';
+    const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/subscription-enforcer`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${sessionData.session.access_token}` }, body: JSON.stringify({ tenant_id: tenantId, action: 'vehicle:create' }) });
+    const data = await response.json();
+    return data.allowed ? null : data.upgrade_message || 'Your subscription does not allow adding another vehicle.';
+  } catch (err) { return err instanceof Error ? err.message : 'Failed to check vehicle entitlement'; }
 }

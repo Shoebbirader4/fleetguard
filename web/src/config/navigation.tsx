@@ -11,6 +11,7 @@
  */
 
 import type { UserRole } from '../types/user';
+import type { FeatureKey } from '../hooks/useSubscription';
 
 /**
  * Navigation item interface
@@ -20,6 +21,7 @@ export interface NavItem {
   path: string;
   icon: React.ComponentType<{ className?: string }>;
   roles: UserRole[];
+  feature?: FeatureKey;
 }
 
 /**
@@ -146,6 +148,7 @@ export const NAV_ITEMS: NavItem[] = [
   {
     label: 'Work Orders',
     path: '/work-orders',
+    feature: 'work_orders',
     icon: ClipboardDocumentListIcon,
     roles: ['company_owner', 'fleet_manager', 'workshop_manager', 'maintenance_engineer', 
             'mechanic', 'inspector', 'auditor'],
@@ -153,6 +156,7 @@ export const NAV_ITEMS: NavItem[] = [
   {
     label: 'Inventory',
     path: '/inventory',
+    feature: 'inventory',
     icon: CubeIcon,
     roles: ['company_owner', 'fleet_manager', 'workshop_manager', 'maintenance_engineer', 
             'mechanic', 'accountant', 'auditor'],
@@ -160,6 +164,7 @@ export const NAV_ITEMS: NavItem[] = [
   {
     label: 'Purchase Orders',
     path: '/inventory/purchase-orders',
+    feature: 'inventory',
     icon: ShoppingCartIcon,
     roles: ['company_owner', 'fleet_manager', 'workshop_manager', 'accountant'],
   },
@@ -178,6 +183,7 @@ export const NAV_ITEMS: NavItem[] = [
   {
     label: 'Components',
     path: '/components',
+    feature: 'components',
     icon: ComponentIcon,
     roles: ['company_owner', 'fleet_manager', 'workshop_manager', 'maintenance_engineer', 'mechanic'],
   },
@@ -198,18 +204,21 @@ export const NAV_ITEMS: NavItem[] = [
   {
     label: 'GPS Tracking',
     path: '/gps-tracking',
+    feature: 'gps_tracking',
     icon: MapIcon,
     roles: ['company_owner', 'fleet_manager', 'workshop_manager'],
   },
   {
     label: 'Recurring Maintenance',
     path: '/recurring-maintenance',
+    feature: 'work_orders',
     icon: ClockIcon,
     roles: ['company_owner', 'fleet_manager', 'workshop_manager', 'maintenance_engineer'],
   },
   {
     label: 'Reports',
     path: '/analytics',
+    feature: 'reports',
     icon: ChartBarIcon,
     roles: ['company_owner', 'fleet_manager', 'workshop_manager', 'maintenance_engineer', 
             'inspector', 'accountant', 'auditor'],

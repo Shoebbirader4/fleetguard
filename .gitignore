@@ -104,6 +104,7 @@ logs/
 
 # Database dumps
 *.sql
+!supabase/migrations/*.sql
 *.dump
 *.backup
 

@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
 import { costReportingApi } from '../lib/api';
+import { formatINR } from '../lib/money';
 import { useAuthStore } from '../stores/authStore';
 import {
   BarChart,
@@ -232,12 +233,7 @@ export default function AnalyticsPage() {
     };
   }, [workOrders, vehicles, selectedVehicleId]);
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(amount);
-  };
+  const formatCurrency = (amount: number) => formatINR(amount);
 
   const handleExportPDF = () => {
     if (!workOrders || workOrders.length === 0) {

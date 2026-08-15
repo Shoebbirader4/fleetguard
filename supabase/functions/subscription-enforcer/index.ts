@@ -1,295 +1,62 @@
-/**
- * Subscription Enforcer Edge Function
- * 
- * Enforces subscription limits and displays upgrade prompts for tenants.
- * 
- * Requirements:
- * - 18.2: Enforce vehicle limits per subscription plan
- * - 18.3: Prevent adding new vehicles and display upgrade prompt when limit reached
- * 
- * Input:
- * {
- *   tenant_id: UUID
- * }
- * 
- * Output:
- * {
- *   allowed: boolean,
- *   current_count: number,
- *   vehicle_limit: number,
- *   subscription_plan: string,
- *   upgrade_message?: string
- * }
- */
-
-import {
-  authMiddleware,
-  forbiddenResponse,
-  successResponse,
-  corsPreflightResponse,
-} from '../_shared/auth-middleware.ts';
+import { authMiddleware, forbiddenResponse, successResponse, corsPreflightResponse } from '../_shared/auth-middleware.ts';
 import { authorize } from '../shared/auth/permissions.ts';
-import { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
+import { createClient, SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 
-// ============================================================================
-// Types
-// ============================================================================
+interface RequestBody { tenant_id?: string; feature?: string; action?: 'vehicle:create' | 'feature:check'; }
+interface Plan { code: string; name: string; monthly_price_inr: number; vehicle_limit: number | null; features: Record<string, boolean>; }
 
-interface CheckSubscriptionRequest {
-  tenant_id: string;
+const jsonHeaders = { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'authorization, content-type' };
+
+async function getServiceClient() {
+  return createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
 }
 
-interface CheckSubscriptionResponse {
-  allowed: boolean;
-  current_count: number;
-  vehicle_limit: number;
-  subscription_plan: string;
-  upgrade_message?: string;
+async function getPlan(client: SupabaseClient, tenantId: string): Promise<Plan> {
+  const { data, error } = await client.from('tenants').select('subscription_plan_code, subscription_plan, subscription_status, billing_currency, price_per_vehicle_inr').eq('id', tenantId).single();
+  if (error || !data) throw new Error(error?.message || 'Tenant not found');
+  if (data.subscription_status !== 'active') throw new Error('Subscription is not active');
+  const code = data.subscription_plan_code || (data.subscription_plan === 'starter' ? 'basic' : data.subscription_plan === 'professional' ? 'plus' : data.subscription_plan === 'enterprise' ? 'all' : data.subscription_plan || 'basic');
+  const planResult = await client.from('subscription_plans').select('code, name, monthly_price_inr, vehicle_limit, features').eq('code', code).single();
+  if (planResult.error || !planResult.data) throw new Error(planResult.error?.message || 'Subscription plan not found');
+  return planResult.data as Plan;
 }
-
-interface TenantSubscription {
-  subscription_plan: string;
-  vehicle_limit: number;
-  subscription_status: string;
-}
-
-// ============================================================================
-// Constants
-// ============================================================================
-
-const UPGRADE_MESSAGES = {
-  starter: 'You have reached the vehicle limit for your Starter plan (50 vehicles). Upgrade to Professional to add up to 200 vehicles with advanced analytics and reporting features.',
-  professional: 'You have reached the vehicle limit for your Professional plan (200 vehicles). Upgrade to Enterprise for unlimited vehicles and premium support.',
-  enterprise: 'Your Enterprise plan supports unlimited vehicles. Contact your account manager for assistance.',
-};
-
-// ============================================================================
-// Subscription Enforcement Functions
-// ============================================================================
-
-/**
- * Get tenant subscription details
- * Uses service role to bypass RLS since this is an internal check
- */
-async function getTenantSubscription(
-  tenantId: string
-): Promise<TenantSubscription> {
-  // Create a service role client to bypass RLS
-  const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-  const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-  
-  const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2.39.3');
-  const serviceClient = createClient(supabaseUrl, supabaseServiceKey);
-
-  const { data, error } = await serviceClient
-    .from('tenants')
-    .select('subscription_plan, vehicle_limit, subscription_status')
-    .eq('id', tenantId);
-
-  if (error) {
-    throw new Error(`Failed to fetch tenant subscription: ${error.message}`);
-  }
-
-  if (!data || data.length === 0) {
-    throw new Error(`Tenant not found: ${tenantId}`);
-  }
-
-  if (data.length > 1) {
-    console.warn(`[Subscription Enforcer] Multiple tenants found for ${tenantId}, using first one`);
-  }
-
-  return data[0];
-}
-
-/**
- * Count active vehicles for tenant
- */
-async function countActiveVehicles(
-  supabase: SupabaseClient,
-  tenantId: string
-): Promise<number> {
-  const { data, error, count } = await supabase
-    .from('vehicles')
-    .select('*', { count: 'exact', head: true })
-    .eq('tenant_id', tenantId)
-    .eq('status', 'active');
-
-  if (error) {
-    console.error('[Subscription Enforcer] Error counting vehicles:', error);
-    throw new Error(`Failed to count vehicles: ${error.message}`);
-  }
-
-  return count || 0;
-}
-
-/**
- * Check if tenant can add more vehicles
- */
-function canAddVehicle(
-  currentCount: number,
-  vehicleLimit: number,
-  subscriptionStatus: string
-): boolean {
-  // Check subscription is active
-  if (subscriptionStatus !== 'active') {
-    return false;
-  }
-
-  // Check vehicle limit
-  return currentCount < vehicleLimit;
-}
-
-/**
- * Get upgrade message based on subscription plan
- */
-function getUpgradeMessage(subscriptionPlan: string): string {
-  const plan = subscriptionPlan.toLowerCase();
-  return UPGRADE_MESSAGES[plan as keyof typeof UPGRADE_MESSAGES] || 
-    'You have reached your vehicle limit. Contact support to upgrade your plan.';
-}
-
-// ============================================================================
-// Main Handler
-// ============================================================================
 
 Deno.serve(async (req) => {
-  // Handle CORS preflight
-  if (req.method === 'OPTIONS') {
-    return corsPreflightResponse();
-  }
-
+  if (req.method === 'OPTIONS') return corsPreflightResponse();
   try {
-    // Step 1: Authenticate
     const { authContext, supabase, error: authError } = await authMiddleware(req);
+    if (authError) return new Response(JSON.stringify(authError), { status: 401, headers: jsonHeaders });
+    const auth = authContext!;
+    const permission = authorize(auth, 'vehicles:create');
+    if (!permission.authorized) return forbiddenResponse(permission.reason);
+    if (req.method !== 'POST') return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405, headers: jsonHeaders });
+    const body = (await req.json()) as RequestBody;
+    if (!body.tenant_id || body.tenant_id !== auth.tenantId) return new Response(JSON.stringify({ error: 'Invalid tenant_id' }), { status: 403, headers: jsonHeaders });
 
-    if (authError) {
-      console.error('[Subscription Enforcer] Auth error:', authError);
-      return new Response(JSON.stringify(authError), {
-        status: authError.code === 'MISSING_TOKEN' ? 401 : 403,
-        headers: { 
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Headers': 'authorization, content-type',
-        },
-      });
-    }
-
-    // Step 2: Check permission
-    // Only admins and managers can check subscription limits
-    const authResult = authorize(authContext!, 'vehicles:create');
-    if (!authResult.authorized) {
-      console.warn('[Subscription Enforcer] Authorization failed:', {
-        userId: authContext!.userId,
-        role: authContext!.role,
-        reason: authResult.reason,
-      });
-      return forbiddenResponse(authResult.reason);
-    }
-
-    // Step 3: Parse and validate request body
-    if (req.method !== 'POST') {
-      return new Response(
-        JSON.stringify({ error: 'Method not allowed. Use POST.' }),
-        { 
-          status: 405, 
-          headers: { 
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Headers': 'authorization, content-type',
-          } 
-        }
-      );
-    }
-
-    const body: CheckSubscriptionRequest = await req.json();
-
-    // Validate tenant_id
-    if (!body.tenant_id) {
-      return new Response(
-        JSON.stringify({
-          error: 'Missing required field',
-          details: 'tenant_id is required',
-        }),
-        { 
-          status: 400, 
-          headers: { 
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Headers': 'authorization, content-type',
-          } 
-        }
-      );
-    }
-
-    // Step 4: Verify tenant_id matches authenticated user's tenant
-    if (body.tenant_id !== authContext!.tenantId) {
-      console.warn('[Subscription Enforcer] Tenant ID mismatch:', {
-        requestedTenantId: body.tenant_id,
-        authTenantId: authContext!.tenantId,
-      });
-      return forbiddenResponse('Cannot check subscription for a different tenant');
-    }
-
-    // Step 5: Get tenant subscription details
-    console.log('[Subscription Enforcer] Fetching subscription for tenant:', body.tenant_id);
-    const subscription = await getTenantSubscription(body.tenant_id);
-
-    console.log('[Subscription Enforcer] Subscription details:', {
-      plan: subscription.subscription_plan,
-      limit: subscription.vehicle_limit,
-      status: subscription.subscription_status,
-    });
-
-    // Step 6: Count current active vehicles
-    console.log('[Subscription Enforcer] Counting active vehicles for tenant:', body.tenant_id);
-    const currentCount = await countActiveVehicles(supabase, body.tenant_id);
-
-    console.log('[Subscription Enforcer] Current vehicle count:', currentCount);
-
-    // Step 7: Check if tenant can add more vehicles
-    const allowed = canAddVehicle(
-      currentCount,
-      subscription.vehicle_limit,
-      subscription.subscription_status
-    );
-
-    console.log('[Subscription Enforcer] Enforcement result:', {
-      allowed,
-      currentCount,
-      vehicleLimit: subscription.vehicle_limit,
-    });
-
-    // Step 8: Build response
-    const response: CheckSubscriptionResponse = {
+    const service = await getServiceClient();
+    const plan = await getPlan(service, body.tenant_id);
+    const { count, error: countError } = await service.from('vehicles').select('*', { count: 'exact', head: true }).eq('tenant_id', body.tenant_id).eq('status', 'active');
+    if (countError) throw countError;
+    const currentCount = count || 0;
+    const feature = body.feature || (body.action === 'feature:check' ? 'dashboard' : undefined);
+    const featureAllowed = feature ? Boolean(plan.features[feature]) : true;
+    const limitAllowed = plan.vehicle_limit == null || currentCount < plan.vehicle_limit;
+    const allowed = featureAllowed && limitAllowed;
+    const response = {
       allowed,
       current_count: currentCount,
-      vehicle_limit: subscription.vehicle_limit,
-      subscription_plan: subscription.subscription_plan,
+      vehicle_limit: plan.vehicle_limit,
+      subscription_plan: plan.code,
+      plan_name: plan.name,
+      price_per_vehicle_inr: plan.monthly_price_inr,
+      billing_currency: 'INR',
+      feature,
+      feature_allowed: featureAllowed,
+      features: plan.features,
+      upgrade_message: !featureAllowed ? `The ${plan.name} plan does not include ${feature}. Upgrade to Basic Plus or All Access to unlock it.` : !limitAllowed ? 'Vehicle limit reached. Upgrade your plan to add more vehicles.' : undefined,
     };
-
-    // Add upgrade message if limit reached
-    if (!allowed) {
-      response.upgrade_message = getUpgradeMessage(subscription.subscription_plan);
-    }
-
     return successResponse(response, 200);
-  } catch (err) {
-    console.error('[Subscription Enforcer] Unhandled error:', err);
-    console.error('[Subscription Enforcer] Error stack:', err instanceof Error ? err.stack : 'No stack trace');
-    return new Response(
-      JSON.stringify({
-        error: 'Internal server error',
-        details: err instanceof Error ? err.message : 'Unknown error',
-        stack: err instanceof Error ? err.stack : undefined,
-      }),
-      { 
-        status: 500, 
-        headers: { 
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Headers': 'authorization, content-type',
-        } 
-      }
-    );
+  } catch (error) {
+    return new Response(JSON.stringify({ error: error instanceof Error ? error.message : 'Internal server error' }), { status: 500, headers: jsonHeaders });
   }
 });
