@@ -226,6 +226,9 @@ export default function SignUpPage() {
           <p className="text-gray-600 dark:text-gray-400 text-sm font-normal leading-normal">
             Start managing your fleet with FleetGuard AI
           </p>
+          <div className="mt-4 rounded-2xl border border-lime-200 bg-lime-50 px-4 py-3 text-left text-sm text-lime-800">
+            <strong>7-day free trial:</strong> monitor up to 3 vehicles with fleet visibility and component health. No card required.
+          </div>
         </div>
 
         {error && (

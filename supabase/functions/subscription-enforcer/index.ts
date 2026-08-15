@@ -3,7 +3,7 @@ import { authorize } from '../shared/auth/permissions.ts';
 import { createClient, SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 
 interface RequestBody { tenant_id?: string; feature?: string; action?: 'vehicle:create' | 'feature:check'; }
-interface Plan { code: string; name: string; monthly_price_inr: number; vehicle_limit: number | null; features: Record<string, boolean>; }
+interface Plan { code: string; name: string; monthly_price_inr: number; vehicle_limit: number | null; features: Record<string, boolean>; trial_ends_at?: string | null; trial_vehicle_limit?: number; subscription_status?: string; }
 
 const jsonHeaders = { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'authorization, content-type' };
 
@@ -12,9 +12,11 @@ async function getServiceClient() {
 }
 
 async function getPlan(client: SupabaseClient, tenantId: string): Promise<Plan> {
-  const { data, error } = await client.from('tenants').select('subscription_plan_code, subscription_plan, subscription_status, billing_currency, price_per_vehicle_inr').eq('id', tenantId).single();
+  const { data, error } = await client.from('tenants').select('subscription_plan_code, subscription_plan, subscription_status, billing_currency, price_per_vehicle_inr, trial_ends_at, trial_vehicle_limit, trial_used').eq('id', tenantId).single();
   if (error || !data) throw new Error(error?.message || 'Tenant not found');
-  if (data.subscription_status !== 'active') throw new Error('Subscription is not active');
+  const trialActive = data.subscription_status === 'trialing' && data.trial_ends_at && new Date(data.trial_ends_at).getTime() > Date.now() && data.trial_used === false;
+  if (data.subscription_status !== 'active' && !trialActive) throw new Error('Subscription or trial is not active');
+  if (trialActive) return { code: 'trial', name: '7-day trial', monthly_price_inr: 0, vehicle_limit: data.trial_vehicle_limit || 3, trial_ends_at: data.trial_ends_at, trial_vehicle_limit: data.trial_vehicle_limit || 3, subscription_status: 'trialing', features: { vehicles: true, component_health: true, dashboard: true, vehicle_tracking: true, components: true } };
   const code = data.subscription_plan_code || (data.subscription_plan === 'starter' ? 'basic' : data.subscription_plan === 'professional' ? 'plus' : data.subscription_plan === 'enterprise' ? 'all' : data.subscription_plan || 'basic');
   const planResult = await client.from('subscription_plans').select('code, name, monthly_price_inr, vehicle_limit, features').eq('code', code).single();
   if (planResult.error || !planResult.data) throw new Error(planResult.error?.message || 'Subscription plan not found');
@@ -53,7 +55,7 @@ Deno.serve(async (req) => {
       feature,
       feature_allowed: featureAllowed,
       features: plan.features,
-      upgrade_message: !featureAllowed ? `The ${plan.name} plan does not include ${feature}. Upgrade to Basic Plus or All Access to unlock it.` : !limitAllowed ? 'Vehicle limit reached. Upgrade your plan to add more vehicles.' : undefined,
+      upgrade_message: !featureAllowed ? `The ${plan.name} does not include ${feature}. Upgrade to Basic Plus or All Access to unlock it.` : !limitAllowed ? (plan.code === 'trial' ? 'Your free trial is limited to 3 active vehicles. Choose a paid plan to continue adding vehicles.' : 'Vehicle limit reached. Upgrade your plan to add more vehicles.') : undefined,
     };
     return successResponse(response, 200);
   } catch (error) {

@@ -90,11 +90,19 @@ serve(async (req) => {
       .from('tenants')
       .insert({
         name: companyName,
-        subscription_plan: 'starter',
-        vehicle_limit: 10,
-        subscription_status: 'active',
+        subscription_plan: 'basic',
+        subscription_plan_code: 'basic',
+        vehicle_limit: 3,
+        trial_vehicle_limit: 3,
+        subscription_status: 'trialing',
+        trial_started_at: new Date().toISOString(),
+        trial_ends_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+        trial_used: false,
+        billing_currency: 'INR',
+        price_per_vehicle_inr: 300,
+        billing_interval: 'monthly',
         billing_cycle: 'monthly',
-        next_billing_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 30 days from now
+        next_billing_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
       })
       .select()
       .single();

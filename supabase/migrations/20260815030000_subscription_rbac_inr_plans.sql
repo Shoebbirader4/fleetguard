@@ -236,3 +236,147 @@ DROP POLICY IF EXISTS "Role permissions are readable" ON public.role_permissions
 CREATE POLICY "Role permissions are readable" ON public.role_permissions FOR SELECT TO authenticated USING (true);
 
 COMMENT ON FUNCTION public.has_permission(text, uuid) IS 'Tenant-scoped RBAC permission check for frontend gates, RPCs, and RLS policies.';
+
+-- Seven-day trial: limited to three active vehicles and visibility/component health.
+ALTER TABLE public.tenants ADD COLUMN IF NOT EXISTS trial_started_at timestamptz;
+ALTER TABLE public.tenants ADD COLUMN IF NOT EXISTS trial_ends_at timestamptz;
+ALTER TABLE public.tenants ADD COLUMN IF NOT EXISTS trial_vehicle_limit integer NOT NULL DEFAULT 3;
+ALTER TABLE public.tenants ADD COLUMN IF NOT EXISTS trial_used boolean NOT NULL DEFAULT false;
+
+CREATE OR REPLACE FUNCTION public.start_fleetguard_trial()
+RETURNS trigger
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public
+AS $$
+BEGIN
+  IF NEW.trial_started_at IS NULL AND coalesce(NEW.trial_used, false) = false THEN
+    NEW.trial_started_at := now();
+    NEW.trial_ends_at := now() + interval '7 days';
+    NEW.trial_vehicle_limit := 3;
+    NEW.subscription_status := 'trialing';
+    NEW.billing_currency := 'INR';
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.fleetguard_trial_active(requested_tenant_id uuid DEFAULT public.current_tenant_id())
+RETURNS boolean
+LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.tenants
+    WHERE id = requested_tenant_id
+      AND subscription_status = 'trialing'
+      AND trial_ends_at IS NOT NULL
+      AND trial_ends_at > now()
+      AND trial_used = false
+  )
+$$;
+
+CREATE OR REPLACE FUNCTION public.expire_fleetguard_trial()
+RETURNS trigger
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public
+AS $$
+BEGIN
+  IF OLD.subscription_status = 'trialing' AND OLD.trial_ends_at IS NOT NULL AND OLD.trial_ends_at <= now() THEN
+    NEW.subscription_status := 'expired';
+    NEW.trial_used := true;
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS trigger_start_fleetguard_trial ON public.tenants;
+CREATE TRIGGER trigger_start_fleetguard_trial BEFORE INSERT ON public.tenants FOR EACH ROW EXECUTE FUNCTION public.start_fleetguard_trial();
+DROP TRIGGER IF EXISTS trigger_expire_fleetguard_trial ON public.tenants;
+CREATE TRIGGER trigger_expire_fleetguard_trial BEFORE UPDATE ON public.tenants FOR EACH ROW EXECUTE FUNCTION public.expire_fleetguard_trial();
+
+CREATE OR REPLACE FUNCTION public.has_feature(feature_key text, requested_tenant_id uuid DEFAULT public.current_tenant_id())
+RETURNS boolean
+LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path = public
+AS $$
+DECLARE enabled boolean;
+BEGIN
+  IF public.fleetguard_trial_active(requested_tenant_id) THEN
+    RETURN feature_key IN ('vehicles', 'component_health', 'dashboard', 'vehicle_tracking', 'components');
+  END IF;
+  SELECT (p.features ->> feature_key)::boolean INTO enabled
+  FROM public.tenants t JOIN public.subscription_plans p ON p.code = coalesce(t.subscription_plan_code, t.subscription_plan)
+  WHERE t.id = requested_tenant_id AND t.subscription_status = 'active';
+  RETURN coalesce(enabled, false);
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.subscription_snapshot(requested_tenant_id uuid DEFAULT public.current_tenant_id())
+RETURNS jsonb
+LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path = public
+AS $$
+DECLARE result jsonb; tenant_row public.tenants%ROWTYPE; plan_row public.subscription_plans%ROWTYPE; is_trial boolean;
+BEGIN
+  SELECT * INTO tenant_row FROM public.tenants WHERE id = requested_tenant_id;
+  is_trial := public.fleetguard_trial_active(requested_tenant_id);
+  SELECT * INTO plan_row FROM public.subscription_plans WHERE code = coalesce(tenant_row.subscription_plan_code, tenant_row.subscription_plan, 'basic');
+  SELECT jsonb_build_object(
+    'tenant_id', tenant_row.id,
+    'plan', CASE WHEN is_trial THEN 'trial' ELSE plan_row.code END,
+    'plan_name', CASE WHEN is_trial THEN '7-day trial' ELSE plan_row.name END,
+    'price_per_vehicle_inr', CASE WHEN is_trial THEN 0 ELSE plan_row.monthly_price_inr END,
+    'billing_currency', 'INR',
+    'billing_interval', coalesce(tenant_row.billing_interval, 'monthly'),
+    'subscription_status', CASE WHEN is_trial THEN 'trialing' ELSE tenant_row.subscription_status END,
+    'trial_started_at', tenant_row.trial_started_at,
+    'trial_ends_at', tenant_row.trial_ends_at,
+    'trial_vehicle_limit', tenant_row.trial_vehicle_limit,
+    'vehicle_count', (SELECT count(*) FROM public.vehicles v WHERE v.tenant_id = tenant_row.id AND v.status = 'active'),
+    'features', CASE WHEN is_trial THEN '{"vehicles":true,"component_health":true,"dashboard":true,"vehicle_tracking":true,"components":true,"analytics":false,"work_orders":false,"inventory":false,"gps_tracking":false,"reports":false,"team_management":false,"data_export":false,"api_access":false}'::jsonb ELSE plan_row.features END
+  ) INTO result;
+  RETURN result;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.enforce_vehicle_entitlement()
+RETURNS trigger
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public
+AS $$
+DECLARE tenant_uuid uuid; max_vehicles integer; used_vehicles integer; tenant_status text;
+BEGIN
+  tenant_uuid := coalesce(NEW.tenant_id, public.current_tenant_id());
+  SELECT t.subscription_status, CASE WHEN t.subscription_status = 'trialing' THEN t.trial_vehicle_limit ELSE coalesce(p.vehicle_limit, 2147483647) END INTO tenant_status, max_vehicles
+  FROM public.tenants t LEFT JOIN public.subscription_plans p ON p.code = coalesce(t.subscription_plan_code, t.subscription_plan)
+  WHERE t.id = tenant_uuid AND (t.subscription_status = 'active' OR (t.subscription_status = 'trialing' AND t.trial_ends_at > now() AND t.trial_used = false));
+  IF tenant_status IS NULL THEN RAISE EXCEPTION 'Active FleetGuard subscription or trial required'; END IF;
+  SELECT count(*) INTO used_vehicles FROM public.vehicles WHERE tenant_id = tenant_uuid AND status = 'active';
+  IF TG_OP = 'INSERT' AND coalesce(NEW.status, 'active') = 'active' AND used_vehicles >= max_vehicles THEN
+    RAISE EXCEPTION 'Vehicle limit reached. Your 7-day trial is limited to 3 vehicles; upgrade to continue.' USING ERRCODE = 'P0001';
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.subscription_snapshot(requested_tenant_id uuid DEFAULT public.current_tenant_id())
+RETURNS jsonb
+LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path = public
+AS $$
+DECLARE result jsonb; tenant_row public.tenants%ROWTYPE; plan_row public.subscription_plans%ROWTYPE; is_trial boolean; is_paid boolean;
+BEGIN
+  SELECT * INTO tenant_row FROM public.tenants WHERE id = requested_tenant_id;
+  is_trial := public.fleetguard_trial_active(requested_tenant_id);
+  is_paid := tenant_row.subscription_status = 'active';
+  SELECT * INTO plan_row FROM public.subscription_plans WHERE code = coalesce(tenant_row.subscription_plan_code, tenant_row.subscription_plan, 'basic');
+  SELECT jsonb_build_object(
+    'tenant_id', tenant_row.id,
+    'plan', CASE WHEN is_trial THEN 'trial' ELSE coalesce(plan_row.code, 'basic') END,
+    'plan_name', CASE WHEN is_trial THEN '7-day trial' WHEN is_paid THEN coalesce(plan_row.name, 'Basic') ELSE 'Trial expired' END,
+    'price_per_vehicle_inr', CASE WHEN is_trial OR NOT is_paid THEN 0 ELSE plan_row.monthly_price_inr END,
+    'billing_currency', 'INR',
+    'billing_interval', coalesce(tenant_row.billing_interval, 'monthly'),
+    'subscription_status', CASE WHEN is_trial THEN 'trialing' WHEN is_paid THEN 'active' ELSE 'expired' END,
+    'trial_started_at', tenant_row.trial_started_at,
+    'trial_ends_at', tenant_row.trial_ends_at,
+    'trial_vehicle_limit', tenant_row.trial_vehicle_limit,
+    'vehicle_count', (SELECT count(*) FROM public.vehicles v WHERE v.tenant_id = tenant_row.id AND v.status = 'active'),
+    'features', CASE WHEN is_trial THEN '{"vehicles":true,"component_health":true,"dashboard":true,"vehicle_tracking":true,"components":true,"analytics":false,"work_orders":false,"inventory":false,"gps_tracking":false,"reports":false,"team_management":false,"data_export":false,"api_access":false}'::jsonb WHEN is_paid THEN coalesce(plan_row.features, '{}'::jsonb) ELSE '{}'::jsonb END
+  ) INTO result;
+  RETURN result;
+END;
+$$;

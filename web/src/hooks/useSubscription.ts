@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../stores/authStore';
 
-export type PlanCode = 'basic' | 'plus' | 'all';
+export type PlanCode = 'trial' | 'basic' | 'plus' | 'all';
 export type FeatureKey = 'vehicles' | 'component_health' | 'dashboard' | 'vehicle_tracking' | 'components' | 'analytics' | 'work_orders' | 'inventory' | 'gps_tracking' | 'reports' | 'team_management' | 'data_export' | 'api_access';
 
 export interface SubscriptionSnapshot {
@@ -14,6 +14,9 @@ export interface SubscriptionSnapshot {
   billing_interval: 'monthly' | 'annual';
   subscription_status: string;
   vehicle_count: number;
+  trial_started_at?: string | null;
+  trial_ends_at?: string | null;
+  trial_vehicle_limit?: number;
   features: Record<FeatureKey, boolean>;
 }
 
@@ -43,7 +46,9 @@ export function useSubscription() {
   useEffect(() => { refresh(); }, [refresh]);
 
   const hasFeature = (feature: FeatureKey) => Boolean(snapshot?.features?.[feature]);
-  return { snapshot, loading, error, refresh, hasFeature, check, canAddVehicle: snapshot ? snapshot.subscription_status === 'active' : false, currentCount: snapshot?.vehicle_count || 0, vehicleLimit: snapshot?.vehicle_count || 0, subscriptionPlan: snapshot?.plan || '' };
+  const trialDaysRemaining = snapshot?.trial_ends_at ? Math.max(0, Math.ceil((new Date(snapshot.trial_ends_at).getTime() - Date.now()) / 86400000)) : 0;
+  const vehicleLimit = snapshot?.subscription_status === 'trialing' ? (snapshot.trial_vehicle_limit || 3) : undefined;
+  return { snapshot, loading, error, refresh, hasFeature, check, trialDaysRemaining, isTrial: snapshot?.subscription_status === 'trialing', canAddVehicle: Boolean(snapshot && (snapshot.subscription_status === 'active' || (snapshot.subscription_status === 'trialing' && trialDaysRemaining > 0))), currentCount: snapshot?.vehicle_count || 0, vehicleLimit, subscriptionPlan: snapshot?.plan || '' };
 }
 
 export async function checkVehicleCreationAllowed(tenantId: string): Promise<string | null> {

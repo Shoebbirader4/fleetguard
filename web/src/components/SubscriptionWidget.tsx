@@ -31,7 +31,7 @@ export default function SubscriptionWidget() {
     );
   }
 
-  const usagePercentage = (currentCount / vehicleLimit) * 100;
+  const usagePercentage = vehicleLimit ? (currentCount / vehicleLimit) * 100 : 0;
   const isNearLimit = usagePercentage >= 90;
   const isAtLimit = !canAddVehicle;
 
@@ -60,7 +60,7 @@ export default function SubscriptionWidget() {
         <div className="flex justify-between items-center mb-2">
           <span className="text-sm font-normal leading-normal text-gray-600 dark:text-gray-400">Vehicle Usage</span>
           <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-            {currentCount} / {vehicleLimit === 999999 ? '∞' : vehicleLimit}
+            {currentCount} / {vehicleLimit ?? '∞'}
           </span>
         </div>
         <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
