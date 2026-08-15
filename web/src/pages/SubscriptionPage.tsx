@@ -30,8 +30,8 @@ export default function SubscriptionPage() {
   const requestPlanChange = async (plan: PlanCode) => {
     if (!user?.tenantId || plan === selectedPlan) return;
     setRequestedPlan(plan); setMessage('');
-    const { error: updateError } = await supabase.from('tenants').update({ subscription_plan_code: plan, subscription_plan: plan, price_per_vehicle_inr: plansFromDb.find((item) => item.code === plan)?.price || 300, billing_currency: 'INR', billing_interval: 'monthly' }).eq('id', user.tenantId);
-    if (updateError) { setMessage(updateError.message); } else { setMessage('Plan updated. Your new feature access is available now. Billing is calculated monthly from active vehicles.'); await refresh(); }
+    const { data, error: updateError } = await supabase.rpc('request_plan_change', { requested_plan: plan });
+    if (updateError) { setMessage(updateError.message); } else if (data?.status === 'pending_payment') { setMessage(`Your ${plansFromDb.find((item) => item.code === plan)?.name || plan} request is ready for payment confirmation. Feature access will activate after billing is confirmed.`); } else { setMessage('That plan is already active.'); await refresh(); }
     setRequestedPlan(null);
   };
 
