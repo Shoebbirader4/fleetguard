@@ -1,33 +1,14 @@
 import { Link } from 'react-router-dom';
+import { ArrowRightIcon, ChartBarIcon, CheckCircleIcon, MapIcon, ShieldCheckIcon, TruckIcon } from '@heroicons/react/24/outline';
 import { useThemeStore } from '../stores/themeStore';
+
+const capabilities = [
+  { icon: ChartBarIcon, title: 'See the whole fleet', copy: 'Health, utilization, costs, and alerts in one calm operating view.' },
+  { icon: ShieldCheckIcon, title: 'Prevent downtime', copy: 'Turn service signals into clear maintenance actions before they become incidents.' },
+  { icon: MapIcon, title: 'Move with confidence', copy: 'Track vehicles, stock, and workshop capacity from one connected workspace.' },
+];
 
 export default function HomePage() {
   const { theme, toggleTheme } = useThemeStore();
-
-  return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-primary-50 to-primary-100 dark:from-gray-900 dark:to-gray-800">
-      <div className="text-center space-y-6 px-4">
-        <h1 className="text-5xl font-bold text-primary-900 dark:text-primary-100">
-          FleetGuard AI
-        </h1>
-        <p className="text-xl text-gray-700 dark:text-gray-300 max-w-2xl">
-          Enterprise-grade fleet maintenance management with predictive analytics
-        </p>
-        <div className="flex gap-4 justify-center mt-8">
-          <Link to="/signup" className="btn-primary">
-            Get Started
-          </Link>
-          <Link to="/login" className="btn-secondary">
-            Sign In
-          </Link>
-        </div>
-        <button
-          onClick={toggleTheme}
-          className="mt-4 px-4 py-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-        >
-          Toggle Theme ({theme})
-        </button>
-      </div>
-    </div>
-  );
+  return <div className="min-h-screen overflow-hidden bg-[#0b1220] text-white"><div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_8%,rgba(184,243,107,.20),transparent_28rem),radial-gradient(circle_at_8%_80%,rgba(51,71,217,.25),transparent_30rem)]" /><header className="relative z-10 mx-auto flex max-w-7xl items-center justify-between px-5 py-6 sm:px-8"><div className="flex items-center gap-3"><div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#b8f36b] text-slate-950 shadow-[0_0_28px_rgba(184,243,107,.28)]"><TruckIcon className="h-5 w-5" /></div><div><div className="font-semibold tracking-tight">FleetGuard AI</div><div className="text-[10px] font-bold uppercase tracking-[.18em] text-slate-400">Operations OS</div></div></div><div className="flex items-center gap-3"><button onClick={toggleTheme} className="hidden rounded-xl px-3 py-2 text-sm font-semibold text-slate-300 hover:bg-white/10 sm:block">Use {theme === 'dark' ? 'light' : 'dark'} mode</button><Link to="/login" className="rounded-xl border border-white/15 px-4 py-2.5 text-sm font-semibold text-white hover:bg-white/10">Sign in</Link></div></header><main className="relative z-10 mx-auto max-w-7xl px-5 pb-20 pt-10 sm:px-8 sm:pt-20"><div className="grid items-center gap-14 lg:grid-cols-[1.05fr_.95fr]"><section><div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#b8f36b]/25 bg-[#b8f36b]/10 px-3 py-1.5 text-xs font-bold uppercase tracking-[.14em] text-[#b8f36b]"><span className="h-2 w-2 rounded-full bg-[#b8f36b] shadow-[0_0_10px_#b8f36b]" /> Fleet intelligence, without the noise</div><h1 className="max-w-3xl text-5xl font-semibold leading-[.98] tracking-[-.06em] text-white sm:text-7xl">Run a sharper fleet.<br /><span className="text-[#b8f36b]">Every single day.</span></h1><p className="mt-7 max-w-xl text-lg leading-relaxed text-slate-300">FleetGuard AI connects vehicles, maintenance, inventory, and people into one operating system built for teams that cannot afford surprises.</p><div className="mt-9 flex flex-wrap gap-3"><Link to="/signup" className="btn-primary px-5 py-3">Start your command center <ArrowRightIcon className="h-4 w-4" /></Link><Link to="/login" className="inline-flex items-center gap-2 rounded-xl border border-white/15 px-5 py-3 text-sm font-semibold text-white hover:bg-white/10">Explore the workspace</Link></div><div className="mt-10 flex flex-wrap gap-x-6 gap-y-3 text-sm text-slate-400"><span className="inline-flex items-center gap-2"><CheckCircleIcon className="h-4 w-4 text-[#b8f36b]" /> Live fleet visibility</span><span className="inline-flex items-center gap-2"><CheckCircleIcon className="h-4 w-4 text-[#b8f36b]" /> Predictive maintenance</span><span className="inline-flex items-center gap-2"><CheckCircleIcon className="h-4 w-4 text-[#b8f36b]" /> Workshop-ready workflows</span></div></section><section className="relative"><div className="absolute -inset-8 rounded-[3rem] bg-[#b8f36b]/10 blur-3xl" /><div className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-white/[.06] p-4 shadow-2xl backdrop-blur-xl"><div className="rounded-[1.5rem] border border-white/10 bg-[#111a27] p-5"><div className="flex items-center justify-between"><div><div className="text-xs font-bold uppercase tracking-[.14em] text-slate-500">Fleet command center</div><div className="mt-1 text-lg font-semibold">Good morning, operator</div></div><div className="h-9 w-9 rounded-full bg-gradient-to-br from-[#b8f36b] to-indigo-500" /></div><div className="mt-6 grid grid-cols-3 gap-3"><div className="rounded-2xl bg-white/[.05] p-3"><div className="text-xs text-slate-500">Fleet health</div><div className="mt-2 text-2xl font-semibold text-[#b8f36b]">92%</div><div className="mt-2 h-1.5 rounded-full bg-slate-700"><div className="h-full w-[92%] rounded-full bg-[#b8f36b]" /></div></div><div className="rounded-2xl bg-white/[.05] p-3"><div className="text-xs text-slate-500">On route</div><div className="mt-2 text-2xl font-semibold">48</div><div className="mt-2 text-xs text-emerald-400">+12% today</div></div><div className="rounded-2xl bg-white/[.05] p-3"><div className="text-xs text-slate-500">Open alerts</div><div className="mt-2 text-2xl font-semibold text-amber-300">07</div><div className="mt-2 text-xs text-slate-500">3 need action</div></div></div><div className="mt-4 rounded-2xl bg-gradient-to-br from-indigo-500/30 to-slate-800 p-5"><div className="flex items-center justify-between"><div><div className="text-xs text-slate-400">Maintenance trend</div><div className="mt-1 font-semibold">Fewer surprises this month</div></div><div className="rounded-lg bg-[#b8f36b]/15 px-2 py-1 text-xs font-bold text-[#b8f36b]">-18.4%</div></div><div className="mt-7 flex h-24 items-end gap-2">{[25,38,30,52,46,66,58,84,72,92].map((height, index) => <div key={index} className="flex-1 rounded-t-md bg-gradient-to-t from-indigo-500 to-[#b8f36b] opacity-80" style={{ height: `${height}%` }} />)}</div></div></div></div></section></div><section className="mt-24 grid gap-4 border-t border-white/10 pt-8 md:grid-cols-3">{capabilities.map(({ icon: Icon, title, copy }) => <div key={title} className="rounded-2xl border border-white/10 bg-white/[.04] p-5"><Icon className="h-6 w-6 text-[#b8f36b]" /><h2 className="mt-5 text-lg font-semibold">{title}</h2><p className="mt-2 text-sm leading-relaxed text-slate-400">{copy}</p></div>)}</section></main></div>;
 }

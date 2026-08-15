@@ -1,248 +1,108 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --fg-ink: #0b1220;
+  --fg-surface: #ffffff;
+  --fg-muted: #667085;
+  --fg-line: #e6eaf0;
+  --fg-accent: #b8f36b;
+  --fg-accent-strong: #8fdb3f;
+  --fg-cobalt: #3347d9;
+  --fg-danger: #ef6b73;
+  --fg-radius: 18px;
+}
+
 @layer base {
+  * { box-sizing: border-box; }
+  html { background: #f4f6f8; }
   body {
-    @apply bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100;
-    font-family: 'Inter', system-ui, sans-serif;
+    @apply text-slate-900 dark:text-slate-100;
+    margin: 0;
+    min-width: 320px;
+    background:
+      radial-gradient(circle at 84% -10%, rgba(184,243,107,.14), transparent 26rem),
+      #f4f6f8;
+    color: var(--fg-ink);
+    font-family: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
   }
-
-  /* Typography Scale - FleetGuard AI Design System */
-  /* Heading 1: 2.25rem (36px), font-bold, leading-tight */
-  h1 {
-    @apply text-4xl font-bold leading-tight;
-  }
-
-  /* Heading 2: 1.875rem (30px), font-bold, leading-tight */
-  h2 {
-    @apply text-3xl font-bold leading-tight;
-  }
-
-  /* Heading 3: 1.5rem (24px), font-semibold, leading-snug */
-  h3 {
-    @apply text-2xl font-semibold leading-snug;
-  }
-
-  /* Heading 4: 1.25rem (20px), font-semibold, leading-snug */
-  h4 {
-    @apply text-xl font-semibold leading-snug;
-  }
-
-  /* Body Large: 1.125rem (18px), font-normal, leading-relaxed */
-  h5 {
-    @apply text-lg font-normal leading-relaxed;
-  }
-
-  /* Body: 1rem (16px), font-normal, leading-normal */
-  h6 {
-    @apply text-base font-normal leading-normal;
-  }
-
-  /* Body: 1rem (16px), font-normal, leading-normal */
-  p {
-    @apply text-base font-normal leading-normal;
-  }
+  .dark body, body.dark { background: #0a101a; }
+  h1, h2, h3, h4, h5, h6 { font-family: 'Space Grotesk', 'DM Sans', sans-serif; letter-spacing: -0.035em; }
+  h1 { @apply text-3xl font-semibold leading-tight sm:text-4xl; }
+  h2 { @apply text-2xl font-semibold leading-tight; }
+  h3 { @apply text-xl font-semibold leading-snug; }
+  p { @apply leading-relaxed; }
+  button, a, input, select, textarea { transition: border-color .18s ease, background-color .18s ease, color .18s ease, box-shadow .18s ease, transform .18s ease; }
+  button:active:not(:disabled) { transform: scale(.98); }
+  ::selection { background: rgba(184,243,107,.5); color: #111827; }
 }
 
 @layer components {
-  /* FleetGuard AI Design System - Component Patterns */
-  
-  /* Typography Utility Classes */
-  .heading-1 {
-    @apply text-4xl font-bold leading-tight;
-  }
-
-  .heading-2 {
-    @apply text-3xl font-bold leading-tight;
-  }
-
-  .heading-3 {
-    @apply text-2xl font-semibold leading-snug;
-  }
-
-  .heading-4 {
-    @apply text-xl font-semibold leading-snug;
-  }
-
-  .body-large {
-    @apply text-lg font-normal leading-relaxed;
-  }
-
-  .body {
-    @apply text-base font-normal leading-normal;
-  }
-
-  .body-small {
-    @apply text-sm font-normal leading-normal;
-  }
-
-  .caption {
-    @apply text-xs font-normal leading-tight;
-  }
-
-  /* Button Variants */
   .btn-primary {
-    @apply bg-blue-600 hover:bg-blue-700 text-white font-normal px-4 py-2 rounded-lg 
-           transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 
-           disabled:opacity-50 disabled:cursor-not-allowed leading-normal;
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-950 shadow-sm;
+    background: var(--fg-accent);
   }
-
+  .btn-primary:hover { background: var(--fg-accent-strong); box-shadow: 0 8px 24px rgba(143,219,63,.22); }
   .btn-secondary {
-    @apply bg-white hover:bg-gray-50 text-gray-700 font-normal px-4 py-2 rounded-lg border 
-           border-gray-300 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 
-           focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-800 
-           dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-700 leading-normal;
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold;
+    border-color: var(--fg-line); background: rgba(255,255,255,.78); color: #344054;
   }
-
-  .btn-danger {
-    @apply bg-red-600 hover:bg-red-700 text-white font-normal px-4 py-2 rounded-lg 
-           transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 
-           disabled:opacity-50 disabled:cursor-not-allowed leading-normal;
-  }
-
-  .btn-success {
-    @apply bg-green-600 hover:bg-green-700 text-white font-normal px-4 py-2 rounded-lg 
-           transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 
-           disabled:opacity-50 disabled:cursor-not-allowed leading-normal;
-  }
-
-  /* Card Pattern */
+  .btn-secondary:hover { background: #fff; border-color: #cdd5df; }
+  .btn-danger { @apply inline-flex items-center justify-center gap-2 rounded-xl bg-rose-500 px-4 py-2.5 text-sm font-semibold text-white; }
+  .btn-success { @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-950; background: var(--fg-accent); }
   .card {
-    @apply bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 
-           dark:border-gray-700 p-6 hover:shadow-md transition-shadow;
+    @apply rounded-2xl border p-5;
+    border-color: var(--fg-line);
+    background: rgba(255,255,255,.82);
+    box-shadow: 0 14px 36px rgba(18, 30, 50, .055);
+    backdrop-filter: blur(12px);
   }
-
-  /* Form Input Pattern */
+  .card:hover { box-shadow: 0 18px 44px rgba(18, 30, 50, .09); }
   .input-field {
-    @apply w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm 
-           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
-           disabled:bg-gray-50 disabled:text-gray-500 dark:bg-gray-700 
-           dark:border-gray-600 dark:text-white dark:focus:ring-blue-500;
+    @apply w-full rounded-xl border px-3.5 py-2.5 text-sm outline-none;
+    border-color: #d8dee8; background: rgba(255,255,255,.9); color: #101828;
   }
-
-  /* Label Pattern */
-  .label {
-    @apply block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1;
-  }
-
-  /* Badge Pattern */
-  .badge {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
-  }
-
-  .badge-blue {
-    @apply badge bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300;
-  }
-
-  .badge-green {
-    @apply badge bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300;
-  }
-
-  .badge-yellow {
-    @apply badge bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300;
-  }
-
-  .badge-red {
-    @apply badge bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300;
-  }
-
-  .badge-gray {
-    @apply badge bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300;
-  }
-
-  /* Status Badge Variants */
-  .badge-success {
-    @apply badge bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300;
-  }
-
-  .badge-warning {
-    @apply badge bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300;
-  }
-
-  .badge-error {
-    @apply badge bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300;
-  }
-
-  .badge-info {
-    @apply badge bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300;
-  }
+  .input-field:focus { border-color: var(--fg-cobalt); box-shadow: 0 0 0 4px rgba(51,71,217,.12); }
+  .label { @apply mb-1.5 block text-xs font-bold uppercase tracking-[.08em] text-slate-500; }
+  .badge { @apply inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold tracking-wide; }
+  .badge-blue { @apply badge bg-indigo-50 text-indigo-700; }
+  .badge-green, .badge-success { @apply badge bg-lime-100 text-lime-800; }
+  .badge-yellow, .badge-warning { @apply badge bg-amber-50 text-amber-700; }
+  .badge-red, .badge-error { @apply badge bg-rose-50 text-rose-700; }
+  .badge-gray { @apply badge bg-slate-100 text-slate-600; }
+  .badge-info { @apply badge bg-cyan-50 text-cyan-700; }
+  .heading-1 { @apply text-3xl font-semibold leading-tight sm:text-4xl; }
+  .heading-2 { @apply text-2xl font-semibold leading-tight; }
+  .heading-3 { @apply text-xl font-semibold leading-snug; }
+  .heading-4 { @apply text-lg font-semibold; }
+  .body-large { @apply text-lg leading-relaxed; }
+  .body-small { @apply text-sm leading-normal; }
+  .caption { @apply text-xs leading-tight; }
+  .focus-visible { @apply outline-none ring-2 ring-indigo-500 ring-offset-2; }
+  .touch-target { @apply min-h-[44px] min-w-[44px]; }
+  .btn-mobile { @apply min-h-[44px] text-base sm:text-sm; }
+  .input-mobile { @apply min-h-[44px] px-4 py-3 text-base sm:py-2 sm:text-sm; }
+  .container-mobile { @apply px-3 sm:px-4 lg:px-6; }
+  .scroll-container { @apply relative overflow-x-auto; }
 }
 
 @layer utilities {
-  /* Accessibility Utilities - Task 30 */
-  
-  /* Screen reader only - visible to screen readers but not visually */
-  .sr-only {
-    @apply absolute w-px h-px p-0 -m-px overflow-hidden whitespace-nowrap border-0;
-    clip: rect(0, 0, 0, 0);
-  }
+  .sr-only { @apply absolute h-px w-px -m-px overflow-hidden whitespace-nowrap border-0 p-0; clip: rect(0,0,0,0); }
+  .focus\:not-sr-only:focus { @apply static h-auto w-auto overflow-visible whitespace-normal p-0 m-0; clip: auto; }
+  .safe-area-top { padding-top: env(safe-area-inset-top); }
+  .safe-area-bottom { padding-bottom: env(safe-area-inset-bottom); }
+}
 
-  /* Show element when focused (for skip links) */
-  .focus\:not-sr-only:focus {
-    @apply static w-auto h-auto overflow-visible whitespace-normal;
-    clip: auto;
-    padding: initial;
-    margin: initial;
-  }
+.dark .card { border-color: #1c293a; background: rgba(17, 26, 39, .82); box-shadow: 0 16px 40px rgba(0,0,0,.18); }
+.dark .btn-secondary { border-color: #263548; background: #111a27; color: #e5e7eb; }
+.dark .btn-secondary:hover { background: #182334; }
+.dark .input-field { border-color: #2b3b50; background: #111a27; color: #f8fafc; }
+.dark .label { color: #94a3b8; }
 
-  /* Visible focus indicator with high contrast */
-  .focus-visible {
-    @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
-  }
-
-  /* Mobile Responsiveness Utilities - Task 29 */
-  
-  /* Touch Target Minimum Size (44x44px) - Task 29.1, 29.3 */
-  .touch-target {
-    @apply min-w-[44px] min-h-[44px];
-  }
-
-  /* Mobile-friendly button */
-  .btn-mobile {
-    @apply min-h-[44px] text-base sm:text-sm;
-  }
-
-  /* Mobile-optimized input */
-  .input-mobile {
-    @apply min-h-[44px] text-base sm:text-sm px-4 py-3 sm:py-2;
-  }
-
-  /* Responsive padding utilities */
-  .container-mobile {
-    @apply px-3 sm:px-4 lg:px-6;
-  }
-
-  /* Responsive text sizing */
-  .text-responsive {
-    @apply text-base sm:text-sm;
-  }
-
-  .heading-responsive {
-    @apply text-lg sm:text-xl lg:text-2xl;
-  }
-
-  /* Mobile-first spacing */
-  .spacing-mobile {
-    @apply space-y-4 sm:space-y-6;
-  }
-
-  /* Grid responsive utilities */
-  .grid-mobile {
-    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4;
-  }
-
-  /* Horizontal scroll container with shadows - Task 29.2 */
-  .scroll-container {
-    @apply overflow-x-auto relative;
-  }
-
-  /* Safe area for mobile devices with notches */
-  .safe-area-top {
-    padding-top: env(safe-area-inset-top);
-  }
-
-  .safe-area-bottom {
-    padding-bottom: env(safe-area-inset-bottom);
-  }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
 }

@@ -45,6 +45,7 @@ export default function ReceiveStockModal({ isOpen, onClose, part }: ReceiveStoc
           current_quantity: part.current_quantity + qty,
           unit_cost: cost,
         })
+        .eq('tenant_id', user!.tenantId)
         .eq('id', part.id);
 
       if (partError) throw partError;
@@ -53,6 +54,7 @@ export default function ReceiveStockModal({ isOpen, onClose, part }: ReceiveStoc
       const { error: transError } = await supabase
         .from('stock_transactions')
         .insert({
+          tenant_id: user!.tenantId,
           part_id: part.id,
           transaction_type: 'purchase',
           quantity: qty,
