@@ -7,6 +7,8 @@ import { getVINError, validateVehicleYear, validateOdometer } from '../lib/valid
 import { checkVehicleCreationAllowed } from '../hooks/useSubscription';
 import { useAuthStore } from '../stores/authStore';
 import { toast } from '../components/ToastContainer';
+import ActionDialog from '../components/ActionDialog';
+import { useActionDialog } from '../hooks/useActionDialog';
 import DriverSelector from '../components/DriverSelector';
 
 export default function VehicleFormPage() {
@@ -36,6 +38,8 @@ export default function VehicleFormPage() {
   const [errors, setErrors] = useState<Partial<Record<keyof VehicleFormData, string>>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const actionDialog = useActionDialog();
+  const [pendingSave, setPendingSave] = useState<VehicleFormData | null>(null);
 
   // Fetch vehicle data for edit mode
   const { data: vehicle, isLoading: vehicleLoading } = useQuery({
@@ -96,6 +100,7 @@ export default function VehicleFormPage() {
     },
     onError: (error: Error) => {
       toast.error(`Failed to create vehicle: ${error.message}`);
+      actionDialog.error('Vehicle creation failed', error.message);
     },
   });
 
@@ -122,6 +127,7 @@ export default function VehicleFormPage() {
     },
     onError: (error: Error) => {
       toast.error(`Failed to update vehicle: ${error.message}`);
+      actionDialog.error('Vehicle update failed', error.message);
     },
   });
 
@@ -166,6 +172,22 @@ export default function VehicleFormPage() {
     return Object.keys(newErrors).length === 0;
   };
 
+  const saveVehicle = async (cleanedData: VehicleFormData) => {
+    setPendingSave(null);
+    setIsSubmitting(true);
+    setSubmitError(null);
+    actionDialog.progress(isEditMode ? 'Updating vehicle' : 'Creating vehicle', 'Saving the vehicle record and applying tenant and subscription checks.');
+    try {
+      if (isEditMode) await updateMutation.mutateAsync(cleanedData);
+      else await createMutation.mutateAsync(cleanedData);
+    } catch (error) {
+      console.error('Error saving vehicle:', error);
+      setSubmitError(error instanceof Error ? error.message : 'Failed to save vehicle');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -182,32 +204,17 @@ export default function VehicleFormPage() {
       }
     }
 
-    setIsSubmitting(true);
-    setSubmitError(null);
-
-    try {
-      // Clean up empty strings to null for optional fields
-      const cleanedData = {
-        ...formData,
-        chassis_number: formData.chassis_number || undefined,
-        engine_number: formData.engine_number || undefined,
-        gps_device_id: formData.gps_device_id || undefined,
-        assigned_route: formData.assigned_route || undefined,
-        depot_location: formData.depot_location || undefined,
-        assigned_driver_id: formData.assigned_driver_id || undefined,
-      };
-
-      if (isEditMode) {
-        await updateMutation.mutateAsync(cleanedData);
-      } else {
-        await createMutation.mutateAsync(cleanedData);
-      }
-    } catch (error) {
-      console.error('Error saving vehicle:', error);
-      setSubmitError(error instanceof Error ? error.message : 'Failed to save vehicle');
-    } finally {
-      setIsSubmitting(false);
-    }
+    const cleanedData = {
+      ...formData,
+      chassis_number: formData.chassis_number || undefined,
+      engine_number: formData.engine_number || undefined,
+      gps_device_id: formData.gps_device_id || undefined,
+      assigned_route: formData.assigned_route || undefined,
+      depot_location: formData.depot_location || undefined,
+      assigned_driver_id: formData.assigned_driver_id || undefined,
+    };
+    setPendingSave(cleanedData);
+    actionDialog.confirm(isEditMode ? 'Confirm vehicle update' : 'Confirm vehicle creation', isEditMode ? 'Save these changes to the vehicle record?' : 'Create this vehicle and add it to your active fleet?');
   };
 
   const handleCancel = () => {
@@ -231,6 +238,7 @@ export default function VehicleFormPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <ActionDialog open={actionDialog.state.open} status={actionDialog.state.status} title={actionDialog.state.title} message={actionDialog.state.message} onClose={actionDialog.close} onConfirm={() => pendingSave && saveVehicle(pendingSave)} />
       <header className="bg-white dark:bg-gray-800 shadow-soft">
         <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-4">
